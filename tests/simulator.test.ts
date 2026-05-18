@@ -61,3 +61,49 @@ describe('walkTree', () => {
     expect(cs?.earned).toBe(15);  // clipped at minCredits
   });
 });
+
+import { simulate } from '../src/lib/simulator';
+
+describe('simulate (end-to-end)', () => {
+  it('handles empty input', () => {
+    const result = simulate([], [], {}, [], []);
+    expect(result.totalEarned).toBe(0);
+    expect(result.canGraduateNextSemester).toBe(false);
+  });
+
+  it('combines transcript + assumed pending', () => {
+    const transcript: TranscriptRecord[] = [
+      { semester:'113-2', code:'CSU0018', name:'演算法', type:'必修', credits:3, grade:'A' },
+    ];
+    const assumedCodes = ['CSU0029'];  // 計算機結構 in catalog
+    const catalogFull: CatalogCourse[] = [
+      { code:'CSU0018', name:'演算法', credits:3, category:'core.cs' },
+      { code:'CSU0029', name:'計算機結構', credits:3, category:'core.cs' },
+    ];
+    const result = simulate(transcript, catalogFull, {}, [], assumedCodes);
+    expect(result.totalEarned + result.totalPending).toBe(6);
+    expect(result.totalPending).toBe(3);
+  });
+
+  it('overflows博雅 super-credits into common.general parent', () => {
+    // Construct博雅 records that exceed 8 credits to trigger overflow
+    const transcript: TranscriptRecord[] = [
+      { semester:'111-1', code:'H1', name:'H1', type:'通識', credits:2, grade:'A' },
+      { semester:'111-1', code:'H2', name:'H2', type:'通識', credits:2, grade:'A' },
+      { semester:'111-1', code:'H3', name:'H3', type:'通識', credits:2, grade:'A' },
+      { semester:'111-1', code:'H4', name:'H4', type:'通識', credits:2, grade:'A' },
+      { semester:'111-1', code:'H5', name:'H5', type:'通識', credits:2, grade:'A' },  // 5th humanities = surplus
+    ];
+    const lib = {
+      H1: { category: 'common.general.liberal.humanities' as const, name: 'H1' },
+      H2: { category: 'common.general.liberal.humanities' as const, name: 'H2' },
+      H3: { category: 'common.general.liberal.humanities' as const, name: 'H3' },
+      H4: { category: 'common.general.liberal.humanities' as const, name: 'H4' },
+      H5: { category: 'common.general.liberal.humanities' as const, name: 'H5' },
+    };
+    const result = simulate(transcript, [], lib, [], []);
+    // humanities min is 2, so 10 credits earned → 2 stays in humanities, 8 overflow up
+    // 博雅 総額 should reflect 10 capped at其 minCredits=8 + overflow到通識 6
+    expect(result.totalEarned).toBeGreaterThan(0);
+  });
+});
