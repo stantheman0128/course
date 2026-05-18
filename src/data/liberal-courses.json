@@ -1,0 +1,15 @@
+{
+  "0AUG462": {"category": "common.general.liberal.social", "name": "個人投資理財"},
+  "03UG024": {"category": "common.general.liberal.natural", "name": "環境與傳播"},
+  "05UG009": {"category": "common.general.liberal.social", "name": "科技與社會"},
+  "01UG011": {"category": "common.general.liberal.humanities", "name": "亞裔美國文學與電影的藝術形式"},
+  "06UG014": {"category": "common.general.liberal.humanities", "name": "科技與人文的對話"},
+  "05UG016": {"category": "common.general.crossDomain", "name": "運算思維與程式設計"},
+  "03UG003": {"category": "common.general.liberal.social", "name": "多元文化"},
+  "05UG017": {"category": "common.general.crossDomain", "name": "資料科學與程式設計"},
+  "03UG027": {"category": "common.general.liberal.social", "name": "女性文學、性別平等理論與婦運"},
+  "03UG029": {"category": "common.general.crossDomain", "name": "管理與電影"},
+  "06UG004": {"category": "common.general.liberal.natural", "name": "星星月亮太陽－天文漫談"},
+  "06UG005": {"category": "common.general.liberal.natural", "name": "奈米科技"},
+  "06UG021": {"category": "common.general.liberal.natural", "name": "宇宙中的生命與太空環境"}
+}
