@@ -8,19 +8,29 @@
 
 `course-v1.7.html` is an 2047-line single-file HTML/CSS/JS app that visualises Stan's graduation credit progress at 國立臺灣師範大學資工系 (NTNU CS). It contains a glassmorphic UI with a stellar canvas background, a 4-card stats panel, a tappable sidebar of "current semester" courses, and a tree view of the graduation requirements. It currently shows 114-1 (Fall 2025) courses as "in progress", but Stan has since completed 114-1 (with two failed courses he was unaware of) and is now nearing the end of 114-2 (Spring 2026).
 
+### Cohort and rules
+
+Stan is a **110 學年度入學** (NTNU CS, 2021 cohort). The 110 修業規定 PDF 附錄
+originally specified 校共同必修 28 + 自由選修 31. A **112.09.22 amendment**
+revised these to 32 and 27 — bringing 110 to the same numeric structure as the
+111 cohort (32 + 33 + 36 + 27 = 128). This spec encodes the post-amendment rules.
+
+Catalog content draws from the 111 學年 course-architecture PDF (more
+comprehensive: includes 資料視覺化, 即時系統, 應用密碼學, 智慧城市的資料科學與通訊
+— opened after 110). 110 students may take these as 系選修 or 自由選修.
+
 ### Problems with v1.7
 
-1. Footer says "110 學年度入學適用" but Stan is actually a **111 學年度** entrant — wrong rule set referenced.
-2. Sidebar 114-1 courses still marked "修課中" — stale; in reality these are done (with 星星月亮太陽 E + 資訊專題（一）：資訊系統 E failed).
-3. Category structure mixes "系必修 15 + 系選修 54" instead of the official "系核心必修 33 + 系選修 36"; numbers add to 128 but display structure does not match official rules.
-4. Historical transcript is hand-curated in inline JS — missing all 停修 (withdrawn) and 不及格 (failed) records, no retake history. Not maintainable.
-5. No graduation-prediction capability beyond toggling 114-1 simulation.
-6. Single HTML file — hard to test, hard to refactor, hard to add features.
+1. Sidebar 114-1 courses still marked "修課中" — stale; in reality these are done (with 星星月亮太陽 E + 資訊專題（一）：資訊系統 E failed).
+2. Category structure mixes "系必修 15 + 系選修 54" (per the un-amended PDF table) instead of the post-amendment "系核心必修 33 + 系選修 36"; numbers add to 128 but the display structure does not match the amended rules.
+3. Historical transcript is hand-curated in inline JS — missing all 停修 (withdrawn) and 不及格 (failed) records, no retake history. Not maintainable.
+4. No graduation-prediction capability beyond toggling 114-1 simulation.
+5. Single HTML file — hard to test, hard to refactor, hard to add features.
 
 ### Goals
 
 1. Use **`scoreExport.xls`** as single source of truth for transcript history.
-2. Encode **111 學年度 official rules** verbatim from the PDF; structure matches the official document.
+2. Encode **110 學年度 official rules (post-112.09.22 amendment)** verbatim; structure matches the official document.
 3. Show **114-2 (Spring 2026)** courses in the sidebar with "assume passed" simulation, mirroring v1.7's interaction model.
 4. Add a **graduation-gap predictor**: if the user unchecks a 114-2 course (assuming non-pass), the tree shows the category it would have satisfied, and the GapAdvisor lists what 115-1 courses the user can use to fill that category.
 5. Refactor from single HTML to **React + Vite + TypeScript** modular project; allow the credit-rule logic to be unit-tested in isolation.
@@ -29,7 +39,7 @@
 
 ### Non-goals
 
-- Multi-academic-year rule switching (111 only for now).
+- Multi-academic-year rule switching (110 only for now).
 - Bilingual i18n.
 - PDF export.
 - Multi-user accounts.
@@ -44,13 +54,13 @@ course/
 ├─ src/
 │  ├─ lib/                          # Framework-agnostic core (pure TS, unit-tested)
 │  │  ├─ types.ts                   # Course, Grade, CategoryNode types
-│  │  ├─ creditRules.ts             # 111 學年規則: tree, minCredits, overflow
+│  │  ├─ creditRules.ts             # 110 學年規則 (post-112.09.22): tree, minCredits, overflow
 │  │  ├─ catalog.ts                 # Course-catalog helpers (code → category)
 │  │  ├─ transcript.ts              # TranscriptRecord → categorised assignment
 │  │  └─ simulator.ts               # assumedPassed → SimulationResult
 │  ├─ data/
 │  │  ├─ transcript.json            # From scoreExport.xls (script-generated)
-│  │  ├─ catalog-111.json           # 111 學年 course catalog (PDF → JSON)
+│  │  ├─ catalog-110.json           # Catalog drawn from 111 學年 PDF (more comprehensive)
 │  │  └─ current-semester.json      # 114-2 enrolled courses
 │  ├─ themes/
 │  │  ├─ legacy/
@@ -65,7 +75,7 @@ course/
 │  └─ main.tsx                      # React Router: /, /legacy, /modern
 ├─ scripts/
 │  ├─ sync_transcript.py            # xls → transcript.json
-│  └─ sync_catalog.py               # PDF → catalog-111.json (semi-auto)
+│  └─ sync_catalog.py               # PDF → catalog-110.json (semi-auto; uses 111 PDF source)
 ├─ tests/
 │  ├─ creditRules.test.ts
 │  ├─ simulator.test.ts             # Uses real transcript as fixture
@@ -73,8 +83,10 @@ course/
 │  └─ components/                   # Component tests for key interactions
 ├─ docs/
 │  ├─ catalog-source/               # Original PDFs preserved
-│  │  ├─ 111學年度-...課程架構表.pdf
-│  │  └─ 111學年度學士班修業規定...pdf
+│  │  ├─ 110學年度-國立臺灣師範大學資訊工程學系課程架構表.pdf
+│  │  ├─ 110學年度學士班修業規定.pdf
+│  │  ├─ 111學年度-國立臺灣師範大學資訊工程學系課程架構表.pdf
+│  │  └─ 111學年度學士班修業規定-修訂共同必修32.pdf
 │  ├─ deployment.md                 # Cloudflare Pages procedure
 │  └─ superpowers/specs/            # This spec lives here
 ├─ public/
@@ -204,7 +216,7 @@ export interface SimulationResult {
 ### JSON shapes
 
 `transcript.json`: array of `TranscriptRecord`.
-`catalog-111.json`: array of `CatalogCourse`.
+`catalog-110.json`: array of `CatalogCourse`.
 `current-semester.json`: `{ semester: "114-2", courses: [{ code, name }, ...] }`. `credits` and `category` looked up from catalog.
 
 ### Course → category mapping
@@ -231,8 +243,12 @@ export interface SimulationResult {
 
 ### Rule tree (`src/lib/creditRules.ts`)
 
+Encodes the **110 學年規則 post-112.09.22 amendment**. Original 110 PDF specified
+校共同必修 28 + 自由選修 31; the amendment changed these to 32 and 27 (sum
+unchanged at 128). Rule tree below uses post-amendment numbers.
+
 ```typescript
-export const RULES_111: CategoryRule = {
+export const RULES_110: CategoryRule = {
   id: 'total', label: '畢業總學分', minCredits: 128, children: [
     {
       id: 'common', label: '一、校共同必修', minCredits: 32, children: [
@@ -422,7 +438,7 @@ Persisted to `localStorage['course.assumedPassed.v1']`. Theme switch does not re
 - Skip zero-credit non-exemption records (military-education courses)
 - Output JSON with utf-8, indent=2
 
-`scripts/sync_catalog.py docs/catalog-source/*.pdf src/data/catalog-111.json`:
+`scripts/sync_catalog.py docs/catalog-source/*.pdf src/data/catalog-110.json`:
 - Extract text via pdfplumber
 - Regex-find `^[A-Z]{2,4}\d{4}\s+課程名\s+\d+\.\d+`
 - Assign category from PDF section header context
@@ -437,7 +453,7 @@ Persisted to `localStorage['course.assumedPassed.v1']`. Theme switch does not re
   "test": "vitest",
   "preview": "vite preview",
   "sync:transcript": "python scripts/sync_transcript.py scoreExport.xls src/data/transcript.json",
-  "sync:catalog": "python scripts/sync_catalog.py docs/catalog-source/*.pdf src/data/catalog-111.json"
+  "sync:catalog": "python scripts/sync_catalog.py docs/catalog-source/*.pdf src/data/catalog-110.json"
 }
 ```
 
@@ -446,7 +462,7 @@ Persisted to `localStorage['course.assumedPassed.v1']`. Theme switch does not re
 | Scenario | Action |
 |---|---|
 | New semester grades arrive | Replace `scoreExport.xls`, run `npm run sync:transcript`, commit JSON change |
-| Rules change for newer cohorts | Add `creditRules-112.ts` and `catalog-112.json`; keep 111 as legacy |
+| Rules change for newer cohorts | Add new `creditRules-XXX.ts` and `catalog-XXX.json`; keep 110 as legacy |
 | Next-semester preview | Edit `src/data/current-semester.json` to swap 114-2 → 115-1 list |
 
 ## §6 — Deployment
@@ -497,7 +513,7 @@ User runs `wrangler login` once after Cloudflare account is set up; OAuth token 
 ### Test suites
 
 `tests/creditRules.test.ts`:
-- `RULES_111` structural validity (no orphan `overflowTo`, minCredits sums match)
+- `RULES_110` structural validity (no orphan `overflowTo`, minCredits sums match)
 - Each leaf has a matching catalog entry
 - All `minPerChild` and `chooseN` constraints well-formed
 
@@ -539,7 +555,7 @@ Branch protection (manual setup on GitHub) requires test pass before merge.
 | M | Name | Definition of Done |
 |---|---|---|
 | **M1** | Project scaffold | Vite + React + TS + Tailwind boot; Router serves placeholders at `/`, `/legacy`, `/modern` |
-| **M2** | Data layer | `sync_transcript.py` produces valid `transcript.json`; `catalog-111.json` complete and reviewed; `types.ts` aligned |
+| **M2** | Data layer | `sync_transcript.py` produces valid `transcript.json`; `catalog-110.json` complete and reviewed; `types.ts` aligned |
 | **M3** | Core algorithm | `simulate()` passes all unit tests; on real data: empty assumed → 75; full assumed → 100 |
 | **M4** | Legacy UI | `/legacy` complete: Stats, Sidebar, Tree, GapAdvisor wired to Context; visual fidelity to v1.7 |
 | **M5** | Modern UI | `/modern` complete with new wireframe; theme toggle shared in Layout |
@@ -547,7 +563,7 @@ Branch protection (manual setup on GitHub) requires test pass before merge.
 
 ### Out of scope
 
-- Multi-year rule switching (111 → 112 → ...)
+- Multi-year rule switching (110 → newer cohorts)
 - i18n
 - PDF export
 - Multi-user accounts
@@ -567,7 +583,7 @@ Branch protection (manual setup on GitHub) requires test pass before merge.
 
 - Architecture (§1): approved
 - Data model (§2): approved
-- Algorithm (§3): approved (国防 excluded; 通識 overflow rule)
+- Algorithm (§3): approved (110 學年 post-112.09.22 rules; 國防 excluded; 通識 overflow rule)
 - UX (§4): approved (no retake badge)
 - Sync (§5), Deployment (§6), Testing (§7), Milestones (§8): approved
 - Tech stack: React + Vite + TypeScript + Tailwind
