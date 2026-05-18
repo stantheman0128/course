@@ -1,0 +1,14 @@
+{
+  "semester": "114-2",
+  "courses": [
+    {"code":"CSC9007","name":"資安攻防演練"},
+    {"code":"00UP104","name":"體育（籃球初級）"},
+    {"code":"CSU0011","name":"離散數學"},
+    {"code":"CSU0029","name":"計算機結構"},
+    {"code":"CSU0018","name":"演算法"},
+    {"code":"CSU0009","name":"數位邏輯"},
+    {"code":"CSU0041","name":"影像處理"},
+    {"code":"CSU0021","name":"計算機圖學"},
+    {"code":"CSU0040","name":"資訊專題研究（二）：資訊系統"}
+  ]
+}
