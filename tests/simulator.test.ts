@@ -31,3 +31,33 @@ describe('assignToLeaves', () => {
     expect(result[0].categoryId).toBe('freeElective');
   });
 });
+
+import { walkTree, type Assignment } from '../src/lib/simulator';
+import { RULES_110 } from '../src/lib/creditRules';
+
+describe('walkTree', () => {
+  it('aggregates earned credits up the tree', () => {
+    const assignments: Assignment[] = [
+      { record: { semester:'113-2', code:'CSU0018', name:'演算法', type:'必修', credits:3, grade:'A' }, categoryId: 'core.cs' },
+      { record: { semester:'113-2', code:'CSU0029', name:'計算機結構', type:'必修', credits:3, grade:'A' }, categoryId: 'core.cs' },
+    ];
+    const result = walkTree(RULES_110, assignments);
+    expect(result.id).toBe('total');
+    expect(result.earned).toBe(6);
+    const core = result.children?.find(c => c.id === 'core');
+    const cs = core?.children?.find(c => c.id === 'core.cs');
+    expect(cs?.earned).toBe(6);
+  });
+
+  it('clips earned at minCredits per leaf (no over-fill)', () => {
+    // 6 records all into core.cs (15 required), each 3 credits = 18 total
+    const assignments: Assignment[] = Array.from({length: 6}, (_, i) => ({
+      record: { semester:'112-1', code:`X${i}`, name:'x', type:'必修', credits:3, grade:'A' as const },
+      categoryId: 'core.cs' as const,
+    }));
+    const result = walkTree(RULES_110, assignments);
+    const core = result.children?.find(c => c.id === 'core');
+    const cs = core?.children?.find(c => c.id === 'core.cs');
+    expect(cs?.earned).toBe(15);  // clipped at minCredits
+  });
+});
