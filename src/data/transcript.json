@@ -1,0 +1,503 @@
+[
+  {
+    "semester": "111-1",
+    "code": "00UP915",
+    "name": "體育校隊（游泳）",
+    "type": "必修",
+    "credits": 1.0,
+    "grade": "X",
+    "note": "不及格"
+  },
+  {
+    "semester": "111-1",
+    "code": "0AUG462",
+    "name": "個人投資理財",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "B+"
+  },
+  {
+    "semester": "111-1",
+    "code": "AAC7838",
+    "name": "核天文物理介紹",
+    "type": "選修",
+    "credits": 2.0,
+    "grade": "B"
+  },
+  {
+    "semester": "111-1",
+    "code": "ABU0308",
+    "name": "期貨與選擇權",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "111-1",
+    "code": "ABU0626",
+    "name": "會計學(上)",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "111-1",
+    "code": "ABU0644",
+    "name": "大數據分析導論",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "111-1",
+    "code": "CSU0001",
+    "name": "程式設計（一）",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "111-1",
+    "code": "MAU0180",
+    "name": "微積分乙（一）",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "C-"
+  },
+  {
+    "semester": "111-1",
+    "code": "MTC9006",
+    "name": "物件導向程式設計",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "111-1",
+    "code": "MTC9008",
+    "name": "人工智慧",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "111-1",
+    "code": "TIC9003",
+    "name": "中英筆譯（二）",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "B-"
+  },
+  {
+    "semester": "111-1",
+    "code": "VEU0024",
+    "name": "人工智慧與應用",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "112-1",
+    "code": "00UA7A7",
+    "name": "中文閱讀與思辨",
+    "type": "必修",
+    "credits": 2.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "112-1",
+    "code": "00UP120",
+    "name": "體育（現代舞初級）",
+    "type": "必修",
+    "credits": 1.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "112-1",
+    "code": "03UG024",
+    "name": "環境與傳播",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "112-1",
+    "code": "05UG009",
+    "name": "科技與社會",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0001",
+    "name": "程式設計（一）",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "C-"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0014",
+    "name": "組合語言",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0015",
+    "name": "機率論",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "C"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0016",
+    "name": "線性代數",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "D",
+    "note": "不及格"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0049",
+    "name": "類比數位運算元件",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "B+"
+  },
+  {
+    "semester": "112-1",
+    "code": "CSU0050",
+    "name": "類比數位運算元件實驗",
+    "type": "選修",
+    "credits": 1.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "112-2",
+    "code": "00UA8A7",
+    "name": "中文寫作與表達",
+    "type": "必修",
+    "credits": 2.0,
+    "grade": "A"
+  },
+  {
+    "semester": "112-2",
+    "code": "01UG011",
+    "name": "亞裔美國文學與電影的藝術形式",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "112-2",
+    "code": "CSU0002",
+    "name": "程式設計（二）",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "C+"
+  },
+  {
+    "semester": "112-2",
+    "code": "CSU0018",
+    "name": "演算法",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "112-2",
+    "code": "CSU0019",
+    "name": "計算機網路",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "112-2",
+    "code": "CSU0029",
+    "name": "計算機結構",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "D",
+    "note": "不及格"
+  },
+  {
+    "semester": "112-2",
+    "code": "ENC9003",
+    "name": "英語文職場實習",
+    "type": "選修",
+    "credits": 2.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "112-2",
+    "code": "MAC9042",
+    "name": "數學產業實習",
+    "type": "選修",
+    "credits": 2.0,
+    "grade": "A"
+  },
+  {
+    "semester": "113-1",
+    "code": "00UP105",
+    "name": "體育（排球初級）",
+    "type": "必修",
+    "credits": 1.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "113-1",
+    "code": "06UG014",
+    "name": "科技與人文的對話",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "113-1",
+    "code": "CSC0001",
+    "name": "資料探勘",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-1",
+    "code": "CSU0013",
+    "name": "資料結構",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "C"
+  },
+  {
+    "semester": "113-1",
+    "code": "CSU0016",
+    "name": "線性代數",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C-"
+  },
+  {
+    "semester": "113-1",
+    "code": "CSU0028",
+    "name": "軟體工程",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "D",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-1",
+    "code": "CSU0038",
+    "name": "區域性網路",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C-"
+  },
+  {
+    "semester": "113-1",
+    "code": "TAC9001",
+    "name": "人工智慧導論",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "113-2",
+    "code": "00UP104",
+    "name": "體育（籃球初級）",
+    "type": "必修",
+    "credits": 1.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "113-2",
+    "code": "05UG016",
+    "name": "運算思維與程式設計",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "C"
+  },
+  {
+    "semester": "113-2",
+    "code": "CSU0011",
+    "name": "離散數學",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-2",
+    "code": "CSU0018",
+    "name": "演算法",
+    "type": "必修",
+    "credits": 3.0,
+    "grade": "D",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-2",
+    "code": "CSU0019",
+    "name": "計算機網路",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "D",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-2",
+    "code": "CSU0020",
+    "name": "程式語言結構",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C+"
+  },
+  {
+    "semester": "113-2",
+    "code": "CSU0034",
+    "name": "資料庫理論",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C"
+  },
+  {
+    "semester": "113-暑",
+    "code": "03UG003",
+    "name": "多元文化",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "113-暑",
+    "code": "05UG017",
+    "name": "資料科學與程式設計",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "113-暑",
+    "code": "L0C9010",
+    "name": "環境人文導論",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "113-暑",
+    "code": "PCU0180",
+    "name": "自我覺察與成長",
+    "type": "選修",
+    "credits": 2.0,
+    "grade": "A"
+  },
+  {
+    "semester": "113-暑",
+    "code": "PCU0183",
+    "name": "組織心理學",
+    "type": "選修",
+    "credits": 2.0,
+    "grade": "A"
+  },
+  {
+    "semester": "114-1",
+    "code": "00UP109",
+    "name": "體育（羽球初級）",
+    "type": "必修",
+    "credits": 1.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "114-1",
+    "code": "03UG027",
+    "name": "女性文學、性別平等理論與婦運",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "114-1",
+    "code": "03UG029",
+    "name": "管理與電影",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "停修"
+  },
+  {
+    "semester": "114-1",
+    "code": "06UG004",
+    "name": "星星月亮太陽－天文漫談",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "E",
+    "note": "不及格"
+  },
+  {
+    "semester": "114-1",
+    "code": "06UG005",
+    "name": "奈米科技",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A+"
+  },
+  {
+    "semester": "114-1",
+    "code": "06UG021",
+    "name": "宇宙中的生命與太空環境",
+    "type": "通識",
+    "credits": 2.0,
+    "grade": "A"
+  },
+  {
+    "semester": "114-1",
+    "code": "CSC0001",
+    "name": "資料探勘",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C+"
+  },
+  {
+    "semester": "114-1",
+    "code": "CSC0006",
+    "name": "網路計算與XML",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "B"
+  },
+  {
+    "semester": "114-1",
+    "code": "CSC0012",
+    "name": "語音處理",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "A-"
+  },
+  {
+    "semester": "114-1",
+    "code": "CSU0027",
+    "name": "系統程式",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "C"
+  },
+  {
+    "semester": "114-1",
+    "code": "CSU0037",
+    "name": "資訊專題研究（一）：資訊系統",
+    "type": "選修",
+    "credits": 3.0,
+    "grade": "E",
+    "note": "不及格"
+  }
+]

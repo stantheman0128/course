@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "sync:transcript": "python scripts/sync_transcript.py docs/catalog-source/scoreExport.xls src/data/transcript.json"
   },
   "dependencies": {
     "react": "^19.2.6",
