@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useSimulationResult } from '../../../shared/useSimulationResult';
+import { useLegacySimulationResult } from '../../../shared/useSimulationResult';
 import type { NodeStatus } from '../../../lib/types';
 
 export function CreditTree() {
-  const result = useSimulationResult();
+  const result = useLegacySimulationResult();
   return (
     <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 m-4">
       <h2 className="text-lg font-bold text-gray-800 mb-4">畢業學分架構</h2>

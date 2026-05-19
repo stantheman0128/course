@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useSimulationResult } from '../../../shared/useSimulationResult';
+import { useModernSimulationResult } from '../../../shared/useSimulationResult';
 import type { NodeStatus } from '../../../lib/types';
 
 export function CreditTree() {
-  const result = useSimulationResult();
+  const result = useModernSimulationResult();
   return (
     <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
       <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-4">Categories</h2>

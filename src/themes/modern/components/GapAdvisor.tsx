@@ -1,9 +1,9 @@
-import { useSimulationResult } from '../../../shared/useSimulationResult';
+import { useModernSimulationResult } from '../../../shared/useSimulationResult';
 import catalog from '../../../data/catalog-110.json';
 import type { CatalogCourse } from '../../../lib/types';
 
 export function GapAdvisor() {
-  const result = useSimulationResult();
+  const result = useModernSimulationResult();
   const catalogTyped = catalog as CatalogCourse[];
   const leafGaps = result.unsatisfiedCategories.filter(n => !n.children);
 

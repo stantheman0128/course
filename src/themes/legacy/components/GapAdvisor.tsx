@@ -1,9 +1,9 @@
-import { useSimulationResult } from '../../../shared/useSimulationResult';
+import { useLegacySimulationResult } from '../../../shared/useSimulationResult';
 import catalog from '../../../data/catalog-110.json';
 import type { CatalogCourse } from '../../../lib/types';
 
 export function GapAdvisor() {
-  const result = useSimulationResult();
+  const result = useLegacySimulationResult();
   const catalogTyped = catalog as CatalogCourse[];
 
   // Show leaf-level unfulfilled categories (skip branch nodes)

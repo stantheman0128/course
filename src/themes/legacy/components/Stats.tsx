@@ -1,7 +1,7 @@
-import { useSimulationResult } from '../../../shared/useSimulationResult';
+import { useLegacySimulationResult } from '../../../shared/useSimulationResult';
 
 export function Stats() {
-  const result = useSimulationResult();
+  const result = useLegacySimulationResult();
   const percentage = ((result.totalEarned + result.totalPending) / 128 * 100).toFixed(1);
 
   return (

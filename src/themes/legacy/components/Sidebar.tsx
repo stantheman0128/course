@@ -1,10 +1,10 @@
-import { useModernSimulation } from '../../../shared/ModernSimulationContext';
+import { useLegacySimulation } from '../../../shared/LegacySimulationContext';
 import currentSemester from '../../../data/current-semester.json';
 import catalog from '../../../data/catalog-110.json';
 import type { CatalogCourse } from '../../../lib/types';
 
 export function Sidebar() {
-  const { assumedPassed, toggle, reset } = useModernSimulation();
+  const { assumedPassed, toggle, reset } = useLegacySimulation();
   const catalogTyped = catalog as CatalogCourse[];
 
   return (
