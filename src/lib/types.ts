@@ -68,9 +68,11 @@ export interface NodeStatus {
   id: CategoryId;
   label: string;
   required: number;
-  earned: number;
+  earned: number;              // raw, NOT clipped — may exceed required
+  earnedClipped: number;       // Math.min(earned, required), for progress bar / fulfilled
+  overflow: number;            // Math.max(0, earned - required), for "超修 N" display
   pending: number;
-  fulfilled: boolean;
+  fulfilled: boolean;          // earnedClipped >= required
   passedCourses: TranscriptRecord[];
   pendingCourses: CatalogCourse[];
   gapCourses: CatalogCourse[];
