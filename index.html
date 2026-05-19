@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>資工系畢業學分檢核系統</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -37,7 +40,7 @@
             position: relative;
         }
 
-        /* 星星網絡背景 */
+        /* 星星網絡背景 — v1.12.0: opacity 0.7 → 0.84 (+20% visibility) */
         #stellar-bg {
             position: fixed;
             top: 0;
@@ -46,7 +49,7 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.84;
         }
 
         .content-wrapper {
@@ -60,55 +63,113 @@
         }
 
         /* v1.10.0: header 透明，融入 body 紫色 gradient + 星空 */
+        /* v1.12.0: 紫色 bar 完全拿掉、星空當背景、紫色 gradient text + glow + 學術襯線字體 */
         .header {
             background: transparent;
-            color: white;
-            padding: 35px 30px 30px;
+            padding: 55px 30px 40px;
             text-align: center;
             position: relative;
             z-index: 1;
         }
-        
+
         .header h1 {
-            font-size: 32px;
-            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 40px;
+            letter-spacing: 2.5px;
+            line-height: 1.3;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 900;
+        }
+
+        .header .hero-emoji {
+            font-size: 42px;
+            filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.5));
+            /* keep system colored emoji; not affected by gradient text */
+            -webkit-text-fill-color: initial;
+        }
+
+        .header .hero-text {
+            background: linear-gradient(135deg, #a3b3ff 0%, #c4a3ff 50%, #e9d5ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter:
+                drop-shadow(0 2px 12px rgba(102, 126, 234, 0.6))
+                drop-shadow(0 0 24px rgba(196, 181, 253, 0.3));
         }
         
         /* ===== Sticky統計區域（玻璃擬態）===== */
+        /* v1.12.0: 滾動時整條 bar 變紫漸層 + title 縮進靠左 + 4 stats 靠右、左右間距對稱 */
         .stats {
             position: sticky;
             top: 0;
             z-index: 100;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            display: flex;
+            flex-direction: column;
             padding: 25px 30px;
             background: transparent;
             border-bottom: 1px solid transparent;
-            will-change: padding, gap;
+            will-change: padding, background;
             transition:
                 padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-                gap 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 0.35s ease,
-                box-shadow 0.35s ease,
-                border-bottom-color 0.35s ease,
-                backdrop-filter 0.35s ease,
-                -webkit-backdrop-filter 0.35s ease;
+                background 0.4s ease,
+                box-shadow 0.4s ease,
+                border-bottom-color 0.4s ease,
+                backdrop-filter 0.4s ease,
+                -webkit-backdrop-filter 0.4s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            transition: gap 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stats-title-compact {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 900;
+            font-size: 16px;
+            letter-spacing: 1.2px;
+            white-space: nowrap;
+        }
+
+        .stats-title-compact .compact-emoji {
+            font-size: 18px;
+            -webkit-text-fill-color: initial;
         }
 
         .stats.scrolled {
-            padding: 10px 20px;
-            gap: 15px;
-            grid-template-columns: repeat(4, auto);
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
-            border-bottom-color: rgba(255, 255, 255, 0.3);
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.94) 0%, rgba(118, 75, 162, 0.94) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.3);
+            border-bottom-color: rgba(255, 255, 255, 0.18);
         }
 
+        .stats.scrolled .stats-title-compact {
+            display: flex;
+        }
+
+        .stats.scrolled .stats-grid {
+            display: flex;
+            gap: 14px;
+        }
+
+        /* v1.12.0: position relative 讓 progress-bar 可以 absolute 不影響 flex centering */
         .stat-item {
+            position: relative;
             text-align: center;
             padding: 18px;
             background: rgba(255, 255, 255, 0.7);
@@ -124,36 +185,41 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
-            will-change: padding, transform;
+            will-change: padding, transform, color;
             transition:
                 padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 0.35s ease,
-                box-shadow 0.35s ease,
-                border-color 0.35s ease,
-                border-radius 0.35s ease,
-                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background-color 0.4s ease,
+                box-shadow 0.4s ease,
+                border-color 0.4s ease,
+                border-radius 0.4s ease,
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
         }
-        
+
         .stat-item:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 12px 40px rgba(102, 126, 234, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
-        
+
+        /* v1.12.0: 紫漸層 bar 上的 stat-item — 文字白色、分隔線白色透明 */
         .stats.scrolled .stat-item {
             background-color: transparent;
             backdrop-filter: blur(0px);
             -webkit-backdrop-filter: blur(0px);
-            box-shadow: 0 0 0 rgba(102, 126, 234, 0);
+            box-shadow:
+                0 0 0 rgba(102, 126, 234, 0),
+                inset 0 1px 0 rgba(255, 255, 255, 0);
             border-color: transparent;
-            border-right-color: rgba(102, 126, 234, 0.2);
+            border-right-color: rgba(255, 255, 255, 0.28);
             border-right-width: 2px;
-            padding: 5px 20px 5px 0;
+            padding: 4px 18px 4px 0;
             border-radius: 0;
             flex-direction: row;
             gap: 6px;
-            margin-right: 15px;
+            margin-right: 0;
+            color: white;
         }
 
         .stats.scrolled .stat-item:hover {
@@ -163,21 +229,20 @@
         .stats.scrolled .stat-item:last-child {
             border-right-color: transparent;
             padding-right: 0;
-            margin-right: 0;
         }
-        
+
         .stat-item.highlight {
             transform: translateY(-4px) scale(1.02);
-            box-shadow: 
+            box-shadow:
                 0 16px 48px rgba(102, 126, 234, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
-        
+
         .stats.scrolled .stat-item.highlight {
             transform: none;
             box-shadow: none;
         }
-        
+
         .stat-number {
             font-size: 42px;
             font-weight: bold;
@@ -186,13 +251,16 @@
             margin-bottom: 8px;
             transition:
                 font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
         }
 
+        /* 在 scrolled 紫色 bar 上，所有 stat-number 強制白色（含 inline style 著色的 128/34/73.4%） */
         .stats.scrolled .stat-number {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             margin-bottom: 0;
+            color: white !important;
         }
 
         .stat-label {
@@ -200,29 +268,31 @@
             color: #6c757d;
             font-weight: 500;
             display: inline-block;
-            transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition:
+                font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
         }
 
         .stats.scrolled .stat-label {
             font-size: 12px;
+            color: rgba(255, 255, 255, 0.78);
         }
 
+        /* v1.12.0: progress-bar 改 absolute 解決第一格內容被推高的對齊 bug */
         .progress-bar {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 12px;
             background: #e9ecef;
-            height: 8px;
-            border-radius: 4px;
+            height: 6px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-top: 12px;
             opacity: 1;
-            transition:
-                height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s ease;
+            transition: opacity 0.35s ease;
         }
-        
+
         .stats.scrolled .progress-bar {
-            height: 0;
-            margin-top: 0;
             opacity: 0;
         }
         
@@ -287,6 +357,9 @@
                 overflow: visible;
                 display: flex;
                 flex-direction: column;
+                /* v1.12.0: 底部 mask fade，與 tree-panel 對稱 */
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 40px), transparent 100%);
+                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 40px), transparent 100%);
                 box-shadow: 
                     0 8px 32px rgba(102, 126, 234, 0.12),
                     inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -327,11 +400,15 @@
         }
         
         /* ===== 樹狀圖區域 ===== */
+        /* v1.12.0: 底部 mask fade，向下滑到頁尾紫色區時白色 block 邊界自然溶入 */
         .tree-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 60px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 60px), transparent 100%);
+            padding-bottom: 20px;
         }
         
         /* 標題列 - 玻璃擬態 */
@@ -526,6 +603,39 @@
             border-color: rgba(245, 158, 11, 0.9);
         }
 
+        /* v1.12.0: toggle bounce animation — 切換時瞬間 scale 下沉再彈回，視覺更明顯 */
+        .select-all-btn.toggling {
+            animation: toggleBounce 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes toggleBounce {
+            0%   { transform: scale(1); }
+            35%  { transform: scale(0.88); }
+            70%  { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        /* v1.12.0: B1 — theme 切換時的全域 smooth transition */
+        .header,
+        .footer,
+        .footer-subtitle,
+        .version-link,
+        .header h1,
+        .hero-text,
+        .hero-emoji {
+            transition:
+                background 0.45s ease,
+                background-color 0.45s ease,
+                color 0.45s ease,
+                border-color 0.45s ease,
+                border-bottom-color 0.45s ease,
+                padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.45s ease,
+                letter-spacing 0.45s ease;
+        }
+        .container {
+            transition: background 0.5s ease;
+        }
+
         /* ===== v1.11.0: Classic theme overrides (pre-v1.10.0 visual) ===== */
         body.theme-classic {
             background-attachment: scroll;
@@ -534,6 +644,50 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 25px 30px;
         }
+        /* v1.12.0: classic theme — h1 變回 v1.7 樣式（白色純文字、無 fancy gradient） */
+        body.theme-classic .header h1 {
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: normal;
+        }
+        body.theme-classic .header .hero-emoji {
+            filter: none;
+        }
+        body.theme-classic .header .hero-text {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            -webkit-text-fill-color: white;
+            color: white;
+            filter: none;
+        }
+        /* v1.12.0: classic theme — sticky scrolled bar 維持 v1.7 白色玻璃，不變紫漸層 */
+        body.theme-classic .stats.scrolled {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+        body.theme-classic .stats.scrolled .stats-title-compact {
+            color: #1f2937;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+        }
+        body.theme-classic .stats.scrolled .stat-item {
+            color: inherit;
+            border-right-color: rgba(102, 126, 234, 0.2);
+        }
+        body.theme-classic .stats.scrolled .stat-number {
+            color: #667eea !important;
+        }
+        body.theme-classic .stats.scrolled .stat-label {
+            color: #6c757d;
+        }
+        body.theme-classic .stats.scrolled .stat-number[style*="ef4444"] { color: #ef4444 !important; }
+        body.theme-classic .stats.scrolled .stat-number[style*="f59e0b"] { color: #f59e0b !important; }
+        body.theme-classic .stats.scrolled .stat-number[style*="10b981"] { color: #10b981 !important; }
         body.theme-classic .container {
             background: #f8f9fa;
         }
@@ -1383,28 +1537,37 @@
     <div class="container">
         <canvas id="stellar-bg"></canvas>
         <div class="header">
-            <h1>🎓 資工系畢業學分檢核系統</h1>
+            <h1>
+                <span class="hero-emoji">🎓</span>
+                <span class="hero-text">資工系畢業學分檢核系統</span>
+            </h1>
         </div>
         
         <div class="stats" id="stats">
-            <div class="stat-item">
-                <span class="stat-number" id="total-earned">94</span>
-                <span class="stat-label">已修學分</span>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-bar" style="width: 73.4%"></div>
+            <div class="stats-title-compact">
+                <span class="compact-emoji">🎓</span>
+                <span>資工系畢業學分檢核系統</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-earned">94</span>
+                    <span class="stat-label">已修學分</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar" style="width: 73.4%"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number" style="color: #ef4444">128</span>
-                <span class="stat-label">畢業學分</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number" style="color: #f59e0b" id="remaining">34</span>
-                <span class="stat-label">還需修習</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number" style="color: #10b981" id="completion">73.4%</span>
-                <span class="stat-label">完成度</span>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #ef4444">128</span>
+                    <span class="stat-label">畢業學分</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #f59e0b" id="remaining">34</span>
+                    <span class="stat-label">還需修習</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #10b981" id="completion">73.4%</span>
+                    <span class="stat-label">完成度</span>
+                </div>
             </div>
         </div>
         
@@ -1437,7 +1600,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.11.0</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.12.0</a> | 110學年度入學適用</p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -1927,6 +2090,15 @@
             renderCurrentCourses();
             updateSelectAllBtnState();
             updateTreeRealtime();
+            // v1.12.0: bounce animation pulse on toggle for more obvious feedback
+            ['select-all-btn', 'mobile-select-all-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.classList.remove('toggling');
+                void btn.offsetWidth; // force reflow so animation restarts
+                btn.classList.add('toggling');
+                setTimeout(() => btn.classList.remove('toggling'), 450);
+            });
         }
 
         function updateSelectAllBtnState() {
@@ -1944,6 +2116,21 @@
         // 'theme' 標記：只有引入新視覺風格的版本才有切換按鈕
         // 後續若有純 CSS 視覺改動的版本，加上 theme: '<theme-id>' 即可
         const CHANGELOG = [
+            {
+                version: 'v1.12.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '🎨 Header 重設計：紫色 bar 拿掉、星空當背景、Noto Serif TC 學術襯線字體 + 紫色 gradient text + 多層 glow',
+                    '✨ Sticky bar 滾動形變：滾動時標題縮入 bar 靠左、4 stats 靠右、整條 bar 變紫色漸層、字色翻白',
+                    '🐛 修正第一格 stat-item 內容上下對齊（progress-bar 改 absolute、不再擠壓 flex centering）',
+                    '⭐ 星空 +10% 數量 (130→143) + +20% 亮度 (canvas opacity 0.7→0.84)',
+                    '🌫️ Tree panel 與 simulator panel 底部 mask fade，向下滾動時白色 block 邊界自然溶入紫色頁尾',
+                    '🌈 Theme 切換加入 0.45s smooth transition（bg、color、border、padding 都會緩動）',
+                    '🎯 「全選 ↔ 取消全選」按鈕新增 toggle bounce 動畫，狀態切換視覺更明顯',
+                    '🔧 Classic theme 同步更新：h1 在 classic 退回 v1.7 白字樣式、scrolled bar 維持原本白玻璃'
+                ]
+            },
             {
                 version: 'v1.11.0',
                 date: '2026-05-20',
@@ -2551,7 +2738,8 @@
             ];
             
             const config = {
-                starCount: 130,
+                // v1.12.0: starCount 130 → 143 (+10%)；亮度 +20% 由 #stellar-bg opacity 0.7 → 0.84 提供
+                starCount: 143,
                 minStarSize: 0.6,
                 maxStarSize: 4,
                 connectionDistance: 150,
