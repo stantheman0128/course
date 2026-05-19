@@ -66,31 +66,31 @@
         }
 
         /* v1.15.0: 回到 v1.7 風格 — 純紫色 header + 白色 Noto Serif TC 字 + mask 底部 blur 邊界 */
-        /* v1.16.0: bg #667eea (偏藍 indigo) → #764ba2 (更明確的紫色) */
+        /* v1.17.0: bg 改回 linear-gradient 135deg #667eea→#764ba2（純色 #764ba2 user 覺得偏藍），高度比例回到 v1.7 (padding 25/30/28、h1 32px w800) */
         .header {
-            background: #764ba2;
-            padding: 35px 30px 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px 28px;
             text-align: center;
             position: relative;
             z-index: 1;
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 22px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 22px), transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 14px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 14px), transparent 100%);
         }
 
         .header h1 {
             display: inline-flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
-            font-weight: 900;
-            font-size: 36px;
-            letter-spacing: 2px;
+            font-weight: 800;
+            font-size: 32px;
+            letter-spacing: 1.2px;
             line-height: 1.3;
             color: white;
         }
 
         .header .hero-emoji {
-            font-size: 38px;
+            font-size: 34px;
             filter: none;
             -webkit-text-fill-color: initial;
         }
@@ -899,45 +899,77 @@
             border-bottom-color: rgba(255, 255, 255, 0.8);
         }
 
-        /* v1.16.0: 字體大小切換按鈕 */
-        .font-size-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 3px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
+        /* v1.17.0: 字體大小 slider — 位於 sticky bar 右側，僅 scrolled 時顯示 */
+        .font-size-slider-wrap {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .stats.scrolled .font-size-slider-wrap {
+            display: flex;
+        }
+        .slider-icon {
+            color: rgba(102, 126, 234, 0.75);
             font-weight: 700;
-            margin-left: 14px;
-            font-family: inherit;
-            transition:
-                background-color 0.2s ease,
-                border-color 0.2s ease,
-                transform 0.15s ease;
+            font-family: "Noto Serif TC", "新細明體", serif;
+            user-select: none;
         }
-        .font-size-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.55);
-            transform: translateY(-1px);
-        }
-        body.theme-classic .font-size-btn,
-        body.theme-v1-10 .font-size-btn {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-        body.theme-classic .font-size-btn:hover,
-        body.theme-v1-10 .font-size-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
+        .slider-icon-small { font-size: 11px; }
+        .slider-icon-large { font-size: 17px; }
+        body.theme-classic .slider-icon,
+        body.theme-v1-10 .slider-icon {
+            color: rgba(102, 126, 234, 0.75);
         }
 
-        /* v1.16.0: zoom-based 字體大小切換（會放大整個 container 內容包含 padding） */
-        body.font-size-large {
-            zoom: 1.1;
+        .font-size-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90px;
+            height: 5px;
+            border-radius: 4px;
+            background: linear-gradient(
+                to right,
+                #6d28d9 0%,
+                #6d28d9 var(--slider-fill, 30%),
+                rgba(102, 126, 234, 0.22) var(--slider-fill, 30%),
+                rgba(102, 126, 234, 0.22) 100%
+            );
+            outline: none;
+            cursor: pointer;
+            transition: filter 0.2s ease;
         }
-        body.font-size-xl {
-            zoom: 1.2;
+        .font-size-slider:hover {
+            filter: brightness(1.05);
+        }
+        .font-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #6d28d9;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .font-size-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.18);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.55);
+        }
+        .font-size-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.25);
+        }
+        .font-size-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #6d28d9;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
         }
 
         .changelog-overlay {
@@ -1389,19 +1421,22 @@
             padding-bottom: 8px;
         }
 
-        /* v1.16.0: 葉節點內部課程清單 (新增課程 / 本學期修課中 / 可選課程 / section-header) 在 walkUpdate 重建時 fade-in，讓選課變化有對應動畫 */
-        @keyframes courseEnter {
-            from {
-                opacity: 0;
-                transform: translateY(-4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* v1.17.0: course-section 包裝層 — 用 grid-template-rows 動畫做 expand/collapse */
+        /* 取代 v1.16 的 fade-in flicker；section 第一次出現/消失時平滑展開/收合 */
+        .course-section {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition:
+                grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.32s ease;
+            opacity: 0;
         }
-        .tree-children.show > .tree-children-inner > li {
-            animation: courseEnter 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+        .course-section > .course-section-inner {
+            overflow: hidden;
+        }
+        .course-section.show {
+            grid-template-rows: 1fr;
+            opacity: 1;
         }
         
         /* 水平連接線 */
@@ -1721,6 +1756,20 @@
                     <span class="stat-label">完成度</span>
                 </div>
             </div>
+            <div class="font-size-slider-wrap" title="調整字體大小">
+                <span class="slider-icon slider-icon-small">A</span>
+                <input
+                    type="range"
+                    class="font-size-slider"
+                    id="font-size-slider"
+                    min="0.85"
+                    max="1.35"
+                    step="0.05"
+                    value="1"
+                    aria-label="字體大小"
+                    oninput="setFontZoom(parseFloat(this.value))">
+                <span class="slider-icon slider-icon-large">A</span>
+            </div>
         </div>
         
         <div class="content-wrapper">
@@ -1752,7 +1801,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.16.0</a> | 110學年度入學適用<button class="font-size-btn" id="font-size-btn" onclick="cycleFontSize()" title="切換字體大小">A</button></p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.17.0</a> | 110學年度入學適用</p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -2275,10 +2324,24 @@
         // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
-                version: 'v1.16.0',
+                version: 'v1.17.0',
                 date: '2026-05-20',
                 type: 'minor',
                 theme: 'current',
+                changes: [
+                    '**Course section 真正的 expand/collapse 動畫**：refactor *renderCourseList* — 每個 section（新增課程 / 本學期修課中 / 可選課程 / 已修）包進 *.course-section* wrapper，用 *grid-template-rows 0fr→1fr* 過渡（跟 tree-children 一樣的展開動畫）',
+                    '**walkUpdate diff-update sections**：取代原本 *innerDiv.textContent=\'\'* + rebuild，改用 *syncCourseSections* 比對 section keys。新 section 進場展開、舊 section 退場收合、保留 section 內容 snap 更新',
+                    '__移除 v1.16 fade-in flicker keyframe__（被新展開動畫取代）',
+                    '**Header bg 改回 gradient**：solid *#764ba2* (user 覺得偏藍) → *linear-gradient(135deg, #667eea, #764ba2)*，跟 body 一致',
+                    '**Header 高度回到 v1.7 比例**：padding *35px 30px 45px* → *25px 30px 28px*；h1 字體 *36px w900* → *32px w800*；emoji *38px* → *34px*；mask fade *22px* → *14px*',
+                    '**字體大小 slider 取代 A 按鈕**：footer 的 *A / A+ / A++* cycle button 拿掉，改用 sticky bar 右側 *滑桿*（連續 0.85x–1.35x，step 0.05）。__僅滾動時顯示__；用 *body.style.zoom* 直接控制；localStorage \'font-zoom\' 記住',
+                    '**Slider 樣式**：白色 thumb + 紫色 *#6d28d9* 邊框 + 紫色填充軌道；左右各一個 *A* 字 icon（小→大）標示方向'
+                ]
+            },
+            {
+                version: 'v1.16.0',
+                date: '2026-05-20',
+                type: 'minor',
                 changes: [
                     '**頁尾漸層 smoother**：container 底部 fade 從 2-stop linear 改用 6-stop ease 過渡，fade zone 拉長到 *280px*（原 220px）',
                     '**Sticky bar title 字體**改用 *Noto Serif TC w900*，跟 header 同款（原 Microsoft JhengHei）',
@@ -2564,32 +2627,26 @@
             localStorage.setItem('course-theme', themeName);
         }
 
-        // ===== v1.16.0: Font Size Selector =====
-        const FONT_SIZES = ['medium', 'large', 'xl'];
-        const FONT_LABELS = { medium: 'A', large: 'A+', xl: 'A++' };
+        // ===== v1.17.0: Font Size Slider (replaces v1.16 cycle button) =====
+        const FONT_ZOOM_MIN = 0.85;
+        const FONT_ZOOM_MAX = 1.35;
 
-        function getCurrentFontSize() {
-            const saved = localStorage.getItem('font-size');
-            return FONT_SIZES.includes(saved) ? saved : 'medium';
-        }
-
-        function setFontSize(size) {
-            FONT_SIZES.forEach(s => document.body.classList.remove('font-size-' + s));
-            document.body.classList.add('font-size-' + size);
-            localStorage.setItem('font-size', size);
-            const btn = document.getElementById('font-size-btn');
-            if (btn) btn.textContent = FONT_LABELS[size];
-        }
-
-        function cycleFontSize() {
-            const current = getCurrentFontSize();
-            const idx = FONT_SIZES.indexOf(current);
-            const next = FONT_SIZES[(idx + 1) % FONT_SIZES.length];
-            setFontSize(next);
+        function setFontZoom(zoom) {
+            zoom = Math.max(FONT_ZOOM_MIN, Math.min(FONT_ZOOM_MAX, zoom));
+            document.body.style.zoom = zoom;
+            localStorage.setItem('font-zoom', String(zoom));
+            const slider = document.getElementById('font-size-slider');
+            if (slider) {
+                if (parseFloat(slider.value) !== zoom) slider.value = zoom;
+                const fillPct = ((zoom - FONT_ZOOM_MIN) / (FONT_ZOOM_MAX - FONT_ZOOM_MIN)) * 100;
+                slider.style.setProperty('--slider-fill', fillPct + '%');
+            }
         }
 
         function initFontSize() {
-            setFontSize(getCurrentFontSize());
+            const saved = parseFloat(localStorage.getItem('font-zoom'));
+            const zoom = (Number.isFinite(saved) && saved >= FONT_ZOOM_MIN && saved <= FONT_ZOOM_MAX) ? saved : 1.0;
+            setFontZoom(zoom);
         }
 
         function initTheme() {
@@ -2764,83 +2821,130 @@
             return courseDiv;
         }
 
-        function renderCourseList(node, innerDiv) {
-            const completedCourses = node.courses.filter(c => c.completed && !c.isNew);
-            const newCourses = node.courses.filter(c => c.isNew);
-            const availableCourses = node.courses.filter(c => c.available);
-            const incompleteCourses = node.courses.filter(c => !c.completed && !c.available);
+        // v1.17.0: compute sections as data，supports diff-update with expand/collapse animation
+        function computeSections(node) {
+            const completed = node.courses.filter(c => c.completed && !c.isNew);
+            const newCs = node.courses.filter(c => c.isNew);
+            const available = node.courses.filter(c => c.available);
+            const incomplete = node.courses.filter(c => !c.completed && !c.available);
 
-            // 已修課程 - 摺疊顯示，放最上面
-            if (completedCourses.length > 0) {
-                const summaryLi = document.createElement('li');
+            const sections = [];
+            if (completed.length > 0) sections.push({ key: 'completed', courses: completed });
+            if (newCs.length > 0) sections.push({ key: 'new', courses: newCs });
+            if (incomplete.length > 0) {
+                const isCurrentSem = incomplete.some(c => c.note && c.note.includes('114-2'));
+                sections.push({ key: isCurrentSem ? 'current-sem' : 'incomplete', courses: incomplete });
+            }
+            if (available.length > 0) sections.push({ key: 'available', courses: available });
+            return sections;
+        }
+
+        function populateSectionInner(inner, section) {
+            inner.textContent = '';
+            if (section.key === 'completed') {
                 const summaryDiv = document.createElement('div');
                 summaryDiv.className = 'completed-summary';
                 summaryDiv.onclick = () => toggleCompletedCourses(summaryDiv);
-
                 const summaryText = document.createElement('span');
                 summaryText.className = 'completed-summary-text';
-                summaryText.textContent = `✓ 已修 ${completedCourses.length} 門課程`;
+                summaryText.textContent = `✓ 已修 ${section.courses.length} 門課程`;
                 summaryDiv.appendChild(summaryText);
-
                 const summaryToggle = document.createElement('span');
                 summaryToggle.className = 'completed-summary-toggle';
                 summaryToggle.textContent = '▼';
                 summaryDiv.appendChild(summaryToggle);
-
-                summaryLi.appendChild(summaryDiv);
+                inner.appendChild(summaryDiv);
 
                 const listDiv = document.createElement('div');
                 listDiv.className = 'completed-courses-list';
                 const listInner = document.createElement('div');
                 listInner.className = 'completed-courses-inner';
-
-                completedCourses.forEach(course => {
+                section.courses.forEach(course => {
                     listInner.appendChild(buildCourseDetail(course, 'completed'));
                 });
-
                 listDiv.appendChild(listInner);
-                summaryLi.appendChild(listDiv);
-                innerDiv.appendChild(summaryLi);
-            }
-
-            if (newCourses.length > 0) {
+                inner.appendChild(listDiv);
+            } else {
+                const headerText = {
+                    'new': '✨ 新增課程',
+                    'current-sem': '📝 本學期修課中',
+                    'incomplete': '✗ 還需修習',
+                    'available': '💡 可選課程'
+                }[section.key];
                 const headerLi = document.createElement('li');
                 headerLi.className = 'section-header';
-                headerLi.textContent = '✨ 新增課程';
-                innerDiv.appendChild(headerLi);
+                headerLi.textContent = headerText;
+                inner.appendChild(headerLi);
 
-                newCourses.forEach(course => {
+                const variant = section.key === 'new' ? 'new'
+                              : section.key === 'available' ? 'available'
+                              : 'incomplete';
+                section.courses.forEach(course => {
                     const courseLi = document.createElement('li');
-                    courseLi.appendChild(buildCourseDetail(course, 'new'));
-                    innerDiv.appendChild(courseLi);
+                    courseLi.appendChild(buildCourseDetail(course, variant));
+                    inner.appendChild(courseLi);
                 });
             }
+        }
 
-            if (incompleteCourses.length > 0) {
-                const headerLi = document.createElement('li');
-                headerLi.className = 'section-header';
-                headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-2')) ? '📝 本學期修課中' : '✗ 還需修習';
-                innerDiv.appendChild(headerLi);
+        function createCourseSection(section) {
+            const div = document.createElement('div');
+            div.className = 'course-section';
+            div.dataset.sectionKey = section.key;
+            const inner = document.createElement('div');
+            inner.className = 'course-section-inner';
+            populateSectionInner(inner, section);
+            div.appendChild(inner);
+            return div;
+        }
 
-                incompleteCourses.forEach(course => {
-                    const courseLi = document.createElement('li');
-                    courseLi.appendChild(buildCourseDetail(course, 'incomplete'));
-                    innerDiv.appendChild(courseLi);
-                });
-            }
+        function renderCourseList(node, innerDiv) {
+            const sections = computeSections(node);
+            sections.forEach(section => {
+                const el = createCourseSection(section);
+                el.classList.add('show'); // 初始 render 直接顯示，不跑進場動畫
+                innerDiv.appendChild(el);
+            });
+        }
 
-            if (availableCourses.length > 0) {
-                const headerLi = document.createElement('li');
-                headerLi.className = 'section-header';
-                headerLi.textContent = '💡 可選課程';
-                innerDiv.appendChild(headerLi);
+        // v1.17.0: walkUpdate 對 sections 做 diff-update（取代 innerDiv.textContent = '' + rebuild）
+        // 新增 section → expand 動畫；移除 section → collapse 動畫；保留 section → 更新內容（snap）
+        function syncCourseSections(innerDiv, newSections) {
+            const existingMap = new Map();
+            innerDiv.querySelectorAll(':scope > .course-section').forEach(el => {
+                existingMap.set(el.dataset.sectionKey, el);
+            });
 
-                availableCourses.forEach(course => {
-                    const courseLi = document.createElement('li');
-                    courseLi.appendChild(buildCourseDetail(course, 'available'));
-                    innerDiv.appendChild(courseLi);
-                });
-            }
+            let prevEl = null;
+            newSections.forEach(section => {
+                let el = existingMap.get(section.key);
+                if (el) {
+                    // 已存在：更新內容，確保 .show
+                    const inner = el.querySelector(':scope > .course-section-inner');
+                    if (inner) populateSectionInner(inner, section);
+                    el.classList.add('show');
+                    existingMap.delete(section.key);
+                    // 確保位置正確
+                    const expectedAfter = prevEl ? prevEl.nextElementSibling : innerDiv.firstChild;
+                    if (expectedAfter !== el) {
+                        if (prevEl) prevEl.insertAdjacentElement('afterend', el);
+                        else innerDiv.insertBefore(el, innerDiv.firstChild);
+                    }
+                } else {
+                    // 新增：建立 + 插入正確位置 + 下一個 frame 加 .show 觸發 expand
+                    el = createCourseSection(section);
+                    if (prevEl) prevEl.insertAdjacentElement('afterend', el);
+                    else innerDiv.insertBefore(el, innerDiv.firstChild);
+                    requestAnimationFrame(() => el.classList.add('show'));
+                }
+                prevEl = el;
+            });
+
+            // 剩下的 existingMap 條目代表「應該移除的 section」→ collapse 動畫後 remove
+            existingMap.forEach(el => {
+                el.classList.remove('show');
+                setTimeout(() => { if (el.parentNode) el.remove(); }, 420);
+            });
         }
 
         function renderTree(node, parentElement, level = 0, isSimulation = false, parentPath = '') {
@@ -2996,12 +3100,11 @@
                     if (toggleIcon) toggleIcon.classList.toggle('expanded', shouldShow);
                 }
 
-                // leaf with courses: rebuild inner course list
+                // v1.17.0: leaf with courses — diff-update sections (expand/collapse animation)
                 if (node.courses && childrenUl) {
                     const innerDiv = childrenUl.querySelector(':scope > .tree-children-inner');
                     if (innerDiv) {
-                        innerDiv.textContent = '';
-                        renderCourseList(node, innerDiv);
+                        syncCourseSections(innerDiv, computeSections(node));
                     }
                 }
 
