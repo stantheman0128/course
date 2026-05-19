@@ -22,15 +22,20 @@
             overflow-x: hidden;
         }
 
-        /* v1.15.0: container 上方改回不透明白色（因為 v1.15 header 自己有紫色 bg），只在底部 footer 區漸層透出紫色 */
-        /* v1.16.0: footer 漸層改用 6 個 stops 做 ease-in-out 過渡，比原本 2 stops 線性更平滑 */
+        /* v1.18.0: container 上方加 transparent zone，body 紫色透過 header 區域顯現；
+           blur 過渡在 95-130px 範圍內（接近 4 stats 上緣）就轉成 solid 白；
+           底部 footer 漸層維持 v1.16 的 6-stop ease 配方 */
         .container {
             max-width: 1920px;
             margin: 0 auto;
             background:
                 linear-gradient(
                     180deg,
-                    #f8f9fa 0px,
+                    transparent 0px,
+                    transparent 95px,
+                    rgba(248, 249, 250, 0.5) 110px,
+                    rgba(248, 249, 250, 0.85) 120px,
+                    #f8f9fa 132px,
                     #f8f9fa calc(100% - 280px),
                     rgba(248, 249, 250, 0.92) calc(100% - 230px),
                     rgba(248, 249, 250, 0.72) calc(100% - 180px),
@@ -65,16 +70,14 @@
             z-index: 1;
         }
 
-        /* v1.15.0: 回到 v1.7 風格 — 純紫色 header + 白色 Noto Serif TC 字 + mask 底部 blur 邊界 */
-        /* v1.17.0: bg 改回 linear-gradient 135deg #667eea→#764ba2（純色 #764ba2 user 覺得偏藍），高度比例回到 v1.7 (padding 25/30/28、h1 32px w800) */
+        /* v1.18.0: header bg 全透明（跟 footer 一樣），靠 container 的上方 transparent zone 讓 body 紫色顯出來；
+           blur 過渡由 container gradient 處理，延伸到接近 4 stats 上緣才轉白 */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px 30px 28px;
+            background: transparent;
+            padding: 25px 30px 22px;
             text-align: center;
             position: relative;
             z-index: 1;
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 14px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 14px), transparent 100%);
         }
 
         .header h1 {
@@ -177,18 +180,20 @@
         }
 
         /* v1.12.0: position relative；v1.13.0 後 progress-bar 已移除但保留以備未來 absolute child */
+        /* v1.18.0: border opacity 0.5→0.7、box-shadow 微調強化 edge 感 */
         .stat-item {
             position: relative;
             text-align: center;
             padding: 18px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
             box-shadow:
-                0 8px 32px rgba(102, 126, 234, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                0 6px 20px rgba(102, 126, 234, 0.1),
+                0 12px 36px rgba(102, 126, 234, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -332,10 +337,10 @@
                 flex-shrink: 0;
                 margin: 15px;
                 margin-right: 0;
-                background: rgba(255, 255, 255, 0.75);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.5);
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                border: 1.5px solid rgba(255, 255, 255, 0.7);
                 border-radius: 20px;
                 position: sticky;
                 top: 70px;
@@ -406,18 +411,19 @@
             z-index: 50;
             padding: 15px 25px;
             margin: 15px;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 8px 32px rgba(102, 126, 234, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 6px 20px rgba(102, 126, 234, 0.1),
+                0 12px 36px rgba(102, 126, 234, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         
         @media (max-width: 1199px) {
@@ -849,8 +855,8 @@
 
         /* footer subtitle — class form so theme-classic can override color */
         .footer-subtitle {
-            margin-top: 8px;
-            font-size: 12px;
+            margin-top: 5px;
+            font-size: 11px;
             color: rgba(255, 255, 255, 0.65);
         }
 
@@ -1321,14 +1327,16 @@
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 2px 8px rgba(102, 126, 234, 0.06),
+                0 4px 16px rgba(102, 126, 234, 0.08);
             margin-right: 5px;
         }
         
@@ -1682,12 +1690,13 @@
         }
         
         /* v1.10.0: footer 透明，融入 body 紫色 gradient + 星空 */
+        /* v1.18.0: padding 縮小 (40/25/50 → 18/25/24)、字略小 13→12 */
         .footer {
             background: transparent;
-            padding: 40px 25px 50px;
+            padding: 18px 25px 24px;
             text-align: center;
             color: rgba(255, 255, 255, 0.85);
-            font-size: 13px;
+            font-size: 12px;
             border-top: none;
         }
 
@@ -1801,7 +1810,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.17.0</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.18.0</a> | 110學年度入學適用</p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -2324,10 +2333,21 @@
         // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
-                version: 'v1.17.0',
+                version: 'v1.18.0',
                 date: '2026-05-20',
                 type: 'minor',
                 theme: 'current',
+                changes: [
+                    '**Header bg 改全透明**：跟 footer 一樣 *transparent*；container 上方 95-132px 加 transparent 過渡到 white zone，body 紫色 gradient 從 header 區域顯現',
+                    '**Blur 過渡延伸到 4 stats 上緣**：container 的紫→白 fade 在 *110px (50%)* → *120px (85%)* → *132px (純白)* — 4 stats 上緣 (約 120px) 剛好在過渡尾端',
+                    '**白色卡片邊緣感加強**：*.stat-item*、*.simulator-panel*、*.tree-header*、*.node-content* 的 border *1px → 1.5px*、alpha *0.5→0.7-0.8*、加多層 box-shadow 製造立體感',
+                    '**頁尾縮小**：footer padding *40/25/50 → 18/25/24*（垂直 90px → 42px）；font-size *13→12px*；subtitle margin-top *8→5px*、font-size *12→11px*'
+                ]
+            },
+            {
+                version: 'v1.17.0',
+                date: '2026-05-20',
+                type: 'minor',
                 changes: [
                     '**Course section 真正的 expand/collapse 動畫**：refactor *renderCourseList* — 每個 section（新增課程 / 本學期修課中 / 可選課程 / 已修）包進 *.course-section* wrapper，用 *grid-template-rows 0fr→1fr* 過渡（跟 tree-children 一樣的展開動畫）',
                     '**walkUpdate diff-update sections**：取代原本 *innerDiv.textContent=\'\'* + rebuild，改用 *syncCourseSections* 比對 section keys。新 section 進場展開、舊 section 退場收合、保留 section 內容 snap 更新',
