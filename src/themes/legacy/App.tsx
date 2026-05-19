@@ -2,13 +2,14 @@ import './legacy.css';
 import { LegacySimulationProvider } from '../../shared/LegacySimulationContext';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { StellarCanvas } from './StellarCanvas';
 
 export function LegacyApp() {
   return (
     <LegacySimulationProvider>
       <div className="container">
-        {/* 星星背景 canvas — wired in Task 11 (StellarCanvas) */}
-        <canvas id="stellar-bg"></canvas>
+        {/* 星星背景 canvas — Task 11 */}
+        <StellarCanvas />
 
         <Header />
 
