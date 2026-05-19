@@ -22,17 +22,14 @@
             overflow-x: hidden;
         }
 
-        /* v1.10.0: container 變成上下漸層紫色帶，中間白色內容區 */
-        /* v1.14.0: revert v1.13 — 恢復上方透明 zone，body 紫色 gradient 從頂部露出 */
+        /* v1.15.0: container 上方改回不透明白色（因為 v1.15 header 自己有紫色 bg），只在底部 footer 區漸層透出紫色 */
         .container {
             max-width: 1920px;
             margin: 0 auto;
             background:
                 linear-gradient(
                     180deg,
-                    transparent 0px,
-                    transparent 200px,
-                    #f8f9fa 320px,
+                    #f8f9fa 0px,
                     #f8f9fa calc(100% - 220px),
                     transparent calc(100% - 100px),
                     transparent 100%
@@ -63,35 +60,35 @@
             z-index: 1;
         }
 
-        /* v1.10.0: header 透明，融入 body 紫色 gradient + 星空 */
-        /* v1.14.0: revert v1.12 fancy serif + glow → 回到 v1.10 簡潔白字風格 (user 選擇 revert) */
+        /* v1.15.0: 回到 v1.7 風格 — 純紫色 header + 白色 Noto Serif TC 字 + mask 底部 blur 邊界 */
         .header {
-            background: transparent;
-            padding: 35px 30px 30px;
+            background: #667eea;
+            padding: 35px 30px 45px;
             text-align: center;
             position: relative;
             z-index: 1;
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 22px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 22px), transparent 100%);
         }
 
         .header h1 {
             display: inline-flex;
             align-items: center;
             gap: 14px;
-            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
-            font-weight: 700;
-            font-size: 32px;
-            letter-spacing: normal;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 900;
+            font-size: 36px;
+            letter-spacing: 2px;
             line-height: 1.3;
             color: white;
         }
 
         .header .hero-emoji {
-            font-size: 32px;
+            font-size: 38px;
             filter: none;
             -webkit-text-fill-color: initial;
         }
 
-        /* v1.14.0: revert gradient text 回到純白文字（在紫色 body bg 上對比夠） */
         .header .hero-text {
             background: none;
             -webkit-background-clip: initial;
@@ -148,9 +145,9 @@
         }
 
         /* v1.14.0: revert v1.12 紫色漸層 bar → 改回 v1.10 風格白玻璃 bar */
+        /* v1.15.0: 拿掉 space-between，stats-grid 用 flex:1 + justify-center 讓 4 格在 title 之外的空白置中 */
         .stats.scrolled {
             flex-direction: row;
-            justify-content: space-between;
             align-items: center;
             padding: 12px 30px;
             background: rgba(255, 255, 255, 0.82);
@@ -164,9 +161,12 @@
             display: flex;
         }
 
+        /* v1.15.0: stats-grid 接管除 title 外的空白並 center 4 格 */
         .stats.scrolled .stats-grid {
             display: flex;
-            gap: 14px;
+            flex: 1;
+            justify-content: center;
+            gap: 0;
         }
 
         /* v1.12.0: position relative；v1.13.0 後 progress-bar 已移除但保留以備未來 absolute child */
@@ -205,7 +205,7 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
-        /* v1.14.0: revert — 白色 scrolled bar 上的 stat-item，深色文字、無分隔線 */
+        /* v1.15.0: 白色 scrolled bar 上的 stat-item，加回 | 分隔線（border-right 1px 淡紫）*/
         .stats.scrolled .stat-item {
             background-color: transparent;
             backdrop-filter: blur(0px);
@@ -214,9 +214,8 @@
                 0 0 0 rgba(102, 126, 234, 0),
                 inset 0 1px 0 rgba(255, 255, 255, 0);
             border-color: transparent;
-            border-right-color: transparent;
-            border-right-width: 0;
-            padding: 4px 14px;
+            border-right: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 4px 20px;
             border-radius: 0;
             flex-direction: row;
             gap: 8px;
@@ -229,11 +228,7 @@
         }
 
         .stats.scrolled .stat-item:last-child {
-            padding-right: 0;
-        }
-
-        .stats.scrolled .stat-item:first-child {
-            padding-left: 0;
+            border-right: none;
         }
 
         .stat-item.highlight {
@@ -342,8 +337,9 @@
                 display: flex;
                 flex-direction: column;
                 /* v1.12.0: 底部 mask fade，與 tree-panel 對稱 */
-                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 40px), transparent 100%);
-                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 40px), transparent 100%);
+                /* v1.15.0: 漸層起點調整跟 container bottom fade 對齊 (sticky 面板底約 30px from viewport bottom，container fade 從 220px from page bottom 開始 → 面板內 190px 上方) */
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 190px), transparent 100%);
+                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 190px), transparent 100%);
                 box-shadow: 
                     0 8px 32px rgba(102, 126, 234, 0.12),
                     inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -385,13 +381,14 @@
         
         /* ===== 樹狀圖區域 ===== */
         /* v1.12.0: 底部 mask fade，向下滑到頁尾紫色區時白色 block 邊界自然溶入 */
+        /* v1.15.0: 漸層起點調整成跟 container bottom fade 對齊 (tree 底約 130px from page bottom，container fade 從 220px from page bottom 開始 → tree 內 90px 上方) */
         .tree-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 60px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 60px), transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 90px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 90px), transparent 100%);
             padding-bottom: 20px;
         }
         
@@ -639,6 +636,8 @@
         body.theme-classic .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 25px 30px;
+            -webkit-mask-image: none;
+            mask-image: none;
         }
         /* v1.12.0: classic theme — h1 變回 v1.7 樣式（白色純文字、無 fancy gradient） */
         body.theme-classic .header h1 {
@@ -700,7 +699,10 @@
                 );
         }
         body.theme-v1-10 .header {
+            background: transparent;
             padding: 35px 30px 30px;
+            -webkit-mask-image: none;
+            mask-image: none;
         }
         body.theme-v1-10 .header h1 {
             font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
@@ -1671,7 +1673,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.14.0</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.15.0</a> | 110學年度入學適用</p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -2193,10 +2195,25 @@
         // 後續若有純 CSS 視覺改動的版本，加上 theme: '<theme-id>' 即可
         const CHANGELOG = [
             {
-                version: 'v1.14.0',
+                version: 'v1.15.0',
                 date: '2026-05-20',
                 type: 'minor',
                 theme: 'current',
+                changes: [
+                    '🎨 Header 重設計參考 v1.7：solid 紫色 #667eea 純底色 + 白字（不用漸層）',
+                    '✨ Header 字體用 Noto Serif TC w900 36px（保留 v1.12 試的好看襯線字）',
+                    '🌫️ 紫色 header 與白色內容的交接處用 mask-image fade 出 blur 效果（22px 漸層透明，不是整個漸層）',
+                    '📐 Sticky bar 4 格中間加 | 分隔線（border-right 1px 淡紫）',
+                    '⚖️ Sticky bar 4 格位置在 title 以外的空白置中（stats-grid flex:1 + justify-center）',
+                    '🎯 Simulator panel mask 漸層起點調整為 calc(100% - 190px) 對齊 container 底部 fade 起點',
+                    '🎯 Tree panel mask 漸層起點調整為 calc(100% - 90px) 對齊 container 底部 fade 起點',
+                    '🏷️ v1.14.0 theme tag 拿掉（其視覺已被 v1.15 取代）；v1.15.0 接手 theme: current'
+                ]
+            },
+            {
+                version: 'v1.14.0',
+                date: '2026-05-20',
+                type: 'minor',
                 changes: [
                     '↩️ Revert v1.12 fancy serif 實驗：header h1 改回 Microsoft JhengHei 32px white 純文字（拿掉 gradient text / glow / Noto Serif TC）',
                     '↩️ Revert v1.12 紫色 sticky bar：scrolled bar 改回 v1.10 風格白玻璃 + 紫色 stat numbers + 灰色 labels',
