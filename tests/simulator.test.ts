@@ -49,7 +49,7 @@ describe('walkTree', () => {
     expect(cs?.earned).toBe(6);
   });
 
-  it('clips earned at minCredits per leaf (no over-fill)', () => {
+  it('reports raw earned with overflow separately', () => {
     // 6 records all into core.cs (15 required), each 3 credits = 18 total
     const assignments: Assignment[] = Array.from({length: 6}, (_, i) => ({
       record: { semester:'112-1', code:`X${i}`, name:'x', type:'必修', credits:3, grade:'A' as const },
@@ -58,7 +58,9 @@ describe('walkTree', () => {
     const result = walkTree(RULES_110, assignments);
     const core = result.children?.find(c => c.id === 'core');
     const cs = core?.children?.find(c => c.id === 'core.cs');
-    expect(cs?.earned).toBe(15);  // clipped at minCredits
+    expect(cs?.earned).toBe(18);          // raw sum, not clipped
+    expect(cs?.earnedClipped).toBe(15);   // clipped for display/progress
+    expect(cs?.overflow).toBe(3);         // surplus
   });
 });
 

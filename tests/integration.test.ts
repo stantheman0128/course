@@ -22,10 +22,11 @@ const currentSem   = currentSemData.courses as { code: string; name: string }[];
 const all114_2     = currentSem.map(c => c.code);
 
 describe('Integration — real data', () => {
-  it('test 1: empty assumed → totalEarned in [70, 80]', () => {
+  it('test 1: empty assumed → totalEarned in [70, 95]', () => {
+    // raw earned (no clipping) — totalEarned = 88 after overflow-display fix
     const result = simulate(transcript, catalog, liberal, currentSem, []);
     expect(result.totalEarned).toBeGreaterThanOrEqual(70);
-    expect(result.totalEarned).toBeLessThanOrEqual(80);
+    expect(result.totalEarned).toBeLessThanOrEqual(95);
   });
 
   it('test 2: all 9 114-2 courses assumed → totalPending = 25', () => {
