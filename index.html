@@ -23,15 +23,14 @@
         }
 
         /* v1.10.0: container 變成上下漸層紫色帶，中間白色內容區 */
+        /* v1.13.0: 拿掉上方紫色漸層 — container 從頂部就是 #f8f9fa 不透明，只在底部 footer 區域才漸層透出紫色 */
         .container {
             max-width: 1920px;
             margin: 0 auto;
             background:
                 linear-gradient(
                     180deg,
-                    transparent 0px,
-                    transparent 200px,
-                    #f8f9fa 320px,
+                    #f8f9fa 0px,
                     #f8f9fa calc(100% - 220px),
                     transparent calc(100% - 100px),
                     transparent 100%
@@ -90,15 +89,16 @@
             -webkit-text-fill-color: initial;
         }
 
+        /* v1.13.0: 上方 bg 變白後，gradient 改用深紫色才能在白底上有對比 */
         .header .hero-text {
-            background: linear-gradient(135deg, #a3b3ff 0%, #c4a3ff 50%, #e9d5ff 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 50%, #7c3aed 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
             filter:
-                drop-shadow(0 2px 12px rgba(102, 126, 234, 0.6))
-                drop-shadow(0 0 24px rgba(196, 181, 253, 0.3));
+                drop-shadow(0 2px 8px rgba(79, 70, 229, 0.25))
+                drop-shadow(0 0 18px rgba(124, 58, 237, 0.15));
         }
         
         /* ===== Sticky統計區域（玻璃擬態）===== */
@@ -129,28 +129,30 @@
             transition: gap 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* v1.13.0: title 字體加大 16 → 21px、bar 整體高度加大 */
         .stats-title-compact {
             display: none;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             color: white;
             font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
             font-weight: 900;
-            font-size: 16px;
-            letter-spacing: 1.2px;
+            font-size: 21px;
+            letter-spacing: 1.5px;
             white-space: nowrap;
         }
 
         .stats-title-compact .compact-emoji {
-            font-size: 18px;
+            font-size: 23px;
             -webkit-text-fill-color: initial;
         }
 
+        /* v1.13.0: bar 高度加大 (padding 10 → 15px)、字加大、拿掉 cell 間的白色分隔線 */
         .stats.scrolled {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 30px;
+            padding: 15px 30px;
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.94) 0%, rgba(118, 75, 162, 0.94) 100%);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -203,7 +205,8 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
-        /* v1.12.0: 紫漸層 bar 上的 stat-item — 文字白色、分隔線白色透明 */
+        /* v1.12.0: 紫漸層 bar 上的 stat-item — 文字白色 */
+        /* v1.13.0: 拿掉 cell 之間的白色分隔線，4 格融入 bar 為連續整體 */
         .stats.scrolled .stat-item {
             background-color: transparent;
             backdrop-filter: blur(0px);
@@ -212,12 +215,12 @@
                 0 0 0 rgba(102, 126, 234, 0),
                 inset 0 1px 0 rgba(255, 255, 255, 0);
             border-color: transparent;
-            border-right-color: rgba(255, 255, 255, 0.28);
-            border-right-width: 2px;
-            padding: 4px 18px 4px 0;
+            border-right-color: transparent;
+            border-right-width: 0;
+            padding: 4px 14px;
             border-radius: 0;
             flex-direction: row;
-            gap: 6px;
+            gap: 8px;
             margin-right: 0;
             color: white;
         }
@@ -227,8 +230,11 @@
         }
 
         .stats.scrolled .stat-item:last-child {
-            border-right-color: transparent;
             padding-right: 0;
+        }
+
+        .stats.scrolled .stat-item:first-child {
+            padding-left: 0;
         }
 
         .stat-item.highlight {
@@ -256,8 +262,9 @@
         }
 
         /* 在 scrolled 紫色 bar 上，所有 stat-number 強制白色（含 inline style 著色的 128/34/73.4%） */
+        /* v1.13.0: 字加大 17 → 20px 配合更高的 bar */
         .stats.scrolled .stat-number {
-            font-size: 17px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 0;
             color: white !important;
@@ -273,9 +280,10 @@
                 color 0.4s ease;
         }
 
+        /* v1.13.0: 字加大 12 → 14px */
         .stats.scrolled .stat-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.78);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.82);
         }
 
         /* v1.12.0: progress-bar 改 absolute 解決第一格內容被推高的對齊 bug */
@@ -604,14 +612,26 @@
         }
 
         /* v1.12.0: toggle bounce animation — 切換時瞬間 scale 下沉再彈回，視覺更明顯 */
-        .select-all-btn.toggling {
+        /* v1.13.0: 同一個 keyframes 套用到 .header-btn.toggling，全螢幕切換也有 bounce */
+        .select-all-btn.toggling,
+        .header-btn.toggling {
             animation: toggleBounce 0.42s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes toggleBounce {
             0%   { transform: scale(1); }
-            35%  { transform: scale(0.88); }
-            70%  { transform: scale(1.04); }
+            35%  { transform: scale(0.85); }
+            70%  { transform: scale(1.08); }
             100% { transform: scale(1); }
+        }
+        /* header-btn 在 active 狀態 (.active) 有 rotate(45deg)，bounce 時用 rotateY 增強 */
+        .header-btn.active.toggling {
+            animation: toggleBounceRotated 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes toggleBounceRotated {
+            0%   { transform: rotate(0deg) scale(1); }
+            35%  { transform: rotate(20deg) scale(0.85); }
+            70%  { transform: rotate(50deg) scale(1.08); }
+            100% { transform: rotate(45deg) scale(1); }
         }
 
         /* v1.12.0: B1 — theme 切換時的全域 smooth transition */
@@ -688,6 +708,84 @@
         body.theme-classic .stats.scrolled .stat-number[style*="ef4444"] { color: #ef4444 !important; }
         body.theme-classic .stats.scrolled .stat-number[style*="f59e0b"] { color: #f59e0b !important; }
         body.theme-classic .stats.scrolled .stat-number[style*="10b981"] { color: #10b981 !important; }
+
+        /* ===== v1.13.0: v1-10 theme overrides (post-v1.10, pre-v1.12 visual) ===== */
+        /* 還原：透明 header 紫漸層、簡單 h1、白玻璃 scrolled bar、無 title morph、無 mask fade、星空 0.7 */
+        body.theme-v1-10 .container {
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 200px,
+                    #f8f9fa 320px,
+                    #f8f9fa calc(100% - 220px),
+                    transparent calc(100% - 100px),
+                    transparent 100%
+                );
+        }
+        body.theme-v1-10 .header {
+            padding: 35px 30px 30px;
+        }
+        body.theme-v1-10 .header h1 {
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: normal;
+        }
+        body.theme-v1-10 .header .hero-emoji {
+            filter: none;
+        }
+        body.theme-v1-10 .header .hero-text {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            -webkit-text-fill-color: white;
+            color: white;
+            filter: none;
+        }
+        body.theme-v1-10 #stellar-bg {
+            opacity: 0.7;
+        }
+        body.theme-v1-10 .tree-panel,
+        body.theme-v1-10 .simulator-panel {
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+        body.theme-v1-10 .stats.scrolled {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+        }
+        body.theme-v1-10 .stats.scrolled .stats-title-compact {
+            display: none;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item {
+            color: inherit;
+            border-right-color: rgba(102, 126, 234, 0.2);
+            border-right-width: 2px;
+            padding: 5px 20px 5px 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item:first-child {
+            padding-left: 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item:last-child {
+            border-right-color: transparent;
+            padding-right: 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-number {
+            color: #667eea !important;
+            font-size: 18px;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-label {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="ef4444"] { color: #ef4444 !important; }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="f59e0b"] { color: #f59e0b !important; }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="10b981"] { color: #10b981 !important; }
         body.theme-classic .container {
             background: #f8f9fa;
         }
@@ -1552,9 +1650,6 @@
                 <div class="stat-item">
                     <span class="stat-number" id="total-earned">94</span>
                     <span class="stat-label">已修學分</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-bar" style="width: 73.4%"></div>
-                    </div>
                 </div>
                 <div class="stat-item">
                     <span class="stat-number" style="color: #ef4444">128</span>
@@ -1600,7 +1695,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.12.0</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.13.0</a> | 110學年度入學適用</p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -1761,7 +1856,7 @@
             const btn = document.getElementById('fullscreen-btn');
             const canvas = document.getElementById('stellar-bg');
             const container = document.querySelector('.container');
-            
+
             if (panel.classList.contains('fullscreen')) {
                 // 退出全螢幕
                 panel.classList.remove('fullscreen');
@@ -1779,6 +1874,11 @@
                 panel.insertBefore(canvas, panel.firstChild);
                 showShortcutHint('全螢幕模式');
             }
+            // v1.13.0: 按下時的 bounce 動畫，視覺更明顯
+            btn.classList.remove('toggling');
+            void btn.offsetWidth;
+            btn.classList.add('toggling');
+            setTimeout(() => btn.classList.remove('toggling'), 450);
         }
 
         // 課程架構數據
@@ -2117,9 +2217,24 @@
         // 後續若有純 CSS 視覺改動的版本，加上 theme: '<theme-id>' 即可
         const CHANGELOG = [
             {
+                version: 'v1.13.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '🎨 拿掉上方紫色漸層：container 從頂部就是白底，只在 footer 區域才漸層透出紫色',
+                    '🌌 Header h1 gradient 改用深紫色 (#4f46e5 → #6d28d9 → #7c3aed) 配合白底有對比',
+                    '📏 Sticky bar 高度加大、title 字體 16→21px、stat-number 17→20px、stat-label 12→14px',
+                    '🚫 拿掉 sticky bar 內的 cell 垂直分隔線，4 格融入 bar 為連續整體',
+                    '🐛 移除「已修學分」格下方的小 progress-bar',
+                    '🎯 全螢幕按鈕加入 bounce 動畫（含 rotate 變化），按下時視覺更明顯',
+                    '🔀 Theme 拆分：v1.10.0 → 「v1-10」獨立 theme（透明 header、白玻璃 scrolled bar、無 title morph）；v1.12.0 → 「current」（latest）'
+                ]
+            },
+            {
                 version: 'v1.12.0',
                 date: '2026-05-20',
                 type: 'minor',
+                theme: 'current',
                 changes: [
                     '🎨 Header 重設計：紫色 bar 拿掉、星空當背景、Noto Serif TC 學術襯線字體 + 紫色 gradient text + 多層 glow',
                     '✨ Sticky bar 滾動形變：滾動時標題縮入 bar 靠左、4 stats 靠右、整條 bar 變紫色漸層、字色翻白',
@@ -2145,7 +2260,7 @@
                 version: 'v1.10.0',
                 date: '2026-05-20',
                 type: 'minor',
-                theme: 'current',
+                theme: 'v1-10',
                 changes: [
                     '🎨 按鈕設計改版：「全選」改 outline + glass，「全螢幕」改 ghost 風格',
                     '🌌 Header 與 Footer 改為透明，融入紫色漸層 + 星空背景',
@@ -2279,9 +2394,11 @@
         }
 
         function setTheme(themeName) {
-            document.body.classList.remove('theme-classic');
+            document.body.classList.remove('theme-classic', 'theme-v1-10');
             if (themeName === 'classic') {
                 document.body.classList.add('theme-classic');
+            } else if (themeName === 'v1-10') {
+                document.body.classList.add('theme-v1-10');
             }
             localStorage.setItem('course-theme', themeName);
         }
