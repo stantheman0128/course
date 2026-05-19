@@ -7,12 +7,14 @@ import { StellarCanvas } from './StellarCanvas';
 import { Stats } from './Stats';
 import { SimulatorPanel } from './SimulatorPanel';
 import { BottomSheet } from './BottomSheet';
+import { TreePanel } from './TreePanel';
 import { useScrollCollapse } from './useScrollCollapse';
 
 function LegacyAppInner() {
   useScrollCollapse();
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const openSheet = () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -24,6 +26,8 @@ function LegacyAppInner() {
     }
   };
   const closeSheet = () => setSheetOpen(false);
+
+  const toggleFullscreen = () => setIsFullscreen(prev => !prev);
 
   return (
     <>
@@ -44,27 +48,16 @@ function LegacyAppInner() {
             <SimulatorPanel />
           </div>
 
-          {/* 樹狀圖區域 — wired in Task 16 */}
-          <div className="tree-panel" id="tree-panel">
-            <div className="tree-header" id="tree-header">
-              {/* TreePanel header buttons — wired in Task 16 */}
-              <button
-                className="header-btn"
-                id="course-btn"
-                onClick={openSheet}
-                title="選課 (C)"
-              >
-                📚
-              </button>
-              <div className="tree-header-title">畢業學分架構</div>
-              <button className="header-btn" id="fullscreen-btn" title="全螢幕 (F)">
-                ⛶
-              </button>
-            </div>
-
-            <div id="tree-container">
-              {/* TreePanel content — wired in Task 16 */}
-            </div>
+          {/* 樹狀圖區域 — Task 16 */}
+          <div
+            className={`tree-panel${isFullscreen ? ' fullscreen' : ''}`}
+            id="tree-panel"
+          >
+            <TreePanel
+              onOpenSheet={openSheet}
+              onToggleFullscreen={toggleFullscreen}
+              isFullscreen={isFullscreen}
+            />
           </div>
         </div>
 
