@@ -40,17 +40,19 @@ export function walkTree(
     passedCourses = children.flatMap(c => c.passedCourses);
   }
 
-  // Clip at minCredits (for display)
   const required = rule.minCredits;
-  const clippedEarned = Math.min(earned, required);
+  const earnedClipped = Math.min(earned, required);
+  const overflow = Math.max(0, earned - required);
 
   return {
     id: rule.id,
     label: rule.label,
     required,
-    earned: clippedEarned,
+    earned,                    // raw, not clipped
+    earnedClipped,             // clipped for progress/fulfilled
+    overflow,
     pending: 0,
-    fulfilled: clippedEarned >= required,
+    fulfilled: earnedClipped >= required,
     passedCourses,
     pendingCourses: [],
     gapCourses: [],
@@ -141,10 +143,10 @@ export function simulate(
   };
   collect(tree);
 
-  // 7. Graduability check: sum (required - earned) over unfulfilled leaves
+  // 7. Graduability check: sum (required - earnedClipped) over unfulfilled leaves
   const remaining = unsatisfied
     .filter(n => !n.children)
-    .reduce((s, n) => s + (n.required - n.earned), 0);
+    .reduce((s, n) => s + (n.required - n.earnedClipped), 0);
   const canGraduateNextSemester = remaining <= 25;
 
   return {
