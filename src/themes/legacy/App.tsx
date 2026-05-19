@@ -3,19 +3,23 @@ import { LegacySimulationProvider } from '../../shared/LegacySimulationContext';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { StellarCanvas } from './StellarCanvas';
+import { Stats } from './Stats';
+import { useScrollCollapse } from './useScrollCollapse';
 
-export function LegacyApp() {
+function LegacyAppInner() {
+  useScrollCollapse();
+
   return (
-    <LegacySimulationProvider>
+    <>
       <div className="container">
         {/* 星星背景 canvas — Task 11 */}
         <StellarCanvas />
 
         <Header />
 
-        {/* Stats panel placeholder — wired in Task 12 */}
+        {/* Stats panel — Task 12 */}
         <div className="stats" id="stats">
-          {/* Stats component goes here */}
+          <Stats />
         </div>
 
         <div className="content-wrapper">
@@ -66,6 +70,14 @@ export function LegacyApp() {
 
       {/* 快捷鍵提示 — wired in Task 20 */}
       <div className="shortcut-hint" id="shortcut-hint"></div>
+    </>
+  );
+}
+
+export function LegacyApp() {
+  return (
+    <LegacySimulationProvider>
+      <LegacyAppInner />
     </LegacySimulationProvider>
   );
 }
