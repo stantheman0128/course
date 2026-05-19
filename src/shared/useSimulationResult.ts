@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { simulate } from '../lib/simulator';
-import { useSimulation } from './SimulationContext';
+import { useModernSimulation } from './ModernSimulationContext';
 import transcript from '../data/transcript.json';
 import catalog from '../data/catalog-110.json';
 import liberal from '../data/liberal-courses.json';
@@ -9,7 +9,7 @@ import type { TranscriptRecord, CatalogCourse, SimulationResult } from '../lib/t
 import type { LiberalMap } from '../lib/catalog';
 
 export function useSimulationResult(): SimulationResult {
-  const { assumedPassed } = useSimulation();
+  const { assumedPassed } = useModernSimulation();
 
   return useMemo(() => {
     return simulate(

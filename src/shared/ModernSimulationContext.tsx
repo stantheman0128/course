@@ -4,13 +4,13 @@ import currentSemester from '../data/current-semester.json';
 const DEFAULT_CODES = new Set(currentSemester.courses.map(c => c.code));
 const STORAGE_KEY = 'course.assumedPassed.v1';
 
-interface SimulationContextValue {
+interface ModernSimulationContextValue {
   assumedPassed: Set<string>;
   toggle: (code: string) => void;
   reset: () => void;
 }
 
-const SimulationContext = createContext<SimulationContextValue | null>(null);
+const ModernSimulationContext = createContext<ModernSimulationContextValue | null>(null);
 
 function loadFromStorage(): Set<string> {
   try {
@@ -27,14 +27,14 @@ function saveToStorage(codes: Set<string>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(codes)));
 }
 
-export function SimulationProvider({ children }: { children: ReactNode }) {
+export function ModernSimulationProvider({ children }: { children: ReactNode }) {
   const [assumedPassed, setAssumedPassed] = useState<Set<string>>(() => loadFromStorage());
 
   useEffect(() => {
     saveToStorage(assumedPassed);
   }, [assumedPassed]);
 
-  const value = useMemo<SimulationContextValue>(() => ({
+  const value = useMemo<ModernSimulationContextValue>(() => ({
     assumedPassed,
     toggle: (code: string) => {
       setAssumedPassed(prev => {
@@ -48,14 +48,14 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   }), [assumedPassed]);
 
   return (
-    <SimulationContext.Provider value={value}>
+    <ModernSimulationContext.Provider value={value}>
       {children}
-    </SimulationContext.Provider>
+    </ModernSimulationContext.Provider>
   );
 }
 
-export function useSimulation(): SimulationContextValue {
-  const ctx = useContext(SimulationContext);
-  if (!ctx) throw new Error('useSimulation must be inside SimulationProvider');
+export function useModernSimulation(): ModernSimulationContextValue {
+  const ctx = useContext(ModernSimulationContext);
+  if (!ctx) throw new Error('useModernSimulation must be inside ModernSimulationProvider');
   return ctx;
 }
