@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const STAR_COLORS = [
   { r: 102, g: 126, b: 234 },
@@ -28,8 +29,25 @@ interface Star {
 interface ShootingStar { x: number; y: number; vx: number; vy: number; life: number; decay: number; length: number; size: number; }
 interface Ripple { x: number; y: number; radius: number; maxRadius: number; life: number; decay: number; }
 
-export function StellarCanvas() {
+interface StellarCanvasProps {
+  containerSelector?: string;
+}
+
+export function StellarCanvas({ containerSelector }: StellarCanvasProps = {}) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null);
+
+  // Resolve portal target whenever containerSelector changes.
+  // We use a small effect so we re-check after first render when the DOM is
+  // guaranteed to be present.
+  useEffect(() => {
+    if (!containerSelector) {
+      setPortalTarget(null);
+      return;
+    }
+    const el = document.querySelector(containerSelector);
+    setPortalTarget(el); // null-safe: if not found yet, falls back to default
+  }, [containerSelector]);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -236,5 +254,11 @@ export function StellarCanvas() {
     };
   }, []);
 
-  return <canvas ref={ref} id="stellar-bg"></canvas>;
+  const canvas = <canvas ref={ref} id="stellar-bg"></canvas>;
+
+  if (portalTarget) {
+    return createPortal(canvas, portalTarget);
+  }
+
+  return canvas;
 }

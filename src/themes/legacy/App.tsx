@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './legacy.css';
 import { LegacySimulationProvider } from '../../shared/LegacySimulationContext';
 import { Header } from './Header';
@@ -8,13 +8,28 @@ import { Stats } from './Stats';
 import { SimulatorPanel } from './SimulatorPanel';
 import { BottomSheet } from './BottomSheet';
 import { TreePanel } from './TreePanel';
+import { ShortcutHint } from './ShortcutHint';
 import { useScrollCollapse } from './useScrollCollapse';
+import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
 function LegacyAppInner() {
   useScrollCollapse();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
+
+  // Task 19: sync body class with fullscreen state
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.classList.add('fullscreen-mode');
+    } else {
+      document.body.classList.remove('fullscreen-mode');
+    }
+    return () => {
+      document.body.classList.remove('fullscreen-mode');
+    };
+  }, [isFullscreen]);
 
   const openSheet = () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -27,13 +42,33 @@ function LegacyAppInner() {
   };
   const closeSheet = () => setSheetOpen(false);
 
-  const toggleFullscreen = () => setIsFullscreen(prev => !prev);
+  // Task 21: toggleFullscreen now also fires the hint toast
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(prev => {
+      const next = !prev;
+      setHint(next ? '全螢幕模式' : '退出全螢幕');
+      setTimeout(() => setHint(null), 1500);
+      return next;
+    });
+  }, []);
+
+  // Task 20: keyboard shortcuts
+  const handleEscape = useCallback(() => {
+    if (sheetOpen) closeSheet();
+    if (isFullscreen) toggleFullscreen();
+  }, [sheetOpen, isFullscreen, toggleFullscreen]);
+
+  useKeyboardShortcuts({
+    onToggleFullscreen: toggleFullscreen,
+    onToggleSheet: sheetOpen ? closeSheet : openSheet,
+    onEscape: handleEscape,
+  });
 
   return (
     <>
       <div className="container">
-        {/* 星星背景 canvas — Task 11 */}
-        <StellarCanvas />
+        {/* 星星背景 canvas — Task 11 / 19: portal into tree-panel when fullscreen */}
+        <StellarCanvas containerSelector={isFullscreen ? '#tree-panel' : undefined} />
 
         <Header />
 
@@ -67,8 +102,8 @@ function LegacyAppInner() {
       {/* 豎屏選課遮罩 + 面板（iOS Bottom Sheet）— Task 15 */}
       <BottomSheet isOpen={sheetOpen} onClose={closeSheet} />
 
-      {/* 快捷鍵提示 — wired in Task 20 */}
-      <div className="shortcut-hint" id="shortcut-hint"></div>
+      {/* 快捷鍵提示 — Task 21 */}
+      <ShortcutHint text={hint} />
     </>
   );
 }
