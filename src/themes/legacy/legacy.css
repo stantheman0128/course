@@ -1,0 +1,960 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft JhengHei", "微軟正黑體", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1920px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* 星星網絡背景 */
+#stellar-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.footer {
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.header h1 {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* ===== Sticky統計區域（玻璃擬態）===== */
+.stats {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 25px 30px;
+    background: transparent;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stats.scrolled {
+    padding: 10px 20px;
+    gap: 15px;
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 8px 32px rgba(102, 126, 234, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 12px 40px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.stats.scrolled .stat-item {
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    border: none;
+    padding: 5px 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-right: 2px solid rgba(102, 126, 234, 0.2);
+    padding-right: 20px;
+    margin-right: 15px;
+}
+
+.stats.scrolled .stat-item:hover {
+    transform: none;
+}
+
+.stats.scrolled .stat-item:last-child {
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.stat-item.highlight {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+        0 16px 48px rgba(102, 126, 234, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.stats.scrolled .stat-item.highlight {
+    transform: none;
+    box-shadow: none;
+}
+
+.stat-number {
+    font-size: 42px;
+    font-weight: bold;
+    color: #667eea;
+    display: block;
+    margin-bottom: 8px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stats.scrolled .stat-number {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 0;
+    display: inline;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+}
+
+.stats.scrolled .stat-label {
+    font-size: 12px;
+    display: inline;
+}
+
+.progress-bar {
+    background: #e9ecef;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 12px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stats.scrolled .progress-bar {
+    height: 0;
+    margin-top: 0;
+    opacity: 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.8s ease;
+    border-radius: 4px;
+}
+
+/* 豎屏 */
+@media (max-width: 1199px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .stats.scrolled {
+        grid-template-columns: repeat(4, auto);
+        padding: 8px 15px;
+    }
+
+    .stat-number {
+        font-size: 36px;
+    }
+}
+
+/* ===== 內容區域 ===== */
+.content-wrapper {
+    display: flex;
+    min-height: calc(100vh - 200px);
+}
+
+@media (max-width: 1199px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 1200px) {
+    .content-wrapper {
+        flex-direction: row;
+    }
+}
+
+/* ===== 橫屏：左側選課區（玻璃卡片）===== */
+@media (min-width: 1200px) {
+    .simulator-panel {
+        width: 360px;
+        flex-shrink: 0;
+        margin: 15px;
+        margin-right: 0;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        position: sticky;
+        top: 70px;
+        max-height: calc(100vh - 100px);
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        box-shadow:
+            0 8px 32px rgba(102, 126, 234, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .simulator-panel-header {
+        padding: 18px 20px;
+        background: transparent;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .simulator-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .course-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 15px 15px;
+    }
+}
+
+/* 豎屏隱藏桌面版選課區 */
+@media (max-width: 1199px) {
+    .simulator-panel {
+        display: none;
+    }
+}
+
+/* ===== 樹狀圖區域 ===== */
+.tree-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 標題列 - 玻璃擬態 */
+.tree-header {
+    position: sticky;
+    top: 70px;
+    z-index: 50;
+    padding: 15px 25px;
+    margin: 15px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 8px 32px rgba(102, 126, 234, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 1199px) {
+    .tree-header.floating {
+        background: rgba(255, 255, 255, 0.85);
+        box-shadow:
+            0 8px 40px rgba(102, 126, 234, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+}
+
+@media (min-width: 1200px) {
+    .tree-header {
+        margin: 15px 25px 15px 15px;
+        top: 70px;
+    }
+}
+
+.tree-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    flex: 1;
+    text-align: center;
+}
+
+.header-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.header-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.header-btn.active {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: rotate(45deg);
+}
+
+/* 橫屏隱藏選課按鈕 */
+@media (min-width: 1200px) {
+    #course-btn {
+        display: none;
+    }
+
+    .tree-header-title {
+        text-align: left;
+        padding-left: 10px;
+    }
+}
+
+/* ===== 豎屏選課遮罩和面板（iOS Bottom Sheet 風格）===== */
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-course-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 80vh;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px 24px 0 0;
+    z-index: 250;
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow:
+        0 -10px 60px rgba(0, 0, 0, 0.15),
+        0 -2px 20px rgba(102, 126, 234, 0.1);
+    overflow: hidden;
+}
+
+.mobile-course-panel.active {
+    transform: translateY(0);
+}
+
+/* 拖曳指示器 */
+.mobile-panel-handle {
+    width: 36px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    margin: 12px auto 8px;
+}
+
+.mobile-panel-header {
+    padding: 12px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.mobile-panel-header-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.mobile-panel-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.mobile-panel-header p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.mobile-panel-content {
+    padding: 16px;
+    max-height: calc(80vh - 100px);
+    overflow-y: auto;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.mobile-course-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mobile-course-item {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mobile-course-panel.active .mobile-course-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* 依序延遲動畫 - 更快的節奏 */
+.mobile-course-item:nth-child(1) { transition-delay: 0.05s; }
+.mobile-course-item:nth-child(2) { transition-delay: 0.08s; }
+.mobile-course-item:nth-child(3) { transition-delay: 0.11s; }
+.mobile-course-item:nth-child(4) { transition-delay: 0.14s; }
+.mobile-course-item:nth-child(5) { transition-delay: 0.17s; }
+.mobile-course-item:nth-child(6) { transition-delay: 0.20s; }
+.mobile-course-item:nth-child(7) { transition-delay: 0.23s; }
+.mobile-course-item:nth-child(8) { transition-delay: 0.26s; }
+.mobile-course-item:nth-child(9) { transition-delay: 0.29s; }
+
+@media (min-width: 1200px) {
+    .mobile-overlay,
+    .mobile-course-panel {
+        display: none !important;
+    }
+}
+
+/* 共用課程項目樣式（玻璃風格）*/
+.course-item-sim {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
+}
+
+.course-item-sim:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.course-item-sim.selected {
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.9), rgba(191, 219, 254, 0.9));
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+}
+
+.course-item-sim.selected .course-name-sim {
+    color: #4338ca;
+}
+
+.course-item-sim input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+.course-name-sim {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.course-credits-sim {
+    font-size: 13px;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* ===== 樹狀圖內容 ===== */
+#tree-container {
+    flex: 1;
+    padding: 5px 25px 40px;
+    overflow-x: hidden;
+}
+
+@media (max-width: 1199px) {
+    #tree-container {
+        padding: 5px 15px 40px;
+    }
+}
+
+.tree {
+    padding-left: 0;
+    list-style: none;
+}
+
+.tree-node {
+    position: relative;
+    padding: 4px 0;
+}
+
+.node-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    margin-right: 5px;
+}
+
+.node-content:hover {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.node-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+}
+
+.status-completed { background: linear-gradient(135deg, #10b981, #059669); }
+.status-partial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.status-incomplete { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.node-label {
+    flex: 1;
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 15px;
+}
+
+.node-credits {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.credits-earned {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.credits-required {
+    color: #9ca3af;
+}
+
+.toggle-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+}
+
+.toggle-icon.expanded {
+    transform: rotate(90deg);
+}
+
+/* 樹狀連接線 + 展開動畫（Apple/Stripe風格）*/
+.tree-children {
+    list-style: none;
+    padding-left: 20px;
+    margin-left: 14px;
+    border-left: 2px solid #e5e7eb;
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.tree-children > .tree-children-inner {
+    overflow: hidden;
+}
+
+.tree-children.show {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* 水平連接線 */
+.tree-children > .tree-children-inner > .tree-node {
+    position: relative;
+}
+
+.tree-children > .tree-children-inner > .tree-node::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 26px;
+    width: 18px;
+    height: 2px;
+    background: #e5e7eb;
+}
+
+/* 已修課程摺疊區塊 */
+.completed-summary {
+    padding: 10px 14px;
+    margin: 4px 5px 4px 30px;
+    border-radius: 8px;
+    font-size: 13px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-left: 3px solid #10b981;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.completed-summary:hover {
+    background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+}
+
+.completed-summary-text {
+    font-weight: 600;
+    color: #065f46;
+}
+
+.completed-summary-toggle {
+    color: #059669;
+    font-size: 12px;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.completed-summary-toggle.expanded {
+    transform: rotate(180deg);
+}
+
+.completed-courses-list {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.completed-courses-list > .completed-courses-inner {
+    overflow: hidden;
+}
+
+.completed-courses-list.show {
+    grid-template-rows: 1fr;
+}
+
+.course-detail {
+    padding: 10px 14px;
+    margin: 4px 5px 4px 30px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.course-detail.completed {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-left: 3px solid #10b981;
+}
+
+.course-detail.available {
+    background: #f3f4f6;
+    border-left: 3px solid #9ca3af;
+}
+
+.course-detail.new {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-left: 3px solid #3b82f6;
+}
+
+.course-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.course-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.tag-grade {
+    background: #10b981;
+    color: white;
+}
+
+.tag-semester {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.tag-new {
+    background: #3b82f6;
+    color: white;
+}
+
+.section-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    margin: 10px 0 6px 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+
+/* 全螢幕模式 + 動畫 */
+.tree-panel {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tree-panel.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    background-color: #f8f9fa;
+    border-radius: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* 全螢幕時 canvas 在 tree-panel 內部最底層 */
+.tree-panel.fullscreen #stellar-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* 全螢幕時 tree-container 在 canvas 之上 */
+.tree-panel.fullscreen #tree-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* 全螢幕時隱藏其他元素 */
+body.fullscreen-mode .stats,
+body.fullscreen-mode .header,
+body.fullscreen-mode .footer,
+body.fullscreen-mode .simulator-panel {
+    display: none !important;
+}
+
+/* 全螢幕時選課面板層級調整 */
+body.fullscreen-mode .mobile-overlay {
+    z-index: 1000;
+}
+
+body.fullscreen-mode .mobile-course-panel {
+    z-index: 1001;
+}
+
+.tree-panel.fullscreen .tree-header {
+    position: relative;
+    z-index: 2;
+    top: 15px;
+    margin: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 25px rgba(102, 126, 234, 0.3);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.tree-panel.fullscreen .node-content {
+    background: white;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tree-panel.fullscreen .completed-summary {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.tree-panel.fullscreen .course-detail {
+    background: white;
+}
+
+.tree-panel.fullscreen .course-detail.completed {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+
+.tree-panel.fullscreen .course-detail.new {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.tree-panel.fullscreen .course-detail.available {
+    background: #f3f4f6;
+}
+
+.tree-panel.fullscreen .tree-header-title {
+    color: white;
+}
+
+.tree-panel.fullscreen .header-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: none;
+}
+
+/* 頁尾 */
+.footer {
+    background: rgba(248, 249, 250, 0.9);
+    padding: 25px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer kbd {
+    background: #e5e7eb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+/* 快捷鍵提示 */
+.shortcut-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.shortcut-hint.show {
+    opacity: 1;
+    transform: translateY(0);
+}
