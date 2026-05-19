@@ -10,7 +10,7 @@ export function Stats() {
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-xs uppercase tracking-widest text-gray-500">Graduation</h2>
         <span className={`text-xs px-2 py-1 rounded-full ${result.canGraduateNextSemester ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-          {result.canGraduateNextSemester ? 'Likely next semester' : 'Behind schedule'}
+          {result.canGraduateNextSemester ? 'Requirements met' : 'In progress'}
         </span>
       </div>
       <div className="text-5xl font-light tabular-nums tracking-tight">
@@ -20,7 +20,7 @@ export function Stats() {
         <div className="h-full bg-gray-900" style={{ width: `${pct}%` }} />
       </div>
       <p className="text-sm text-gray-500 mt-3 tabular-nums">
-        +{result.totalPending} pending · {128 - total} remaining
+        +{result.totalPending} pending · <span className="font-semibold text-gray-800">{128 - total} remaining</span>
       </p>
     </section>
   );

@@ -10,7 +10,7 @@ export function GapAdvisor() {
   return (
     <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
       <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-4">
-        Recommendations for next semester
+        Categories needing fill
       </h2>
       {leafGaps.length === 0 ? (
         <p className="text-gray-700">All categories fulfilled.</p>
