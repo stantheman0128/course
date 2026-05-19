@@ -526,6 +526,126 @@
             border-color: rgba(245, 158, 11, 0.9);
         }
 
+        /* ===== v1.11.0: Classic theme overrides (pre-v1.10.0 visual) ===== */
+        body.theme-classic {
+            background-attachment: scroll;
+        }
+        body.theme-classic .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px;
+        }
+        body.theme-classic .container {
+            background: #f8f9fa;
+        }
+        body.theme-classic .footer {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 25px;
+            color: #6c757d;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        body.theme-classic .footer kbd {
+            background: #e5e7eb;
+            color: inherit;
+            border: none;
+        }
+        body.theme-classic .footer-subtitle {
+            color: #9ca3af;
+        }
+        body.theme-classic .version-link {
+            color: #667eea;
+            border-bottom-color: rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .version-link:hover {
+            color: #764ba2;
+            border-bottom-color: rgba(118, 75, 162, 0.6);
+        }
+        body.theme-classic #stellar-bg {
+            opacity: 0.6;
+        }
+        body.theme-classic .select-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        body.theme-classic .select-all-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .select-all-btn.selected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+        body.theme-classic .select-all-btn.selected:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: transparent;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+        }
+        body.theme-classic .header-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        body.theme-classic .header-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .header-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* footer subtitle — class form so theme-classic can override color */
+        .footer-subtitle {
+            margin-top: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* Theme switcher button inside Changelog modal */
+        .theme-switch-btn {
+            margin-top: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            background: rgba(102, 126, 234, 0.08);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
+            float: right;
+        }
+        .theme-switch-btn:hover {
+            background: rgba(102, 126, 234, 0.16);
+            border-color: rgba(102, 126, 234, 0.6);
+        }
+        .theme-switch-btn.active {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border-color: rgba(16, 185, 129, 0.4);
+            cursor: default;
+            pointer-events: none;
+        }
+
         /* ===== Changelog Modal ===== */
         /* v1.10.0: footer 改紫底，version link 改白色 */
         .version-link {
@@ -1317,8 +1437,8 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.10.0</a> | 110學年度入學適用</p>
-            <p style="margin-top: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.65);">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.11.0</a> | 110學年度入學適用</p>
+            <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
     
@@ -1821,11 +1941,24 @@
         }
 
         // ===== Changelog =====
+        // 'theme' 標記：只有引入新視覺風格的版本才有切換按鈕
+        // 後續若有純 CSS 視覺改動的版本，加上 theme: '<theme-id>' 即可
         const CHANGELOG = [
+            {
+                version: 'v1.11.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '🔀 Changelog modal 加入「切換到此樣式」按鈕，可即時在不同視覺版本間切換',
+                    '💾 選擇用 localStorage 記住，重新整理後保留設定',
+                    '🏷️ 規則：只有引入新視覺風格的版本顯示切換按鈕（v1.10.0 → current，v1.7.0 → classic）'
+                ]
+            },
             {
                 version: 'v1.10.0',
                 date: '2026-05-20',
                 type: 'minor',
+                theme: 'current',
                 changes: [
                     '🎨 按鈕設計改版：「全選」改 outline + glass，「全螢幕」改 ghost 風格',
                     '🌌 Header 與 Footer 改為透明，融入紫色漸層 + 星空背景',
@@ -1872,9 +2005,11 @@
                 version: 'v1.7.0',
                 date: '2026-05-19',
                 type: 'major',
+                theme: 'classic',
                 changes: [
                     '從 React 重構嘗試 pivot 回 v1.7 單檔架構',
-                    '以 v1.7 為新基線重啟開發'
+                    '以 v1.7 為新基線重啟開發',
+                    '此版本的視覺風格（solid 紫色 header、實心按鈕、灰底 footer）即為 classic theme 基準'
                 ]
             }
         ];
@@ -1897,6 +2032,8 @@
         function renderChangelog() {
             const container = document.getElementById('changelog-content');
             container.textContent = '';
+            const activeTheme = getCurrentTheme();
+
             CHANGELOG.forEach(entry => {
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'changelog-entry';
@@ -1927,8 +2064,43 @@
                 });
 
                 entryDiv.append(versionRow, ul);
+
+                // 只有引入新視覺風格的版本顯示切換按鈕
+                if (entry.theme) {
+                    const btn = document.createElement('button');
+                    btn.className = 'theme-switch-btn';
+                    const isActive = entry.theme === activeTheme;
+                    btn.textContent = isActive ? '📍 已套用此樣式' : '切換到此樣式 →';
+                    if (isActive) btn.classList.add('active');
+                    btn.onclick = () => {
+                        setTheme(entry.theme);
+                        renderChangelog();
+                    };
+                    entryDiv.appendChild(btn);
+                    const clearDiv = document.createElement('div');
+                    clearDiv.style.clear = 'both';
+                    entryDiv.appendChild(clearDiv);
+                }
+
                 container.appendChild(entryDiv);
             });
+        }
+
+        // ===== v1.11.0: Theme Switching =====
+        function getCurrentTheme() {
+            return localStorage.getItem('course-theme') || 'current';
+        }
+
+        function setTheme(themeName) {
+            document.body.classList.remove('theme-classic');
+            if (themeName === 'classic') {
+                document.body.classList.add('theme-classic');
+            }
+            localStorage.setItem('course-theme', themeName);
+        }
+
+        function initTheme() {
+            setTheme(getCurrentTheme());
         }
 
         // 實時更新
@@ -2351,6 +2523,7 @@
         }
 
         // 初始化
+        initTheme();
         renderCurrentCourses();
         const treeRoot = document.getElementById('tree-root');
         const initialTree = getTreeData();
