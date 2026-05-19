@@ -1288,7 +1288,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.8.1</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.9.0</a> | 110學年度入學適用</p>
             <p style="margin-top: 8px; font-size: 12px; color: #9ca3af;">Made with ❤️ by Stan & Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -1794,6 +1794,17 @@
         // ===== Changelog =====
         const CHANGELOG = [
             {
+                version: 'v1.9.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '樹狀圖改用 diff-update：保留 DOM 結構不重建，只更新數字、狀態與展開類別',
+                    '勾選或取消課程後，已完成的節點會像手動點箭頭一樣平滑收合（grid-template-rows 過渡）',
+                    '層級式收合：當勾選課程讓「校共同必修」也滿足時，子節點與父節點會一起依層級收上去',
+                    '抽出 renderCourseList 與 buildCourseDetail 兩個 helper，移除原本 inline 的 innerHTML 寫法'
+                ]
+            },
+            {
                 version: 'v1.8.1',
                 date: '2026-05-19',
                 type: 'patch',
@@ -1908,19 +1919,7 @@
             
             setTimeout(() => {
                 const treeRoot = document.getElementById('tree-root');
-                // 整體 fade 過渡（避免 destroy-rebuild 的視覺閃跳）
-                treeRoot.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
-                treeRoot.style.opacity = '0';
-                treeRoot.style.transform = 'translateY(-4px)';
-
-                setTimeout(() => {
-                    treeRoot.textContent = '';
-                    renderTree(getTreeData(), treeRoot, 0, true);
-                    requestAnimationFrame(() => {
-                        treeRoot.style.opacity = '1';
-                        treeRoot.style.transform = 'translateY(0)';
-                    });
-                }, 200);
+                walkUpdate(treeRoot, getTreeData());
             }, 100);
         }
 
@@ -1989,14 +1988,161 @@
         function toggleCompletedCourses(summaryEl) {
             const listEl = summaryEl.nextElementSibling;
             const toggleIcon = summaryEl.querySelector('.completed-summary-toggle');
-            
+
             listEl.classList.toggle('show');
             toggleIcon.classList.toggle('expanded');
         }
 
-        function renderTree(node, parentElement, level = 0, isSimulation = false) {
+        function buildCourseDetail(course, variant) {
+            const courseDiv = document.createElement('div');
+            courseDiv.className = 'course-detail' + (variant === 'completed' ? ' completed'
+                                                  : variant === 'new' ? ' new'
+                                                  : variant === 'available' ? ' available' : '');
+            if (variant === 'incomplete') {
+                courseDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
+                courseDiv.style.borderLeftColor = '#ef4444';
+            }
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = course.name;
+            courseDiv.appendChild(nameSpan);
+
+            if (variant === 'available') {
+                const creditsSpan = document.createElement('span');
+                creditsSpan.textContent = `${course.credits}學分`;
+                courseDiv.appendChild(creditsSpan);
+                return courseDiv;
+            }
+
+            const info = document.createElement('div');
+            info.className = 'course-info';
+
+            const creditsSpan = document.createElement('span');
+            creditsSpan.textContent = `${course.credits}學分`;
+            info.appendChild(creditsSpan);
+
+            if (course.grade) {
+                const gradeTag = document.createElement('span');
+                gradeTag.className = 'course-tag tag-grade';
+                gradeTag.textContent = course.grade;
+                info.appendChild(gradeTag);
+            }
+            if (course.semester) {
+                const semTag = document.createElement('span');
+                semTag.className = 'course-tag tag-semester';
+                semTag.textContent = course.semester;
+                info.appendChild(semTag);
+            }
+            if (variant === 'new') {
+                const newTag = document.createElement('span');
+                newTag.className = 'course-tag tag-new';
+                newTag.textContent = 'NEW';
+                info.appendChild(newTag);
+            }
+            if (course.note && variant === 'incomplete') {
+                const noteTag = document.createElement('span');
+                noteTag.className = 'course-tag';
+                noteTag.style.background = '#fef3c7';
+                noteTag.style.color = '#92400e';
+                noteTag.textContent = course.note;
+                info.appendChild(noteTag);
+            }
+            courseDiv.appendChild(info);
+
+            if (course.detail && variant === 'new') {
+                const detailDiv = document.createElement('div');
+                detailDiv.style.cssText = 'font-size:11px;color:#6b7280;margin-top:4px;';
+                detailDiv.textContent = course.detail;
+                courseDiv.appendChild(detailDiv);
+            }
+
+            return courseDiv;
+        }
+
+        function renderCourseList(node, innerDiv) {
+            const completedCourses = node.courses.filter(c => c.completed && !c.isNew);
+            const newCourses = node.courses.filter(c => c.isNew);
+            const availableCourses = node.courses.filter(c => c.available);
+            const incompleteCourses = node.courses.filter(c => !c.completed && !c.available);
+
+            // 已修課程 - 摺疊顯示，放最上面
+            if (completedCourses.length > 0) {
+                const summaryLi = document.createElement('li');
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'completed-summary';
+                summaryDiv.onclick = () => toggleCompletedCourses(summaryDiv);
+
+                const summaryText = document.createElement('span');
+                summaryText.className = 'completed-summary-text';
+                summaryText.textContent = `✓ 已修 ${completedCourses.length} 門課程`;
+                summaryDiv.appendChild(summaryText);
+
+                const summaryToggle = document.createElement('span');
+                summaryToggle.className = 'completed-summary-toggle';
+                summaryToggle.textContent = '▼';
+                summaryDiv.appendChild(summaryToggle);
+
+                summaryLi.appendChild(summaryDiv);
+
+                const listDiv = document.createElement('div');
+                listDiv.className = 'completed-courses-list';
+                const listInner = document.createElement('div');
+                listInner.className = 'completed-courses-inner';
+
+                completedCourses.forEach(course => {
+                    listInner.appendChild(buildCourseDetail(course, 'completed'));
+                });
+
+                listDiv.appendChild(listInner);
+                summaryLi.appendChild(listDiv);
+                innerDiv.appendChild(summaryLi);
+            }
+
+            if (newCourses.length > 0) {
+                const headerLi = document.createElement('li');
+                headerLi.className = 'section-header';
+                headerLi.textContent = '✨ 新增課程';
+                innerDiv.appendChild(headerLi);
+
+                newCourses.forEach(course => {
+                    const courseLi = document.createElement('li');
+                    courseLi.appendChild(buildCourseDetail(course, 'new'));
+                    innerDiv.appendChild(courseLi);
+                });
+            }
+
+            if (incompleteCourses.length > 0) {
+                const headerLi = document.createElement('li');
+                headerLi.className = 'section-header';
+                headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-2')) ? '📝 本學期修課中' : '✗ 還需修習';
+                innerDiv.appendChild(headerLi);
+
+                incompleteCourses.forEach(course => {
+                    const courseLi = document.createElement('li');
+                    courseLi.appendChild(buildCourseDetail(course, 'incomplete'));
+                    innerDiv.appendChild(courseLi);
+                });
+            }
+
+            if (availableCourses.length > 0) {
+                const headerLi = document.createElement('li');
+                headerLi.className = 'section-header';
+                headerLi.textContent = '💡 可選課程';
+                innerDiv.appendChild(headerLi);
+
+                availableCourses.forEach(course => {
+                    const courseLi = document.createElement('li');
+                    courseLi.appendChild(buildCourseDetail(course, 'available'));
+                    innerDiv.appendChild(courseLi);
+                });
+            }
+        }
+
+        function renderTree(node, parentElement, level = 0, isSimulation = false, parentPath = '') {
+            const nodeKey = parentPath ? `${parentPath}/${node.name}` : node.name;
             const li = document.createElement('li');
             li.className = 'tree-node';
+            li.dataset.nodeKey = nodeKey;
             
             const content = document.createElement('div');
             content.className = 'node-content';
@@ -2075,130 +2221,92 @@
                 }
                 
                 if (node.courses) {
-                    const completedCourses = node.courses.filter(c => c.completed && !c.isNew);
-                    const newCourses = node.courses.filter(c => c.isNew);
-                    const availableCourses = node.courses.filter(c => c.available);
-                    const incompleteCourses = node.courses.filter(c => !c.completed && !c.available);
-                    
-                    // 已修課程 - 摺疊顯示，放最上面
-                    if (completedCourses.length > 0) {
-                        const summaryLi = document.createElement('li');
-                        const summaryDiv = document.createElement('div');
-                        summaryDiv.className = 'completed-summary';
-                        summaryDiv.onclick = () => toggleCompletedCourses(summaryDiv);
-                        summaryDiv.innerHTML = `
-                            <span class="completed-summary-text">✓ 已修 ${completedCourses.length} 門課程</span>
-                            <span class="completed-summary-toggle">▼</span>
-                        `;
-                        summaryLi.appendChild(summaryDiv);
-                        
-                        // 已修課程詳細列表
-                        const listDiv = document.createElement('div');
-                        listDiv.className = 'completed-courses-list';
-                        
-                        const listInner = document.createElement('div');
-                        listInner.className = 'completed-courses-inner';
-                        
-                        completedCourses.forEach(course => {
-                            const courseDiv = document.createElement('div');
-                            courseDiv.className = 'course-detail completed';
-                            courseDiv.innerHTML = `
-                                <span>${course.name}</span>
-                                <div class="course-info">
-                                    <span>${course.credits}學分</span>
-                                    ${course.grade ? `<span class="course-tag tag-grade">${course.grade}</span>` : ''}
-                                    ${course.semester ? `<span class="course-tag tag-semester">${course.semester}</span>` : ''}
-                                </div>
-                            `;
-                            listInner.appendChild(courseDiv);
-                        });
-                        
-                        listDiv.appendChild(listInner);
-                        summaryLi.appendChild(listDiv);
-                        innerDiv.appendChild(summaryLi);
-                    }
-                    
-                    // 新選課程（模擬）
-                    if (newCourses.length > 0) {
-                        const headerLi = document.createElement('li');
-                        headerLi.className = 'section-header';
-                        headerLi.textContent = '✨ 新增課程';
-                        innerDiv.appendChild(headerLi);
-                        
-                        newCourses.forEach(course => {
-                            const courseLi = document.createElement('li');
-                            const courseDiv = document.createElement('div');
-                            courseDiv.className = 'course-detail new';
-                            courseDiv.innerHTML = `
-                                <span>${course.name}</span>
-                                <div class="course-info">
-                                    <span>${course.credits}學分</span>
-                                    <span class="course-tag tag-new">NEW</span>
-                                </div>
-                            `;
-                            if (course.detail) {
-                                courseDiv.innerHTML += `<div style="font-size:11px;color:#6b7280;margin-top:4px;">${course.detail}</div>`;
-                            }
-                            courseLi.appendChild(courseDiv);
-                            innerDiv.appendChild(courseLi);
-                        });
-                    }
-                    
-                    // 還需修習
-                    if (incompleteCourses.length > 0) {
-                        const headerLi = document.createElement('li');
-                        headerLi.className = 'section-header';
-                        headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-2')) ? '📝 本學期修課中' : '✗ 還需修習';
-                        innerDiv.appendChild(headerLi);
-                        
-                        incompleteCourses.forEach(course => {
-                            const courseLi = document.createElement('li');
-                            const courseDiv = document.createElement('div');
-                            courseDiv.className = 'course-detail';
-                            courseDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
-                            courseDiv.style.borderLeftColor = '#ef4444';
-                            courseDiv.innerHTML = `
-                                <span>${course.name}</span>
-                                <div class="course-info">
-                                    <span>${course.credits}學分</span>
-                                    ${course.note ? `<span class="course-tag" style="background:#fef3c7;color:#92400e;">${course.note}</span>` : ''}
-                                </div>
-                            `;
-                            courseLi.appendChild(courseDiv);
-                            innerDiv.appendChild(courseLi);
-                        });
-                    }
-                    
-                    // 可選課程
-                    if (availableCourses.length > 0) {
-                        const headerLi = document.createElement('li');
-                        headerLi.className = 'section-header';
-                        headerLi.textContent = '💡 可選課程';
-                        innerDiv.appendChild(headerLi);
-                        
-                        availableCourses.forEach(course => {
-                            const courseLi = document.createElement('li');
-                            const courseDiv = document.createElement('div');
-                            courseDiv.className = 'course-detail available';
-                            courseDiv.innerHTML = `
-                                <span>${course.name}</span>
-                                <span>${course.credits}學分</span>
-                            `;
-                            courseLi.appendChild(courseDiv);
-                            innerDiv.appendChild(courseLi);
-                        });
-                    }
+                    renderCourseList(node, innerDiv);
                 } else if (node.children) {
                     node.children.forEach(child => {
-                        renderTree(child, innerDiv, level + 1, isSimulation);
+                        renderTree(child, innerDiv, level + 1, isSimulation, nodeKey);
                     });
                 }
                 
                 childrenUl.appendChild(innerDiv);
                 li.appendChild(childrenUl);
             }
-            
+
             parentElement.appendChild(li);
+        }
+
+        function walkUpdate(treeRoot, newData) {
+            const domMap = new Map();
+            treeRoot.querySelectorAll('[data-node-key]').forEach(el => {
+                domMap.set(el.dataset.nodeKey, el);
+            });
+
+            calculateStatus(newData);
+
+            function visit(node, parentPath) {
+                const nodeKey = parentPath ? `${parentPath}/${node.name}` : node.name;
+                const li = domMap.get(nodeKey);
+                if (!li) return;
+
+                // status icon
+                const icon = li.querySelector(':scope > .node-content > .node-icon');
+                if (icon) {
+                    icon.className = `node-icon status-${node.status}`;
+                    icon.textContent = node.status === 'completed' ? '✓'
+                                     : node.status === 'partial' ? '⚠' : '✗';
+                }
+
+                // credits text
+                const credits = li.querySelector(':scope > .node-content > .node-credits');
+                if (credits && node.credits) {
+                    const earnedSpan = credits.querySelector('.credits-earned');
+                    const requiredSpan = credits.querySelector('.credits-required');
+                    if (earnedSpan) earnedSpan.textContent = `${node.earned || 0}`;
+                    if (requiredSpan) requiredSpan.textContent = `${node.credits}`;
+                }
+
+                // badge — add/update/remove
+                const content = li.querySelector(':scope > .node-content');
+                let badge = content?.querySelector(':scope > .badge');
+                if (node.note) {
+                    const badgeClass = `badge ${node.status === 'incomplete' ? 'badge-danger' : node.status === 'partial' ? 'badge-warning' : 'badge-info'}`;
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        const toggle = content.querySelector(':scope > .toggle-icon');
+                        content.insertBefore(badge, toggle || null);
+                    }
+                    badge.className = badgeClass;
+                    badge.textContent = node.note;
+                } else if (badge) {
+                    badge.remove();
+                }
+
+                // .show class + toggle-icon expanded — fires CSS transition
+                const childrenUl = li.querySelector(':scope > .tree-children');
+                const toggleIcon = li.querySelector(':scope > .node-content > .toggle-icon');
+                if (childrenUl) {
+                    const isRoot = !parentPath;
+                    const shouldShow = isRoot || shouldAutoExpand(node);
+                    childrenUl.classList.toggle('show', shouldShow);
+                    if (toggleIcon) toggleIcon.classList.toggle('expanded', shouldShow);
+                }
+
+                // leaf with courses: rebuild inner course list
+                if (node.courses && childrenUl) {
+                    const innerDiv = childrenUl.querySelector(':scope > .tree-children-inner');
+                    if (innerDiv) {
+                        innerDiv.textContent = '';
+                        renderCourseList(node, innerDiv);
+                    }
+                }
+
+                // recurse
+                if (node.children) {
+                    node.children.forEach(child => visit(child, nodeKey));
+                }
+            }
+
+            visit(newData, '');
         }
 
         // 初始化
