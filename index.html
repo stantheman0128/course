@@ -23,6 +23,7 @@
         }
 
         /* v1.15.0: container 上方改回不透明白色（因為 v1.15 header 自己有紫色 bg），只在底部 footer 區漸層透出紫色 */
+        /* v1.16.0: footer 漸層改用 6 個 stops 做 ease-in-out 過渡，比原本 2 stops 線性更平滑 */
         .container {
             max-width: 1920px;
             margin: 0 auto;
@@ -30,8 +31,12 @@
                 linear-gradient(
                     180deg,
                     #f8f9fa 0px,
-                    #f8f9fa calc(100% - 220px),
-                    transparent calc(100% - 100px),
+                    #f8f9fa calc(100% - 280px),
+                    rgba(248, 249, 250, 0.92) calc(100% - 230px),
+                    rgba(248, 249, 250, 0.72) calc(100% - 180px),
+                    rgba(248, 249, 250, 0.42) calc(100% - 120px),
+                    rgba(248, 249, 250, 0.15) calc(100% - 60px),
+                    transparent calc(100% - 10px),
                     transparent 100%
                 );
             min-height: 100vh;
@@ -61,8 +66,9 @@
         }
 
         /* v1.15.0: 回到 v1.7 風格 — 純紫色 header + 白色 Noto Serif TC 字 + mask 底部 blur 邊界 */
+        /* v1.16.0: bg #667eea (偏藍 indigo) → #764ba2 (更明確的紫色) */
         .header {
-            background: #667eea;
+            background: #764ba2;
             padding: 35px 30px 45px;
             text-align: center;
             position: relative;
@@ -127,15 +133,16 @@
         }
 
         /* v1.14.0: revert v1.12 white-on-purple → 改回 purple-on-white（白色 scrolled bar + 紫色 title） */
+        /* v1.16.0: title 改用 header 同款 Noto Serif TC，整體字體調性一致 */
         .stats-title-compact {
             display: none;
             align-items: center;
             gap: 10px;
-            color: #4f46e5;
-            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            letter-spacing: 0.5px;
+            color: #6d28d9;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 900;
+            font-size: 19px;
+            letter-spacing: 1px;
             white-space: nowrap;
         }
 
@@ -337,9 +344,9 @@
                 display: flex;
                 flex-direction: column;
                 /* v1.12.0: 底部 mask fade，與 tree-panel 對稱 */
-                /* v1.15.0: 漸層起點調整跟 container bottom fade 對齊 (sticky 面板底約 30px from viewport bottom，container fade 從 220px from page bottom 開始 → 面板內 190px 上方) */
-                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 190px), transparent 100%);
-                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 190px), transparent 100%);
+                /* v1.16.0: container fade 起點 220 → 280px (smoother)，sim panel mask 相應從 190 → 250px 對齊 */
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 250px), transparent 100%);
+                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 250px), transparent 100%);
                 box-shadow: 
                     0 8px 32px rgba(102, 126, 234, 0.12),
                     inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -381,14 +388,14 @@
         
         /* ===== 樹狀圖區域 ===== */
         /* v1.12.0: 底部 mask fade，向下滑到頁尾紫色區時白色 block 邊界自然溶入 */
-        /* v1.15.0: 漸層起點調整成跟 container bottom fade 對齊 (tree 底約 130px from page bottom，container fade 從 220px from page bottom 開始 → tree 內 90px 上方) */
+        /* v1.16.0: container fade 起點從 220 → 280px (更平滑)，tree mask 相應從 90 → 150px 對齊 */
         .tree-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 90px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 90px), transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 150px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 150px), transparent 100%);
             padding-bottom: 20px;
         }
         
@@ -892,6 +899,47 @@
             border-bottom-color: rgba(255, 255, 255, 0.8);
         }
 
+        /* v1.16.0: 字體大小切換按鈕 */
+        .font-size-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 3px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 14px;
+            font-family: inherit;
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.15s ease;
+        }
+        .font-size-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.55);
+            transform: translateY(-1px);
+        }
+        body.theme-classic .font-size-btn,
+        body.theme-v1-10 .font-size-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        body.theme-classic .font-size-btn:hover,
+        body.theme-v1-10 .font-size-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* v1.16.0: zoom-based 字體大小切換（會放大整個 container 內容包含 padding） */
+        body.font-size-large {
+            zoom: 1.1;
+        }
+        body.font-size-xl {
+            zoom: 1.2;
+        }
+
         .changelog-overlay {
             position: fixed;
             top: 0;
@@ -1076,6 +1124,22 @@
             left: 6px;
             color: #667eea;
             font-weight: 700;
+        }
+
+        /* v1.16.0: changelog markup styling — strong / u / em */
+        .changelog-list li strong {
+            color: #1f2937;
+            font-weight: 700;
+        }
+        .changelog-list li u {
+            text-decoration: underline;
+            text-decoration-color: rgba(102, 126, 234, 0.55);
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1.5px;
+        }
+        .changelog-list li em {
+            font-style: italic;
+            color: #6d28d9;
         }
 
         .mobile-panel-header-icon {
@@ -1317,12 +1381,27 @@
         .tree-children > .tree-children-inner {
             overflow: hidden;
         }
-        
+
         .tree-children.show {
             grid-template-rows: 1fr;
             opacity: 1;
             padding-top: 8px;
             padding-bottom: 8px;
+        }
+
+        /* v1.16.0: 葉節點內部課程清單 (新增課程 / 本學期修課中 / 可選課程 / section-header) 在 walkUpdate 重建時 fade-in，讓選課變化有對應動畫 */
+        @keyframes courseEnter {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .tree-children.show > .tree-children-inner > li {
+            animation: courseEnter 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
         }
         
         /* 水平連接線 */
@@ -1673,7 +1752,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.15.0</a> | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.16.0</a> | 110學年度入學適用<button class="font-size-btn" id="font-size-btn" onclick="cycleFontSize()" title="切換字體大小">A</button></p>
             <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -2193,21 +2272,36 @@
         // ===== Changelog =====
         // 'theme' 標記：只有引入新視覺風格的版本才有切換按鈕
         // 後續若有純 CSS 視覺改動的版本，加上 theme: '<theme-id>' 即可
+        // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
-                version: 'v1.15.0',
+                version: 'v1.16.0',
                 date: '2026-05-20',
                 type: 'minor',
                 theme: 'current',
                 changes: [
-                    '🎨 Header 重設計參考 v1.7：solid 紫色 #667eea 純底色 + 白字（不用漸層）',
-                    '✨ Header 字體用 Noto Serif TC w900 36px（保留 v1.12 試的好看襯線字）',
-                    '🌫️ 紫色 header 與白色內容的交接處用 mask-image fade 出 blur 效果（22px 漸層透明，不是整個漸層）',
-                    '📐 Sticky bar 4 格中間加 | 分隔線（border-right 1px 淡紫）',
-                    '⚖️ Sticky bar 4 格位置在 title 以外的空白置中（stats-grid flex:1 + justify-center）',
-                    '🎯 Simulator panel mask 漸層起點調整為 calc(100% - 190px) 對齊 container 底部 fade 起點',
-                    '🎯 Tree panel mask 漸層起點調整為 calc(100% - 90px) 對齊 container 底部 fade 起點',
-                    '🏷️ v1.14.0 theme tag 拿掉（其視覺已被 v1.15 取代）；v1.15.0 接手 theme: current'
+                    '**頁尾漸層 smoother**：container 底部 fade 從 2-stop linear 改用 6-stop ease 過渡，fade zone 拉長到 *280px*（原 220px）',
+                    '**Sticky bar title 字體**改用 *Noto Serif TC w900*，跟 header 同款（原 Microsoft JhengHei）',
+                    '**Header 紫色化**：*#667eea* (偏藍 indigo) → __#764ba2__（更明確的紫色）',
+                    '**Changelog 移除 emojis**，改用 markup parser 解析 **bold**、__底線__、*斜體*',
+                    '**新增課程 / 本學期修課中動畫**：walkUpdate 重建 leaf 內 course list 時，所有 *li* 觸發 *courseEnter* fade-in (translateY -4px → 0)',
+                    '**字體大小切換**：footer 加 *A / A+ / A++* 按鈕，cycle 三種大小（zoom *1 / 1.1 / 1.2*），__localStorage 記住__',
+                    '*Simulator panel* mask 起點 calc(100%-190px) → *calc(100%-250px)*；*tree-panel* 90px → *150px*，對齊新的 280px container fade'
+                ]
+            },
+            {
+                version: 'v1.15.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '**Header 重設計**參考 *v1.7*：solid 紫色 *#667eea* 純底色 + 白字（不用漸層）',
+                    '**Header 字體**用 *Noto Serif TC w900 36px*（保留 v1.12 試的好看襯線字）',
+                    '紫色 header 與白色內容的交接處用 *mask-image* fade 出 **blur 效果**（22px 漸層透明，不是整個漸層）',
+                    '**Sticky bar 4 格中間加 | 分隔線**（border-right 1px 淡紫）',
+                    'Sticky bar 4 格位置在 title 以外的空白**置中**（stats-grid *flex:1 + justify-center*）',
+                    '*Simulator panel* mask 漸層起點調整為 *calc(100% - 190px)* 對齊 container 底部 fade 起點',
+                    '*Tree panel* mask 漸層起點調整為 *calc(100% - 90px)* 對齊 container 底部 fade 起點',
+                    '__v1.14.0 theme tag 拿掉__（其視覺已被 v1.15 取代）；v1.15.0 接手 *theme: current*'
                 ]
             },
             {
@@ -2215,14 +2309,14 @@
                 date: '2026-05-20',
                 type: 'minor',
                 changes: [
-                    '↩️ Revert v1.12 fancy serif 實驗：header h1 改回 Microsoft JhengHei 32px white 純文字（拿掉 gradient text / glow / Noto Serif TC）',
-                    '↩️ Revert v1.12 紫色 sticky bar：scrolled bar 改回 v1.10 風格白玻璃 + 紫色 stat numbers + 灰色 labels',
-                    '↩️ Revert v1.13 「無紫色頂部」：container 恢復上方透明 zone，body 紫色 gradient 從頂部露出（白字 header on purple body）',
-                    '↩️ Revert v1.12 header padding：55px→35px (compact，回到 v1.10 高度)',
-                    '🎨 Sticky bar title 改紫色 (#4f46e5)、字體 Microsoft JhengHei 18px (配合白玻璃 bar)',
-                    '🧹 移除 progress-bar 殘留 CSS + JS（v1.13 拿掉 HTML 元素時遺漏的）',
-                    '✅ 保留 v1.12 的所有 features：title morph、stat 對齊修復、star bumps、tree mask、theme transition、toggle bounce',
-                    '🏷️ v1.12.0 theme tag 拿掉（其視覺實驗已 revert，不再保留為 reachable theme）'
+                    '__Revert v1.12 fancy serif 實驗__：header h1 改回 *Microsoft JhengHei 32px* white 純文字（拿掉 gradient text / glow / Noto Serif TC）',
+                    '__Revert v1.12 紫色 sticky bar__：scrolled bar 改回 v1.10 風格白玻璃 + 紫色 stat numbers + 灰色 labels',
+                    '__Revert v1.13 「無紫色頂部」__：container 恢復上方透明 zone，body 紫色 gradient 從頂部露出（白字 header on purple body）',
+                    '__Revert v1.12 header padding__：55px→35px (compact，回到 v1.10 高度)',
+                    '**Sticky bar title** 改紫色 (*#4f46e5*)、字體 *Microsoft JhengHei 18px* (配合白玻璃 bar)',
+                    '**移除 progress-bar 殘留 CSS + JS**（v1.13 拿掉 HTML 元素時遺漏的）',
+                    '保留 v1.12 的所有 features：*title morph、stat 對齊修復、star bumps、tree mask、theme transition、toggle bounce*',
+                    '__v1.12.0 theme tag 拿掉__（其視覺實驗已 revert，不再保留為 reachable theme）'
                 ]
             },
             {
@@ -2230,13 +2324,13 @@
                 date: '2026-05-20',
                 type: 'minor',
                 changes: [
-                    '🎨 拿掉上方紫色漸層：container 從頂部就是白底，只在 footer 區域才漸層透出紫色',
-                    '🌌 Header h1 gradient 改用深紫色 (#4f46e5 → #6d28d9 → #7c3aed) 配合白底有對比',
-                    '📏 Sticky bar 高度加大、title 字體 16→21px、stat-number 17→20px、stat-label 12→14px',
-                    '🚫 拿掉 sticky bar 內的 cell 垂直分隔線，4 格融入 bar 為連續整體',
-                    '🐛 移除「已修學分」格下方的小 progress-bar',
-                    '🎯 全螢幕按鈕加入 bounce 動畫（含 rotate 變化），按下時視覺更明顯',
-                    '🔀 Theme 拆分：v1.10.0 → 「v1-10」獨立 theme（透明 header、白玻璃 scrolled bar、無 title morph）；v1.12.0 → 「current」（latest）'
+                    '**拿掉上方紫色漸層**：container 從頂部就是白底，只在 footer 區域才漸層透出紫色',
+                    '**Header h1 gradient** 改用深紫色 (*#4f46e5 → #6d28d9 → #7c3aed*) 配合白底有對比',
+                    '**Sticky bar 加大**：title 字體 *16→21px*、stat-number *17→20px*、stat-label *12→14px*',
+                    '拿掉 sticky bar 內的 cell **垂直分隔線**，4 格融入 bar 為連續整體',
+                    '**移除「已修學分」格下方的小 progress-bar**',
+                    '**全螢幕按鈕加入 bounce 動畫**（含 rotate 變化），按下時視覺更明顯',
+                    '**Theme 拆分**：v1.10.0 → 「v1-10」獨立 theme（透明 header、白玻璃 scrolled bar、無 title morph）；v1.12.0 → 「current」（latest）'
                 ]
             },
             {
@@ -2244,14 +2338,14 @@
                 date: '2026-05-20',
                 type: 'minor',
                 changes: [
-                    '🎨 Header 重設計：紫色 bar 拿掉、星空當背景、Noto Serif TC 學術襯線字體 + 紫色 gradient text + 多層 glow（v1.14 已 revert）',
-                    '✨ Sticky bar 滾動形變：滾動時標題縮入 bar 靠左、4 stats 靠右、整條 bar 變紫色漸層、字色翻白',
-                    '🐛 修正第一格 stat-item 內容上下對齊（progress-bar 改 absolute、不再擠壓 flex centering）',
-                    '⭐ 星空 +10% 數量 (130→143) + +20% 亮度 (canvas opacity 0.7→0.84)',
-                    '🌫️ Tree panel 與 simulator panel 底部 mask fade，向下滾動時白色 block 邊界自然溶入紫色頁尾',
-                    '🌈 Theme 切換加入 0.45s smooth transition（bg、color、border、padding 都會緩動）',
-                    '🎯 「全選 ↔ 取消全選」按鈕新增 toggle bounce 動畫，狀態切換視覺更明顯',
-                    '🔧 Classic theme 同步更新：h1 在 classic 退回 v1.7 白字樣式、scrolled bar 維持原本白玻璃'
+                    '**Header 重設計**：紫色 bar 拿掉、星空當背景、*Noto Serif TC* 學術襯線字體 + 紫色 gradient text + 多層 glow（__v1.14 已 revert__）',
+                    '**Sticky bar 滾動形變**：滾動時標題縮入 bar 靠左、4 stats 靠右、整條 bar 變紫色漸層、字色翻白',
+                    '**修正第一格 stat-item 內容上下對齊**（progress-bar 改 *absolute*、不再擠壓 flex centering）',
+                    '**星空 +10% 數量** (*130→143*) + **+20% 亮度** (canvas opacity *0.7→0.84*)',
+                    '*Tree panel* 與 *simulator panel* 底部 **mask fade**，向下滾動時白色 block 邊界自然溶入紫色頁尾',
+                    '**Theme 切換**加入 0.45s smooth transition（bg、color、border、padding 都會緩動）',
+                    '**「全選 ↔ 取消全選」按鈕**新增 *toggle bounce* 動畫，狀態切換視覺更明顯',
+                    '**Classic theme 同步更新**：h1 在 classic 退回 v1.7 白字樣式、scrolled bar 維持原本白玻璃'
                 ]
             },
             {
@@ -2259,9 +2353,9 @@
                 date: '2026-05-20',
                 type: 'minor',
                 changes: [
-                    '🔀 Changelog modal 加入「切換到此樣式」按鈕，可即時在不同視覺版本間切換',
-                    '💾 選擇用 localStorage 記住，重新整理後保留設定',
-                    '🏷️ 規則：只有引入新視覺風格的版本顯示切換按鈕（v1.10.0 → current，v1.7.0 → classic）'
+                    '**Changelog modal** 加入「切換到此樣式」按鈕，可即時在不同視覺版本間切換',
+                    '選擇用 *localStorage* 記住，重新整理後保留設定',
+                    '規則：__只有引入新視覺風格的版本__顯示切換按鈕（v1.10.0 → current，v1.7.0 → classic）'
                 ]
             },
             {
@@ -2270,11 +2364,11 @@
                 type: 'minor',
                 theme: 'v1-10',
                 changes: [
-                    '🎨 按鈕設計改版：「全選」改 outline + glass，「全螢幕」改 ghost 風格',
-                    '🌌 Header 與 Footer 改為透明，融入紫色漸層 + 星空背景',
-                    '✨ Container 改為上下紫色帶 + 中間白色內容區，消除視覺斷層',
-                    '⭐ 星空 canvas opacity 從 0.6 提升至 0.7',
-                    '🟡 「取消全選」狀態改用 amber 而非 red，視覺更柔和'
+                    '**按鈕設計改版**：「全選」改 *outline + glass*，「全螢幕」改 *ghost* 風格',
+                    '**Header 與 Footer 改為透明**，融入紫色漸層 + 星空背景',
+                    '**Container 改為上下紫色帶** + 中間白色內容區，消除視覺斷層',
+                    '星空 canvas opacity 從 *0.6* 提升至 *0.7*',
+                    '「取消全選」狀態改用 *amber* 而非 red，視覺更柔和'
                 ]
             },
             {
@@ -2339,6 +2433,65 @@
             changelogOpen = false;
         }
 
+        // v1.16.0: Markdown-lite parser for changelog entries
+        // Supports **bold**, __underline__, *italic*. Nested tags not supported.
+        function renderMarkup(text, container) {
+            let i = 0;
+            const markers = ['**', '__', '*'];
+            while (i < text.length) {
+                let matched = false;
+                // Try **bold** first (must come before *italic*)
+                if (text.startsWith('**', i)) {
+                    const end = text.indexOf('**', i + 2);
+                    if (end !== -1) {
+                        const el = document.createElement('strong');
+                        el.textContent = text.substring(i + 2, end);
+                        container.appendChild(el);
+                        i = end + 2;
+                        matched = true;
+                    }
+                }
+                // Try __underline__
+                if (!matched && text.startsWith('__', i)) {
+                    const end = text.indexOf('__', i + 2);
+                    if (end !== -1) {
+                        const el = document.createElement('u');
+                        el.textContent = text.substring(i + 2, end);
+                        container.appendChild(el);
+                        i = end + 2;
+                        matched = true;
+                    }
+                }
+                // Try *italic* (single asterisk, not part of **)
+                if (!matched && text[i] === '*' && text[i + 1] !== '*') {
+                    const end = text.indexOf('*', i + 1);
+                    if (end !== -1) {
+                        const el = document.createElement('em');
+                        el.textContent = text.substring(i + 1, end);
+                        container.appendChild(el);
+                        i = end + 1;
+                        matched = true;
+                    }
+                }
+                if (!matched) {
+                    // Plain text until next marker
+                    let nextMarker = text.length;
+                    for (const m of markers) {
+                        const idx = text.indexOf(m, i + 1);
+                        if (idx !== -1 && idx < nextMarker) nextMarker = idx;
+                    }
+                    if (nextMarker > i) {
+                        container.appendChild(document.createTextNode(text.substring(i, nextMarker)));
+                        i = nextMarker;
+                    } else {
+                        // Defensive: advance one char
+                        container.appendChild(document.createTextNode(text[i]));
+                        i++;
+                    }
+                }
+            }
+        }
+
         function renderChangelog() {
             const container = document.getElementById('changelog-content');
             container.textContent = '';
@@ -2369,7 +2522,7 @@
                 ul.className = 'changelog-list';
                 entry.changes.forEach(c => {
                     const li = document.createElement('li');
-                    li.textContent = c;
+                    renderMarkup(c, li);
                     ul.appendChild(li);
                 });
 
@@ -2409,6 +2562,34 @@
                 document.body.classList.add('theme-v1-10');
             }
             localStorage.setItem('course-theme', themeName);
+        }
+
+        // ===== v1.16.0: Font Size Selector =====
+        const FONT_SIZES = ['medium', 'large', 'xl'];
+        const FONT_LABELS = { medium: 'A', large: 'A+', xl: 'A++' };
+
+        function getCurrentFontSize() {
+            const saved = localStorage.getItem('font-size');
+            return FONT_SIZES.includes(saved) ? saved : 'medium';
+        }
+
+        function setFontSize(size) {
+            FONT_SIZES.forEach(s => document.body.classList.remove('font-size-' + s));
+            document.body.classList.add('font-size-' + size);
+            localStorage.setItem('font-size', size);
+            const btn = document.getElementById('font-size-btn');
+            if (btn) btn.textContent = FONT_LABELS[size];
+        }
+
+        function cycleFontSize() {
+            const current = getCurrentFontSize();
+            const idx = FONT_SIZES.indexOf(current);
+            const next = FONT_SIZES[(idx + 1) % FONT_SIZES.length];
+            setFontSize(next);
+        }
+
+        function initFontSize() {
+            setFontSize(getCurrentFontSize());
         }
 
         function initTheme() {
@@ -2835,6 +3016,7 @@
 
         // 初始化
         initTheme();
+        initFontSize();
         renderCurrentCourses();
         const treeRoot = document.getElementById('tree-root');
         const initialTree = getTreeData();
