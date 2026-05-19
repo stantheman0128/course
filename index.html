@@ -1,13 +1,2047 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>course</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資工系畢業學分檢核系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft JhengHei", "微軟正黑體", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 星星網絡背景 */
+        #stellar-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        /* ===== Sticky統計區域（玻璃擬態）===== */
+        .stats {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 25px 30px;
+            background: transparent;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stats.scrolled {
+            padding: 10px 20px;
+            gap: 15px;
+            grid-template-columns: repeat(4, auto);
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 8px 32px rgba(102, 126, 234, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(102, 126, 234, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+        
+        .stats.scrolled .stat-item {
+            background: transparent;
+            backdrop-filter: none;
+            box-shadow: none;
+            border: none;
+            padding: 5px 0;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-right: 2px solid rgba(102, 126, 234, 0.2);
+            padding-right: 20px;
+            margin-right: 15px;
+        }
+        
+        .stats.scrolled .stat-item:hover {
+            transform: none;
+        }
+        
+        .stats.scrolled .stat-item:last-child {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+        }
+        
+        .stat-item.highlight {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 16px 48px rgba(102, 126, 234, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        .stats.scrolled .stat-item.highlight {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stats.scrolled .stat-number {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 0;
+            display: inline;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: block;
+        }
+        
+        .stats.scrolled .stat-label {
+            font-size: 12px;
+            display: inline;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stats.scrolled .progress-bar {
+            height: 0;
+            margin-top: 0;
+            opacity: 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.8s ease;
+            border-radius: 4px;
+        }
+        
+        /* 豎屏 */
+        @media (max-width: 1199px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .stats.scrolled {
+                grid-template-columns: repeat(4, auto);
+                padding: 8px 15px;
+            }
+            
+            .stat-number {
+                font-size: 36px;
+            }
+        }
+        
+        /* ===== 內容區域 ===== */
+        .content-wrapper {
+            display: flex;
+            min-height: calc(100vh - 200px);
+        }
+        
+        @media (max-width: 1199px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .content-wrapper {
+                flex-direction: row;
+            }
+        }
+        
+        /* ===== 橫屏：左側選課區（玻璃卡片）===== */
+        @media (min-width: 1200px) {
+            .simulator-panel {
+                width: 360px;
+                flex-shrink: 0;
+                margin: 15px;
+                margin-right: 0;
+                background: rgba(255, 255, 255, 0.75);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 20px;
+                position: sticky;
+                top: 70px;
+                max-height: calc(100vh - 100px);
+                overflow: visible;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 
+                    0 8px 32px rgba(102, 126, 234, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            }
+            
+            .simulator-panel-header {
+                padding: 18px 20px;
+                background: transparent;
+                border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            }
+            
+            .simulator-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1f2937;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .course-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 15px 15px;
+            }
+        }
+        
+        /* 豎屏隱藏桌面版選課區 */
+        @media (max-width: 1199px) {
+            .simulator-panel {
+                display: none;
+            }
+        }
+        
+        /* ===== 樹狀圖區域 ===== */
+        .tree-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* 標題列 - 玻璃擬態 */
+        .tree-header {
+            position: sticky;
+            top: 70px;
+            z-index: 50;
+            padding: 15px 25px;
+            margin: 15px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(102, 126, 234, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+        
+        @media (max-width: 1199px) {
+            .tree-header.floating {
+                background: rgba(255, 255, 255, 0.85);
+                box-shadow: 
+                    0 8px 40px rgba(102, 126, 234, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .tree-header {
+                margin: 15px 25px 15px 15px;
+                top: 70px;
+            }
+        }
+        
+        .tree-header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .header-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .header-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: rotate(45deg);
+        }
+        
+        /* 橫屏隱藏選課按鈕 */
+        @media (min-width: 1200px) {
+            #course-btn {
+                display: none;
+            }
+            
+            .tree-header-title {
+                text-align: left;
+                padding-left: 10px;
+            }
+        }
+        
+        /* ===== 豎屏選課遮罩和面板（iOS Bottom Sheet 風格）===== */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .mobile-course-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 80vh;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+            z-index: 250;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 
+                0 -10px 60px rgba(0, 0, 0, 0.15),
+                0 -2px 20px rgba(102, 126, 234, 0.1);
+            overflow: hidden;
+        }
+        
+        .mobile-course-panel.active {
+            transform: translateY(0);
+        }
+        
+        /* 拖曳指示器 */
+        .mobile-panel-handle {
+            width: 36px;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+            margin: 12px auto 8px;
+        }
+        
+        .mobile-panel-header {
+            padding: 12px 20px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .mobile-panel-header-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .mobile-panel-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .mobile-panel-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        .mobile-panel-content {
+            padding: 16px;
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+        
+        .mobile-course-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .mobile-course-item {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        
+        .mobile-course-panel.active .mobile-course-item {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* 依序延遲動畫 - 更快的節奏 */
+        .mobile-course-item:nth-child(1) { transition-delay: 0.05s; }
+        .mobile-course-item:nth-child(2) { transition-delay: 0.08s; }
+        .mobile-course-item:nth-child(3) { transition-delay: 0.11s; }
+        .mobile-course-item:nth-child(4) { transition-delay: 0.14s; }
+        .mobile-course-item:nth-child(5) { transition-delay: 0.17s; }
+        .mobile-course-item:nth-child(6) { transition-delay: 0.20s; }
+        .mobile-course-item:nth-child(7) { transition-delay: 0.23s; }
+        .mobile-course-item:nth-child(8) { transition-delay: 0.26s; }
+        .mobile-course-item:nth-child(9) { transition-delay: 0.29s; }
+        
+        @media (min-width: 1200px) {
+            .mobile-overlay,
+            .mobile-course-panel {
+                display: none !important;
+            }
+        }
+        
+        /* 共用課程項目樣式（玻璃風格）*/
+        .course-item-sim {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
+        }
+        
+        .course-item-sim:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .course-item-sim.selected {
+            background: linear-gradient(135deg, rgba(219, 234, 254, 0.9), rgba(191, 219, 254, 0.9));
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .course-item-sim.selected .course-name-sim {
+            color: #4338ca;
+        }
+        
+        .course-item-sim input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        
+        .course-name-sim {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .course-credits-sim {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* ===== 樹狀圖內容 ===== */
+        #tree-container {
+            flex: 1;
+            padding: 5px 25px 40px;
+            overflow-x: hidden;
+        }
+        
+        @media (max-width: 1199px) {
+            #tree-container {
+                padding: 5px 15px 40px;
+            }
+        }
+        
+        .tree {
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .tree-node {
+            position: relative;
+            padding: 4px 0;
+        }
+        
+        .node-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-right: 5px;
+        }
+        
+        .node-content:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .status-completed { background: linear-gradient(135deg, #10b981, #059669); }
+        .status-partial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .status-incomplete { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        .node-label {
+            flex: 1;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 15px;
+        }
+        
+        .node-credits {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .credits-earned {
+            color: #10b981;
+            font-weight: 700;
+        }
+        
+        .credits-required {
+            color: #9ca3af;
+        }
+        
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+        }
+        
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+        
+        /* 樹狀連接線 + 展開動畫（Apple/Stripe風格）*/
+        .tree-children {
+            list-style: none;
+            padding-left: 20px;
+            margin-left: 14px;
+            border-left: 2px solid #e5e7eb;
+            display: grid;
+            grid-template-rows: 0fr;
+            opacity: 0;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        
+        .tree-children > .tree-children-inner {
+            overflow: hidden;
+        }
+        
+        .tree-children.show {
+            grid-template-rows: 1fr;
+            opacity: 1;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+        
+        /* 水平連接線 */
+        .tree-children > .tree-children-inner > .tree-node {
+            position: relative;
+        }
+        
+        .tree-children > .tree-children-inner > .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 26px;
+            width: 18px;
+            height: 2px;
+            background: #e5e7eb;
+        }
+        
+        /* 已修課程摺疊區塊 */
+        .completed-summary {
+            padding: 10px 14px;
+            margin: 4px 5px 4px 30px;
+            border-radius: 8px;
+            font-size: 13px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 3px solid #10b981;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .completed-summary:hover {
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+        }
+        
+        .completed-summary-text {
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .completed-summary-toggle {
+            color: #059669;
+            font-size: 12px;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .completed-summary-toggle.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .completed-courses-list {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .completed-courses-list > .completed-courses-inner {
+            overflow: hidden;
+        }
+        
+        .completed-courses-list.show {
+            grid-template-rows: 1fr;
+        }
+        
+        .course-detail {
+            padding: 10px 14px;
+            margin: 4px 5px 4px 30px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .course-detail.completed {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 3px solid #10b981;
+        }
+        
+        .course-detail.available {
+            background: #f3f4f6;
+            border-left: 3px solid #9ca3af;
+        }
+        
+        .course-detail.new {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .course-info {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .course-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .tag-grade {
+            background: #10b981;
+            color: white;
+        }
+        
+        .tag-semester {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .tag-new {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .section-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            margin: 10px 0 6px 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        
+        /* 全螢幕模式 + 動畫 */
+        .tree-panel {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tree-panel.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            background-color: #f8f9fa;
+            border-radius: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* 全螢幕時 canvas 在 tree-panel 內部最底層 */
+        .tree-panel.fullscreen #stellar-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* 全螢幕時 tree-container 在 canvas 之上 */
+        .tree-panel.fullscreen #tree-container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 全螢幕時隱藏其他元素 */
+        body.fullscreen-mode .stats,
+        body.fullscreen-mode .header,
+        body.fullscreen-mode .footer,
+        body.fullscreen-mode .simulator-panel {
+            display: none !important;
+        }
+        
+        /* 全螢幕時選課面板層級調整 */
+        body.fullscreen-mode .mobile-overlay {
+            z-index: 1000;
+        }
+        
+        body.fullscreen-mode .mobile-course-panel {
+            z-index: 1001;
+        }
+        
+        .tree-panel.fullscreen .tree-header {
+            position: relative;
+            z-index: 2;
+            top: 15px;
+            margin: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 25px rgba(102, 126, 234, 0.3);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        
+        .tree-panel.fullscreen .node-content {
+            background: white;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        .tree-panel.fullscreen .completed-summary {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        
+        .tree-panel.fullscreen .course-detail {
+            background: white;
+        }
+        
+        .tree-panel.fullscreen .course-detail.completed {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+        
+        .tree-panel.fullscreen .course-detail.new {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+        
+        .tree-panel.fullscreen .course-detail.available {
+            background: #f3f4f6;
+        }
+        
+        .tree-panel.fullscreen .tree-header-title {
+            color: white;
+        }
+        
+        .tree-panel.fullscreen .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: none;
+        }
+        
+        /* 頁尾 */
+        .footer {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 25px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .footer kbd {
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        /* 快捷鍵提示 */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .shortcut-hint.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="stellar-bg"></canvas>
+        <div class="header">
+            <h1>🎓 資工系畢業學分檢核系統</h1>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="total-earned">75</span>
+                <span class="stat-label">已修學分</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-bar" style="width: 58.6%"></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" style="color: #ef4444">128</span>
+                <span class="stat-label">畢業學分</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" style="color: #f59e0b" id="remaining">53</span>
+                <span class="stat-label">還需修習</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" style="color: #10b981" id="completion">58.6%</span>
+                <span class="stat-label">完成度</span>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            <!-- 橫屏：左側選課區 -->
+            <div class="simulator-panel" id="simulator-panel">
+                <div class="simulator-panel-header">
+                    <div class="simulator-title">📚 114-1學期課程</div>
+                </div>
+                <div class="course-grid" id="current-courses"></div>
+            </div>
+            
+            <!-- 樹狀圖區域 -->
+            <div class="tree-panel" id="tree-panel">
+                <div class="tree-header" id="tree-header">
+                    <button class="header-btn" id="course-btn" onclick="toggleMobileCourses()" title="選課 (C)">
+                        📚
+                    </button>
+                    <div class="tree-header-title">畢業學分架構</div>
+                    <button class="header-btn" id="fullscreen-btn" onclick="toggleFullscreen()" title="全螢幕 (F)">
+                        ⛶
+                    </button>
+                </div>
+                
+                <div id="tree-container">
+                    <ul class="tree" id="tree-root"></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>資工系畢業學分檢核系統 v1.7 | 110學年度入學適用</p>
+            <p style="margin-top: 8px; font-size: 12px; color: #9ca3af;">Made with ❤️ by Stan & Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
+        </div>
+    </div>
+    
+    <!-- 豎屏選課遮罩 -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileCourses()"></div>
+    
+    <!-- 豎屏選課面板（iOS Bottom Sheet）-->
+    <div class="mobile-course-panel" id="mobile-panel">
+        <div class="mobile-panel-handle"></div>
+        <div class="mobile-panel-header">
+            <div class="mobile-panel-header-icon">📚</div>
+            <div>
+                <h3>114-1學期課程</h3>
+                <p>點選模擬選課效果</p>
+            </div>
+        </div>
+        <div class="mobile-panel-content">
+            <div class="mobile-course-grid" id="mobile-courses"></div>
+        </div>
+    </div>
+    
+    <!-- 快捷鍵提示 -->
+    <div class="shortcut-hint" id="shortcut-hint"></div>
+
+    <script>
+        // 114-1學期課程
+        const currentSemesterCourses = [
+            {name: "女性文學：性別平等理論與實踐", credits: 2, type: "general"},
+            {name: "星星月亮太陽－天文漫談", credits: 2, type: "general"},
+            {name: "奈米科技", credits: 2, type: "interdisciplinary"},
+            {name: "宇宙中的生命與大空環境", credits: 2, type: "general"},
+            {name: "資料探勘", credits: 3, type: "multimedia"},
+            {name: "網路計算與XML", credits: 3, type: "dept_elective"},
+            {name: "語音處理", credits: 3, type: "dept_elective"},
+            {name: "系統程式", credits: 3, type: "system"},
+            {name: "體育（羽球初級）", credits: 1, type: "pe"}
+        ];
+
+        let simulatedCourses = new Set();
+        let currentEarned = 75;
+        let currentPercentage = 58.6;
+        let currentRemaining = 53;
+        let mobileCoursesOpen = false;
+        
+        // 滾動閾值（縮小）
+        const SCROLL_THRESHOLD = 50;
+
+        // Scroll監聽
+        window.addEventListener('scroll', () => {
+            const stats = document.getElementById('stats');
+            const treeHeader = document.getElementById('tree-header');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > SCROLL_THRESHOLD) {
+                stats.classList.add('scrolled');
+                treeHeader.classList.add('floating');
+            } else {
+                stats.classList.remove('scrolled');
+                treeHeader.classList.remove('floating');
+            }
+        });
+
+        // 快捷鍵
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            if (e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                toggleFullscreen();
+            } else if (e.key.toLowerCase() === 'c') {
+                e.preventDefault();
+                if (window.innerWidth < 1200) {
+                    toggleMobileCourses();
+                }
+            } else if (e.key === 'Escape') {
+                closeMobileCourses();
+                const panel = document.getElementById('tree-panel');
+                if (panel.classList.contains('fullscreen')) {
+                    toggleFullscreen();
+                }
+            }
+        });
+        
+        function showShortcutHint(text) {
+            const hint = document.getElementById('shortcut-hint');
+            hint.textContent = text;
+            hint.classList.add('show');
+            setTimeout(() => hint.classList.remove('show'), 1500);
+        }
+
+        // 豎屏選課切換
+        function toggleMobileCourses() {
+            if (mobileCoursesOpen) {
+                closeMobileCourses();
+            } else {
+                openMobileCourses();
+            }
+        }
+        
+        function openMobileCourses() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 滾動到安全位置
+            if (scrollTop < SCROLL_THRESHOLD + 20) {
+                window.scrollTo({ top: SCROLL_THRESHOLD + 30, behavior: 'smooth' });
+                setTimeout(() => {
+                    showPanel();
+                }, 350);
+            } else {
+                showPanel();
+            }
+            
+            function showPanel() {
+                const overlay = document.getElementById('mobile-overlay');
+                const panel = document.getElementById('mobile-panel');
+                const btn = document.getElementById('course-btn');
+                
+                mobileCoursesOpen = true;
+                overlay.classList.add('active');
+                panel.classList.add('active');
+                btn.classList.add('active');
+            }
+        }
+        
+        function closeMobileCourses() {
+            const overlay = document.getElementById('mobile-overlay');
+            const panel = document.getElementById('mobile-panel');
+            const btn = document.getElementById('course-btn');
+            
+            mobileCoursesOpen = false;
+            overlay.classList.remove('active');
+            panel.classList.remove('active');
+            btn.classList.remove('active');
+        }
+
+        // 全螢幕切換
+        function toggleFullscreen() {
+            const panel = document.getElementById('tree-panel');
+            const btn = document.getElementById('fullscreen-btn');
+            const canvas = document.getElementById('stellar-bg');
+            const container = document.querySelector('.container');
+            
+            if (panel.classList.contains('fullscreen')) {
+                // 退出全螢幕
+                panel.classList.remove('fullscreen');
+                document.body.classList.remove('fullscreen-mode');
+                btn.innerHTML = '⛶';
+                // 把 canvas 移回 container
+                container.insertBefore(canvas, container.firstChild);
+                showShortcutHint('退出全螢幕');
+            } else {
+                // 進入全螢幕
+                panel.classList.add('fullscreen');
+                document.body.classList.add('fullscreen-mode');
+                btn.innerHTML = '✕';
+                // 把 canvas 移到 tree-panel 內部最前面
+                panel.insertBefore(canvas, panel.firstChild);
+                showShortcutHint('全螢幕模式');
+            }
+        }
+
+        // 課程架構數據
+        function getTreeData() {
+            const simulated = Array.from(simulatedCourses);
+            
+            let additionalCredits = 0;
+            let peCredits = 0;
+            let generalCredits = 0;
+            let interdisciplinaryCredits = 0;
+            let systemCredits = 0;
+            let multimediaCredits = 0;
+            let deptElectiveCredits = 0;
+            
+            simulated.forEach(courseName => {
+                const course = currentSemesterCourses.find(c => c.name === courseName);
+                if (course) {
+                    additionalCredits += course.credits;
+                    if (course.type === 'pe') peCredits += course.credits;
+                    if (course.type === 'general') generalCredits += course.credits;
+                    if (course.type === 'interdisciplinary') interdisciplinaryCredits += course.credits;
+                    if (course.type === 'system') systemCredits += course.credits;
+                    if (course.type === 'multimedia') multimediaCredits += course.credits;
+                    if (course.type === 'dept_elective') deptElectiveCredits += course.credits;
+                }
+            });
+            
+            const totalPe = 2 + peCredits;
+            const totalGeneral = 14 + generalCredits;
+            const totalInterdisciplinary = 2 + interdisciplinaryCredits;
+            const totalGeneralEducation = totalGeneral + totalInterdisciplinary;
+            const extraGeneralCredits = Math.max(0, totalGeneralEducation - 18);
+            const totalFieldElective = 12 + systemCredits + multimediaCredits;
+            const totalDeptElective = 1 + deptElectiveCredits;
+            
+            return {
+                name: "畢業總學分",
+                credits: 128,
+                earned: 75 + additionalCredits,
+                children: [
+                    {
+                        name: "一、校共同必修",
+                        credits: 32,
+                        earned: 28 + peCredits,
+                        children: [
+                            {
+                                name: "中文",
+                                credits: 4,
+                                earned: 4,
+                                courses: [
+                                    {name: "中文閱讀與思辨", grade: "A-", semester: "112-1", credits: 2, completed: true},
+                                    {name: "中文寫作與表達", grade: "A", semester: "112-2", credits: 2, completed: true}
+                                ]
+                            },
+                            {
+                                name: "英文",
+                                credits: 6,
+                                earned: 6,
+                                courses: [
+                                    {name: "英文（一）、（二）、（三）", grade: "抵免", credits: 6, completed: true}
+                                ]
+                            },
+                            {
+                                name: "通識課程",
+                                credits: 18,
+                                earned: Math.min(18, totalGeneralEducation),
+                                children: [
+                                    {
+                                        name: "博雅課程",
+                                        credits: 14,
+                                        earned: Math.min(14, totalGeneral),
+                                        courses: [
+                                            {name: "亞裔美國文學", grade: "A-", semester: "112-2", credits: 2, completed: true},
+                                            {name: "科技與社會", grade: "A-", semester: "112-1", credits: 2, completed: true},
+                                            {name: "環境與傳播", grade: "A+", semester: "112-1", credits: 2, completed: true},
+                                            {name: "科技與人文的對話", grade: "A-", semester: "113-1", credits: 2, completed: true},
+                                            {name: "多元文化", grade: "A+", semester: "113-暑", credits: 2, completed: true},
+                                            {name: "資料科學與程式設計", grade: "A+", semester: "113-暑", credits: 2, completed: true},
+                                            {name: "個人投資理財", grade: "B+", semester: "111-1", credits: 2, completed: true},
+                                            generalCredits >= 2 ? {name: "女性文學：性別平等理論", credits: 2, completed: true, isNew: true} : null,
+                                            generalCredits >= 4 ? {name: "星星月亮太陽－天文漫談", credits: 2, completed: true, isNew: true} : null,
+                                            generalCredits >= 6 ? {name: "宇宙中的生命與大空環境", credits: 2, completed: true, isNew: true} : null
+                                        ].filter(Boolean)
+                                    },
+                                    {
+                                        name: "跨域探索",
+                                        credits: 4,
+                                        earned: Math.min(4, totalInterdisciplinary),
+                                        courses: [
+                                            {name: "運算思維與程式設計", grade: "C", semester: "113-2", credits: 2, completed: true},
+                                            interdisciplinaryCredits > 0 ? {name: "奈米科技", credits: 2, completed: true, isNew: true} : {name: "奈米科技", credits: 2, note: "114-1修課中"}
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "體育",
+                                credits: 4,
+                                earned: totalPe,
+                                courses: [
+                                    {name: "體育（現代舞初級）", grade: "A-", semester: "112-1", credits: 1, completed: true},
+                                    {name: "體育（籃球初級）", grade: "A+", semester: "113-2", credits: 1, completed: true},
+                                    peCredits > 0 ? {name: "體育（羽球初級）", credits: 1, completed: true, isNew: true} : {name: "體育（羽球初級）", credits: 1, note: "114-1修課中"},
+                                    totalPe >= 4 ? null : {name: "還需修習", credits: 4 - totalPe}
+                                ].filter(Boolean)
+                            }
+                        ]
+                    },
+                    {
+                        name: "二、系必修（資訊課程）",
+                        credits: 15,
+                        earned: 9,
+                        courses: [
+                            {name: "程式設計（一）", grade: "C-", semester: "112-1", credits: 3, completed: true},
+                            {name: "程式設計（二）", grade: "C+", semester: "112-2", credits: 3, completed: true},
+                            {name: "資料結構", grade: "C", semester: "113-1", credits: 3, completed: true},
+                            {name: "演算法", credits: 3, note: "必修"},
+                            {name: "計算機結構", credits: 3, note: "必修"}
+                        ]
+                    },
+                    {
+                        name: "三、系選修",
+                        credits: 54,
+                        earned: 22 + systemCredits + multimediaCredits + deptElectiveCredits,
+                        children: [
+                            {
+                                name: "數學必選修",
+                                credits: 12,
+                                earned: 9,
+                                courses: [
+                                    {name: "微積分乙（一）", grade: "C-", semester: "111-1", credits: 3, completed: true},
+                                    {name: "離散數學", credits: 3, note: "必選修"},
+                                    {name: "機率論", grade: "C", semester: "112-1", credits: 3, completed: true},
+                                    {name: "線性代數", grade: "C-", semester: "113-1", credits: 3, completed: true}
+                                ]
+                            },
+                            {
+                                name: "資訊專題必選修",
+                                credits: 6,
+                                earned: 0,
+                                note: "4選2",
+                                courses: [
+                                    {name: "資訊專題研究（一）：資訊理論", credits: 3, available: true},
+                                    {name: "資訊專題研究（一）：資訊系統", credits: 3, available: true},
+                                    {name: "資訊專題研究（二）：資訊理論", credits: 3, available: true},
+                                    {name: "資訊專題研究（二）：資訊系統", credits: 3, available: true}
+                                ]
+                            },
+                            {
+                                name: "領域選修",
+                                credits: 30,
+                                earned: totalFieldElective,
+                                note: "每領域≥3學分",
+                                children: [
+                                    {
+                                        name: "資訊理論領域",
+                                        credits: 3,
+                                        earned: 6,
+                                        courses: [
+                                            {name: "程式語言結構", grade: "C+", semester: "113-2", credits: 3, completed: true},
+                                            {name: "資料庫理論", grade: "C", semester: "113-2", credits: 3, completed: true},
+                                            {name: "計算機概論", credits: 3, available: true},
+                                            {name: "物件導向分析與設計", credits: 3, available: true},
+                                            {name: "自動機理論與正規語言", credits: 3, available: true}
+                                        ]
+                                    },
+                                    {
+                                        name: "資訊硬體領域",
+                                        credits: 3,
+                                        earned: 3,
+                                        courses: [
+                                            {name: "類比數位運算元件（基礎電子學）", grade: "B+", semester: "112-1", credits: 3, completed: true},
+                                            {name: "組合語言", credits: 3, available: true},
+                                            {name: "數位邏輯", credits: 3, available: true},
+                                            {name: "電腦輔助VLSI設計", credits: 3, available: true}
+                                        ]
+                                    },
+                                    {
+                                        name: "資訊系統領域",
+                                        credits: 3,
+                                        earned: systemCredits,
+                                        courses: systemCredits > 0 ? [
+                                            {name: "系統程式", credits: 3, completed: true, isNew: true},
+                                            {name: "軟體工程", credits: 3, available: true},
+                                            {name: "資訊安全", credits: 3, available: true},
+                                            {name: "作業系統", credits: 3, available: true},
+                                            {name: "編譯系統設計", credits: 3, available: true}
+                                        ] : [
+                                            {name: "系統程式", credits: 3, note: "114-1修課中"},
+                                            {name: "軟體工程", credits: 3, available: true},
+                                            {name: "資訊安全", credits: 3, available: true},
+                                            {name: "作業系統", credits: 3, available: true},
+                                            {name: "編譯系統設計", credits: 3, available: true}
+                                        ]
+                                    },
+                                    {
+                                        name: "電腦網路領域",
+                                        credits: 3,
+                                        earned: 3,
+                                        courses: [
+                                            {name: "區域性網路", grade: "C-", semester: "113-1", credits: 3, completed: true},
+                                            {name: "計算機網路", credits: 3, available: true},
+                                            {name: "資料通訊", credits: 3, available: true},
+                                            {name: "無線通訊", credits: 3, available: true}
+                                        ]
+                                    },
+                                    {
+                                        name: "多媒體處理領域",
+                                        credits: 3,
+                                        earned: multimediaCredits,
+                                        courses: multimediaCredits > 0 ? [
+                                            {name: "資料探勘", credits: 3, completed: true, isNew: true},
+                                            {name: "計算機圖學", credits: 3, available: true},
+                                            {name: "影像處理", credits: 3, available: true},
+                                            {name: "人工智慧", credits: 3, available: true}
+                                        ] : [
+                                            {name: "資料探勘", credits: 3, note: "114-1修課中"},
+                                            {name: "計算機圖學", credits: 3, available: true},
+                                            {name: "影像處理", credits: 3, available: true},
+                                            {name: "人工智慧", credits: 3, available: true}
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "系選修",
+                                credits: 6,
+                                earned: totalDeptElective,
+                                courses: [
+                                    {name: "類比數位運算元件實驗", grade: "A-", semester: "112-1", credits: 1, completed: true},
+                                    deptElectiveCredits > 0 ? {name: "網路計算與XML", credits: 3, completed: true, isNew: true} : {name: "網路計算與XML", credits: 3, note: "114-1修課中"},
+                                    deptElectiveCredits > 3 ? {name: "語音處理", credits: 3, completed: true, isNew: true} : {name: "語音處理", credits: 3, note: "114-1修課中"},
+                                    {name: "數值方法", credits: 3, available: true},
+                                    {name: "工程數學", credits: 3, available: true},
+                                    {name: "數理統計", credits: 3, available: true},
+                                    {name: "函數語言程式設計", credits: 3, available: true},
+                                    {name: "進階程式設計", credits: 3, available: true}
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        name: "四、自由選修",
+                        credits: 27,
+                        earned: 16 + extraGeneralCredits,
+                        courses: [
+                            {name: "大數據分析導論", grade: "A-", semester: "111-1", credits: 3, completed: true},
+                            {name: "核天文物理介紹", grade: "B", semester: "111-1", credits: 2, completed: true},
+                            {name: "中英筆譯（二）", grade: "B-", semester: "111-1", credits: 3, completed: true},
+                            {name: "組織心理學", grade: "A", semester: "113-暑", credits: 2, completed: true},
+                            {name: "自我覺察與成長", grade: "A", semester: "113-暑", credits: 2, completed: true},
+                            {name: "數學產業實習", grade: "A", semester: "112-2", credits: 2, completed: true},
+                            {name: "英語文職場實習", grade: "A+", semester: "112-2", credits: 2, completed: true},
+                            extraGeneralCredits > 0 ? {name: "通識超修學分", credits: extraGeneralCredits, completed: true, isNew: true, detail: "博雅或跨域超過18學分的部分"} : null,
+                            16 + extraGeneralCredits >= 27 ? null : {name: "還需選修", credits: 27 - 16 - extraGeneralCredits}
+                        ].filter(Boolean)
+                    }
+                ]
+            };
+        }
+
+        // 渲染課程
+        function renderCurrentCourses() {
+            const desktopContainer = document.getElementById('current-courses');
+            const mobileContainer = document.getElementById('mobile-courses');
+            
+            const createCourseItem = (course, isMobile = false) => {
+                const div = document.createElement('div');
+                div.className = 'course-item-sim' + (isMobile ? ' mobile-course-item' : '');
+                if (simulatedCourses.has(course.name)) {
+                    div.classList.add('selected');
+                }
+                
+                div.onclick = (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        toggleCourse(course.name);
+                    }
+                };
+                
+                div.innerHTML = `
+                    <input type="checkbox" ${simulatedCourses.has(course.name) ? 'checked' : ''} 
+                           onchange="toggleCourse('${course.name}')">
+                    <span class="course-name-sim">${course.name}</span>
+                    <span class="course-credits-sim">${course.credits}學分</span>
+                `;
+                
+                return div;
+            };
+            
+            desktopContainer.innerHTML = '';
+            mobileContainer.innerHTML = '';
+            
+            currentSemesterCourses.forEach(course => {
+                desktopContainer.appendChild(createCourseItem(course, false));
+                mobileContainer.appendChild(createCourseItem(course, true));
+            });
+        }
+
+        // 切換課程選擇
+        function toggleCourse(courseName) {
+            if (simulatedCourses.has(courseName)) {
+                simulatedCourses.delete(courseName);
+            } else {
+                simulatedCourses.add(courseName);
+            }
+            renderCurrentCourses();
+            updateTreeRealtime();
+        }
+
+        // 實時更新
+        function updateTreeRealtime() {
+            let additionalCredits = 0;
+            simulatedCourses.forEach(courseName => {
+                const course = currentSemesterCourses.find(c => c.name === courseName);
+                if (course) additionalCredits += course.credits;
+            });
+            
+            const newTotal = 75 + additionalCredits;
+            const newPercentage = (newTotal / 128 * 100).toFixed(1);
+            const newRemaining = 128 - newTotal;
+            
+            document.querySelectorAll('.stat-item').forEach(item => item.classList.add('highlight'));
+            setTimeout(() => {
+                document.querySelectorAll('.stat-item').forEach(item => item.classList.remove('highlight'));
+            }, 500);
+            
+            animateNumber('total-earned', currentEarned, newTotal, 600);
+            animateNumber('remaining', currentRemaining, newRemaining, 600);
+            animatePercentage('completion', currentPercentage, parseFloat(newPercentage), 600);
+            
+            document.getElementById('progress-bar').style.width = newPercentage + '%';
+            
+            currentEarned = newTotal;
+            currentRemaining = newRemaining;
+            currentPercentage = parseFloat(newPercentage);
+            
+            setTimeout(() => {
+                const treeRoot = document.getElementById('tree-root');
+                treeRoot.innerHTML = '';
+                renderTree(getTreeData(), treeRoot, 0, true);
+            }, 100);
+        }
+
+        function animateNumber(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + range * eased);
+                element.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function animatePercentage(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = start + range * eased;
+                element.textContent = current.toFixed(1) + '%';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function calculateStatus(node) {
+            if (node.children) {
+                node.children.forEach(child => calculateStatus(child));
+            }
+            
+            const earned = node.earned || 0;
+            const required = node.credits || 0;
+            
+            if (earned === 0) {
+                node.status = 'incomplete';
+            } else if (earned >= required) {
+                node.status = 'completed';
+            } else {
+                node.status = 'partial';
+            }
+        }
+
+        function shouldAutoExpand(node) {
+            return node.status === 'incomplete' || node.status === 'partial';
+        }
+
+        // 切換已修課程展開
+        function toggleCompletedCourses(summaryEl) {
+            const listEl = summaryEl.nextElementSibling;
+            const toggleIcon = summaryEl.querySelector('.completed-summary-toggle');
+            
+            listEl.classList.toggle('show');
+            toggleIcon.classList.toggle('expanded');
+        }
+
+        function renderTree(node, parentElement, level = 0, isSimulation = false) {
+            const li = document.createElement('li');
+            li.className = 'tree-node';
+            
+            const content = document.createElement('div');
+            content.className = 'node-content';
+            
+            calculateStatus(node);
+            
+            const icon = document.createElement('div');
+            icon.className = `node-icon status-${node.status}`;
+            icon.textContent = node.status === 'completed' ? '✓' : 
+                              node.status === 'partial' ? '⚠' : '✗';
+            content.appendChild(icon);
+            
+            const label = document.createElement('div');
+            label.className = 'node-label';
+            label.textContent = node.name;
+            content.appendChild(label);
+            
+            if (node.credits) {
+                const credits = document.createElement('div');
+                credits.className = 'node-credits';
+                
+                const earned = document.createElement('span');
+                earned.className = 'credits-earned';
+                earned.textContent = `${node.earned || 0}`;
+                credits.appendChild(earned);
+                
+                const separator = document.createElement('span');
+                separator.textContent = ' / ';
+                separator.style.color = '#d1d5db';
+                credits.appendChild(separator);
+                
+                const required = document.createElement('span');
+                required.className = 'credits-required';
+                required.textContent = `${node.credits}`;
+                credits.appendChild(required);
+                
+                content.appendChild(credits);
+            }
+            
+            if (node.note) {
+                const badge = document.createElement('span');
+                badge.className = `badge ${node.status === 'incomplete' ? 'badge-danger' : node.status === 'partial' ? 'badge-warning' : 'badge-info'}`;
+                badge.textContent = node.note;
+                content.appendChild(badge);
+            }
+            
+            if (node.children || node.courses) {
+                const toggle = document.createElement('div');
+                toggle.className = 'toggle-icon';
+                toggle.textContent = '▶';
+                content.appendChild(toggle);
+                
+                content.onclick = (e) => {
+                    e.stopPropagation();
+                    const childrenEl = li.querySelector(':scope > .tree-children');
+                    if (childrenEl) {
+                        childrenEl.classList.toggle('show');
+                        toggle.classList.toggle('expanded');
+                    }
+                };
+            }
+            
+            li.appendChild(content);
+            
+            if (node.courses || node.children) {
+                const childrenUl = document.createElement('ul');
+                childrenUl.className = 'tree-children';
+                
+                // 內層包裝（用於grid動畫）
+                const innerDiv = document.createElement('div');
+                innerDiv.className = 'tree-children-inner';
+                
+                if (level === 0 || (isSimulation && shouldAutoExpand(node))) {
+                    childrenUl.classList.add('show');
+                    content.querySelector('.toggle-icon')?.classList.add('expanded');
+                }
+                
+                if (node.courses) {
+                    const completedCourses = node.courses.filter(c => c.completed && !c.isNew);
+                    const newCourses = node.courses.filter(c => c.isNew);
+                    const availableCourses = node.courses.filter(c => c.available);
+                    const incompleteCourses = node.courses.filter(c => !c.completed && !c.available);
+                    
+                    // 已修課程 - 摺疊顯示，放最上面
+                    if (completedCourses.length > 0) {
+                        const summaryLi = document.createElement('li');
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.className = 'completed-summary';
+                        summaryDiv.onclick = () => toggleCompletedCourses(summaryDiv);
+                        summaryDiv.innerHTML = `
+                            <span class="completed-summary-text">✓ 已修 ${completedCourses.length} 門課程</span>
+                            <span class="completed-summary-toggle">▼</span>
+                        `;
+                        summaryLi.appendChild(summaryDiv);
+                        
+                        // 已修課程詳細列表
+                        const listDiv = document.createElement('div');
+                        listDiv.className = 'completed-courses-list';
+                        
+                        const listInner = document.createElement('div');
+                        listInner.className = 'completed-courses-inner';
+                        
+                        completedCourses.forEach(course => {
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-detail completed';
+                            courseDiv.innerHTML = `
+                                <span>${course.name}</span>
+                                <div class="course-info">
+                                    <span>${course.credits}學分</span>
+                                    ${course.grade ? `<span class="course-tag tag-grade">${course.grade}</span>` : ''}
+                                    ${course.semester ? `<span class="course-tag tag-semester">${course.semester}</span>` : ''}
+                                </div>
+                            `;
+                            listInner.appendChild(courseDiv);
+                        });
+                        
+                        listDiv.appendChild(listInner);
+                        summaryLi.appendChild(listDiv);
+                        innerDiv.appendChild(summaryLi);
+                    }
+                    
+                    // 新選課程（模擬）
+                    if (newCourses.length > 0) {
+                        const headerLi = document.createElement('li');
+                        headerLi.className = 'section-header';
+                        headerLi.textContent = '✨ 新增課程';
+                        innerDiv.appendChild(headerLi);
+                        
+                        newCourses.forEach(course => {
+                            const courseLi = document.createElement('li');
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-detail new';
+                            courseDiv.innerHTML = `
+                                <span>${course.name}</span>
+                                <div class="course-info">
+                                    <span>${course.credits}學分</span>
+                                    <span class="course-tag tag-new">NEW</span>
+                                </div>
+                            `;
+                            if (course.detail) {
+                                courseDiv.innerHTML += `<div style="font-size:11px;color:#6b7280;margin-top:4px;">${course.detail}</div>`;
+                            }
+                            courseLi.appendChild(courseDiv);
+                            innerDiv.appendChild(courseLi);
+                        });
+                    }
+                    
+                    // 還需修習
+                    if (incompleteCourses.length > 0) {
+                        const headerLi = document.createElement('li');
+                        headerLi.className = 'section-header';
+                        headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-1')) ? '📝 本學期修課中' : '✗ 還需修習';
+                        innerDiv.appendChild(headerLi);
+                        
+                        incompleteCourses.forEach(course => {
+                            const courseLi = document.createElement('li');
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-detail';
+                            courseDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
+                            courseDiv.style.borderLeftColor = '#ef4444';
+                            courseDiv.innerHTML = `
+                                <span>${course.name}</span>
+                                <div class="course-info">
+                                    <span>${course.credits}學分</span>
+                                    ${course.note ? `<span class="course-tag" style="background:#fef3c7;color:#92400e;">${course.note}</span>` : ''}
+                                </div>
+                            `;
+                            courseLi.appendChild(courseDiv);
+                            innerDiv.appendChild(courseLi);
+                        });
+                    }
+                    
+                    // 可選課程
+                    if (availableCourses.length > 0) {
+                        const headerLi = document.createElement('li');
+                        headerLi.className = 'section-header';
+                        headerLi.textContent = '💡 可選課程';
+                        innerDiv.appendChild(headerLi);
+                        
+                        availableCourses.forEach(course => {
+                            const courseLi = document.createElement('li');
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = 'course-detail available';
+                            courseDiv.innerHTML = `
+                                <span>${course.name}</span>
+                                <span>${course.credits}學分</span>
+                            `;
+                            courseLi.appendChild(courseDiv);
+                            innerDiv.appendChild(courseLi);
+                        });
+                    }
+                } else if (node.children) {
+                    node.children.forEach(child => {
+                        renderTree(child, innerDiv, level + 1, isSimulation);
+                    });
+                }
+                
+                childrenUl.appendChild(innerDiv);
+                li.appendChild(childrenUl);
+            }
+            
+            parentElement.appendChild(li);
+        }
+
+        // 初始化
+        renderCurrentCourses();
+        const treeRoot = document.getElementById('tree-root');
+        const initialTree = getTreeData();
+        renderTree(initialTree, treeRoot, 0, true);
+        
+        // ===== 星星網絡背景動畫 =====
+        (function initStellarBackground() {
+            const canvas = document.getElementById('stellar-bg');
+            const ctx = canvas.getContext('2d');
+            
+            let width, height;
+            let stars = [];
+            let shootingStars = [];
+            let ripples = [];
+            let mouse = { x: null, y: null };
+            let time = 0;
+            
+            // 星星顏色調色盤
+            const starColors = [
+                { r: 102, g: 126, b: 234 },  // 主紫藍
+                { r: 118, g: 75, b: 162 },   // 深紫
+                { r: 147, g: 197, b: 253 },  // 淡藍
+                { r: 196, g: 181, b: 253 },  // 淡紫
+                { r: 165, g: 180, b: 252 },  // 靛藍
+            ];
+            
+            const config = {
+                starCount: 130,
+                minStarSize: 0.6,
+                maxStarSize: 4,
+                connectionDistance: 150,
+                mouseRadius: 200,
+                baseSpeed: 0.15,
+                shootingStarInterval: 12000,
+                shootingStarChance: 0.4,
+            };
+            
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < config.starCount; i++) {
+                    const sizeRandom = Math.random();
+                    let size;
+                    if (sizeRandom < 0.6) {
+                        size = config.minStarSize + Math.random() * 1;
+                    } else if (sizeRandom < 0.9) {
+                        size = 1.5 + Math.random() * 1.5;
+                    } else {
+                        size = 2.5 + Math.random() * (config.maxStarSize - 2.5);
+                    }
+                    
+                    const depthFactor = size / config.maxStarSize;
+                    const speed = config.baseSpeed * (0.3 + depthFactor * 0.7);
+                    const color = starColors[Math.floor(Math.random() * starColors.length)];
+                    
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * speed,
+                        vy: (Math.random() - 0.5) * speed,
+                        size: size,
+                        baseOpacity: size > 2.5 ? 0.4 + Math.random() * 0.2 : 0.5 + Math.random() * 0.4,
+                        color: color,
+                        twinkleSpeed: 0.02 + Math.random() * 0.03,
+                        twinklePhase: Math.random() * Math.PI * 2,
+                        twinkleAmount: 0.2 + Math.random() * 0.3,
+                    });
+                }
+            }
+            
+            function createShootingStar() {
+                if (Math.random() > config.shootingStarChance) return;
+                const startX = Math.random() * width * 0.7;
+                const startY = Math.random() * height * 0.3;
+                const angle = Math.PI / 6 + Math.random() * Math.PI / 6;
+                const speed = 8 + Math.random() * 6;
+                shootingStars.push({
+                    x: startX, y: startY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1, decay: 0.015 + Math.random() * 0.01,
+                    length: 80 + Math.random() * 60,
+                    size: 1.5 + Math.random() * 1,
+                });
+            }
+            
+            function createRipple(x, y) {
+                ripples.push({
+                    x: x, y: y, radius: 0,
+                    maxRadius: 150 + Math.random() * 100,
+                    life: 1, decay: 0.02,
+                });
+            }
+            
+            function drawStar(star) {
+                const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase);
+                const opacity = star.baseOpacity + twinkle * star.twinkleAmount * star.baseOpacity;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${star.color.r}, ${star.color.g}, ${star.color.b}, ${Math.max(0.1, opacity)})`;
+                ctx.fill();
+            }
+            
+            function drawShootingStar(star) {
+                const gradient = ctx.createLinearGradient(
+                    star.x, star.y,
+                    star.x - star.vx * star.length / 10,
+                    star.y - star.vy * star.length / 10
+                );
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${star.life * 0.9})`);
+                gradient.addColorStop(0.3, `rgba(200, 210, 255, ${star.life * 0.6})`);
+                gradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
+                ctx.beginPath();
+                ctx.moveTo(star.x, star.y);
+                ctx.lineTo(star.x - star.vx * star.length / 10, star.y - star.vy * star.length / 10);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = star.size * star.life;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size * star.life * 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.life})`;
+                ctx.fill();
+            }
+            
+            function drawRipple(ripple) {
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(102, 126, 234, ${ripple.life * 0.3})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
+            function drawConnection(star1, star2, distance) {
+                const opacity = 1 - (distance / config.connectionDistance);
+                ctx.beginPath();
+                ctx.moveTo(star1.x, star1.y);
+                ctx.lineTo(star2.x, star2.y);
+                ctx.strokeStyle = `rgba(102, 126, 234, ${opacity * 0.18})`;
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+            }
+            
+            function update() {
+                time++;
+                stars.forEach(star => {
+                    star.x += star.vx;
+                    star.y += star.vy;
+                    if (star.x < 0 || star.x > width) star.vx *= -1;
+                    if (star.y < 0 || star.y > height) star.vy *= -1;
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const dx = mouse.x - star.x;
+                        const dy = mouse.y - star.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < config.mouseRadius) {
+                            const force = (config.mouseRadius - dist) / config.mouseRadius;
+                            star.x -= dx * force * 0.015;
+                            star.y -= dy * force * 0.015;
+                        }
+                    }
+                    ripples.forEach(ripple => {
+                        const dx = ripple.x - star.x;
+                        const dy = ripple.y - star.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (Math.abs(dist - ripple.radius) < 30) {
+                            const force = (1 - Math.abs(dist - ripple.radius) / 30) * ripple.life;
+                            star.x -= dx / dist * force * 2;
+                            star.y -= dy / dist * force * 2;
+                        }
+                    });
+                });
+                shootingStars.forEach(star => {
+                    star.x += star.vx;
+                    star.y += star.vy;
+                    star.life -= star.decay;
+                });
+                shootingStars = shootingStars.filter(s => s.life > 0);
+                ripples.forEach(ripple => {
+                    ripple.radius += 4;
+                    ripple.life -= ripple.decay;
+                });
+                ripples = ripples.filter(r => r.life > 0);
+            }
+            
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                for (let i = 0; i < stars.length; i++) {
+                    for (let j = i + 1; j < stars.length; j++) {
+                        const dx = stars[i].x - stars[j].x;
+                        const dy = stars[i].y - stars[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < config.connectionDistance) {
+                            drawConnection(stars[i], stars[j], distance);
+                        }
+                    }
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const dx = stars[i].x - mouse.x;
+                        const dy = stars[i].y - mouse.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < config.mouseRadius) {
+                            ctx.beginPath();
+                            ctx.moveTo(stars[i].x, stars[i].y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            const opacity = 1 - (distance / config.mouseRadius);
+                            ctx.strokeStyle = `rgba(118, 75, 162, ${opacity * 0.25})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                ripples.forEach(drawRipple);
+                stars.forEach(drawStar);
+                shootingStars.forEach(drawShootingStar);
+            }
+            
+            function animate() {
+                update();
+                draw();
+                requestAnimationFrame(animate);
+            }
+            
+            window.addEventListener('resize', () => { resize(); createStars(); });
+            window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+            window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+            window.addEventListener('click', (e) => { createRipple(e.clientX, e.clientY); });
+            setInterval(createShootingStar, config.shootingStarInterval);
+            
+            resize();
+            createStars();
+            animate();
+            setTimeout(createShootingStar, 2000);
+        })();
+    </script>
+</body>
 </html>
