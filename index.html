@@ -259,8 +259,12 @@
                 padding: 18px 20px;
                 background: transparent;
                 border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
             }
-            
+
             .simulator-title {
                 font-size: 18px;
                 font-weight: 700;
@@ -437,7 +441,241 @@
             gap: 12px;
             border-bottom: 1px solid rgba(102, 126, 234, 0.1);
         }
-        
+
+        .select-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .select-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+        }
+
+        .select-all-btn:active {
+            transform: translateY(0);
+        }
+
+        .select-all-btn.selected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .select-all-btn.selected:hover {
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ===== Changelog Modal ===== */
+        .version-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-bottom: 1px dashed rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+        }
+
+        .version-link:hover {
+            color: #764ba2;
+            border-bottom-color: rgba(118, 75, 162, 0.6);
+        }
+
+        .changelog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.4s;
+        }
+
+        .changelog-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .changelog-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -45%) scale(0.95);
+            width: 90%;
+            max-width: 640px;
+            max-height: 85vh;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
+            z-index: 1501;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.45s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.45s, transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .changelog-modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .changelog-header {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            flex-shrink: 0;
+        }
+
+        .changelog-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .changelog-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .changelog-close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            color: #6b7280;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .changelog-close-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .changelog-content {
+            padding: 20px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .changelog-entry {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            border-radius: 16px;
+            margin-bottom: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .changelog-entry:hover {
+            transform: translateX(2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+        }
+
+        .changelog-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .changelog-version-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed rgba(102, 126, 234, 0.15);
+        }
+
+        .changelog-version {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .changelog-date {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .changelog-tag {
+            margin-left: auto;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .changelog-tag.major {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .changelog-tag.minor {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4f46e5;
+        }
+
+        .changelog-tag.patch {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .changelog-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .changelog-list li {
+            padding: 6px 0 6px 22px;
+            position: relative;
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .changelog-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 6px;
+            color: #667eea;
+            font-weight: 700;
+        }
+
         .mobile-panel-header-icon {
             width: 44px;
             height: 44px;
@@ -976,10 +1214,10 @@
         
         <div class="stats" id="stats">
             <div class="stat-item">
-                <span class="stat-number" id="total-earned">75</span>
+                <span class="stat-number" id="total-earned">94</span>
                 <span class="stat-label">已修學分</span>
                 <div class="progress-bar">
-                    <div class="progress-fill" id="progress-bar" style="width: 58.6%"></div>
+                    <div class="progress-fill" id="progress-bar" style="width: 73.4%"></div>
                 </div>
             </div>
             <div class="stat-item">
@@ -987,11 +1225,11 @@
                 <span class="stat-label">畢業學分</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number" style="color: #f59e0b" id="remaining">53</span>
+                <span class="stat-number" style="color: #f59e0b" id="remaining">34</span>
                 <span class="stat-label">還需修習</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number" style="color: #10b981" id="completion">58.6%</span>
+                <span class="stat-number" style="color: #10b981" id="completion">73.4%</span>
                 <span class="stat-label">完成度</span>
             </div>
         </div>
@@ -1000,7 +1238,8 @@
             <!-- 橫屏：左側選課區 -->
             <div class="simulator-panel" id="simulator-panel">
                 <div class="simulator-panel-header">
-                    <div class="simulator-title">📚 114-1學期課程</div>
+                    <div class="simulator-title">📚 114-2學期課程</div>
+                    <button class="select-all-btn" id="select-all-btn" onclick="toggleAllCourses()">全選</button>
                 </div>
                 <div class="course-grid" id="current-courses"></div>
             </div>
@@ -1024,7 +1263,7 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 v1.7 | 110學年度入學適用</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.8.0</a> | 110學年度入學適用</p>
             <p style="margin-top: 8px; font-size: 12px; color: #9ca3af;">Made with ❤️ by Stan & Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
@@ -1038,9 +1277,10 @@
         <div class="mobile-panel-header">
             <div class="mobile-panel-header-icon">📚</div>
             <div>
-                <h3>114-1學期課程</h3>
+                <h3>114-2學期課程</h3>
                 <p>點選模擬選課效果</p>
             </div>
+            <button class="select-all-btn" id="mobile-select-all-btn" onclick="toggleAllCourses()" style="margin-left: auto;">全選</button>
         </div>
         <div class="mobile-panel-content">
             <div class="mobile-course-grid" id="mobile-courses"></div>
@@ -1050,24 +1290,37 @@
     <!-- 快捷鍵提示 -->
     <div class="shortcut-hint" id="shortcut-hint"></div>
 
+    <!-- 版本變動 Changelog Modal -->
+    <div class="changelog-overlay" id="changelog-overlay" onclick="closeChangelog()"></div>
+    <div class="changelog-modal" id="changelog-modal">
+        <div class="changelog-header">
+            <div>
+                <h2>📋 版本變動記錄</h2>
+                <p>What's New</p>
+            </div>
+            <button class="changelog-close-btn" onclick="closeChangelog()" title="關閉 (Esc)">✕</button>
+        </div>
+        <div class="changelog-content" id="changelog-content"></div>
+    </div>
+
     <script>
-        // 114-1學期課程
+        // 114-2學期課程（依學分 desc → 必修優先順序排列）
         const currentSemesterCourses = [
-            {name: "女性文學：性別平等理論與實踐", credits: 2, type: "general"},
-            {name: "星星月亮太陽－天文漫談", credits: 2, type: "general"},
-            {name: "奈米科技", credits: 2, type: "interdisciplinary"},
-            {name: "宇宙中的生命與大空環境", credits: 2, type: "general"},
-            {name: "資料探勘", credits: 3, type: "multimedia"},
-            {name: "網路計算與XML", credits: 3, type: "dept_elective"},
-            {name: "語音處理", credits: 3, type: "dept_elective"},
-            {name: "系統程式", credits: 3, type: "system"},
-            {name: "體育（羽球初級）", credits: 1, type: "pe"}
+            {name: "計算機結構", credits: 3, type: "cs_core"},
+            {name: "演算法", credits: 3, type: "cs_core"},
+            {name: "離散數學", credits: 3, type: "math_core"},
+            {name: "資訊專題研究（二）：資訊系統", credits: 3, type: "project"},
+            {name: "數位邏輯", credits: 3, type: "hardware"},
+            {name: "影像處理", credits: 3, type: "multimedia"},
+            {name: "計算機圖學", credits: 3, type: "multimedia"},
+            {name: "資安攻防演練", credits: 3, type: "dept_elective"},
+            {name: "體育（籃球初級）", credits: 1, type: "pe"}
         ];
 
         let simulatedCourses = new Set();
-        let currentEarned = 75;
-        let currentPercentage = 58.6;
-        let currentRemaining = 53;
+        let currentEarned = 94;
+        let currentPercentage = 73.4;
+        let currentRemaining = 34;
         let mobileCoursesOpen = false;
         
         // 滾動閾值（縮小）
@@ -1101,6 +1354,10 @@
                     toggleMobileCourses();
                 }
             } else if (e.key === 'Escape') {
+                if (changelogOpen) {
+                    closeChangelog();
+                    return;
+                }
                 closeMobileCourses();
                 const panel = document.getElementById('tree-panel');
                 if (panel.classList.contains('fullscreen')) {
@@ -1189,46 +1446,47 @@
 
         // 課程架構數據
         function getTreeData() {
-            const simulated = Array.from(simulatedCourses);
-            
             let additionalCredits = 0;
             let peCredits = 0;
-            let generalCredits = 0;
-            let interdisciplinaryCredits = 0;
-            let systemCredits = 0;
+            let mathCoreCredits = 0;
+            let csCoreCredits = 0;
+            let hardwareCredits = 0;
             let multimediaCredits = 0;
+            let projectCredits = 0;
             let deptElectiveCredits = 0;
-            
-            simulated.forEach(courseName => {
+
+            simulatedCourses.forEach(courseName => {
                 const course = currentSemesterCourses.find(c => c.name === courseName);
                 if (course) {
                     additionalCredits += course.credits;
                     if (course.type === 'pe') peCredits += course.credits;
-                    if (course.type === 'general') generalCredits += course.credits;
-                    if (course.type === 'interdisciplinary') interdisciplinaryCredits += course.credits;
-                    if (course.type === 'system') systemCredits += course.credits;
+                    if (course.type === 'math_core') mathCoreCredits += course.credits;
+                    if (course.type === 'cs_core') csCoreCredits += course.credits;
+                    if (course.type === 'hardware') hardwareCredits += course.credits;
                     if (course.type === 'multimedia') multimediaCredits += course.credits;
+                    if (course.type === 'project') projectCredits += course.credits;
                     if (course.type === 'dept_elective') deptElectiveCredits += course.credits;
                 }
             });
-            
-            const totalPe = 2 + peCredits;
-            const totalGeneral = 14 + generalCredits;
-            const totalInterdisciplinary = 2 + interdisciplinaryCredits;
+
+            // 114-1 結束 base: 博雅 18 (人文4+社會6+自然6+邏輯運算2)、跨域 4 (運算思維+奈米科技)
+            const totalPe = 3 + peCredits;
+            const totalGeneral = 18;
+            const totalInterdisciplinary = 4;
             const totalGeneralEducation = totalGeneral + totalInterdisciplinary;
             const extraGeneralCredits = Math.max(0, totalGeneralEducation - 18);
-            const totalFieldElective = 12 + systemCredits + multimediaCredits;
-            const totalDeptElective = 1 + deptElectiveCredits;
+            const totalFieldElective = 18 + hardwareCredits + multimediaCredits;
+            const totalDeptElective = 7 + deptElectiveCredits;
             
             return {
                 name: "畢業總學分",
                 credits: 128,
-                earned: 75 + additionalCredits,
+                earned: 94 + additionalCredits,
                 children: [
                     {
                         name: "一、校共同必修",
                         credits: 32,
-                        earned: 28 + peCredits,
+                        earned: 31 + peCredits,
                         children: [
                             {
                                 name: "中文",
@@ -1264,10 +1522,9 @@
                                             {name: "多元文化", grade: "A+", semester: "113-暑", credits: 2, completed: true},
                                             {name: "資料科學與程式設計", grade: "A+", semester: "113-暑", credits: 2, completed: true},
                                             {name: "個人投資理財", grade: "B+", semester: "111-1", credits: 2, completed: true},
-                                            generalCredits >= 2 ? {name: "女性文學：性別平等理論", credits: 2, completed: true, isNew: true} : null,
-                                            generalCredits >= 4 ? {name: "星星月亮太陽－天文漫談", credits: 2, completed: true, isNew: true} : null,
-                                            generalCredits >= 6 ? {name: "宇宙中的生命與大空環境", credits: 2, completed: true, isNew: true} : null
-                                        ].filter(Boolean)
+                                            {name: "女性文學、性別平等理論與婦運", grade: "A-", semester: "114-1", credits: 2, completed: true},
+                                            {name: "宇宙中的生命與太空環境", grade: "A", semester: "114-1", credits: 2, completed: true}
+                                        ]
                                     },
                                     {
                                         name: "跨域探索",
@@ -1275,7 +1532,7 @@
                                         earned: Math.min(4, totalInterdisciplinary),
                                         courses: [
                                             {name: "運算思維與程式設計", grade: "C", semester: "113-2", credits: 2, completed: true},
-                                            interdisciplinaryCredits > 0 ? {name: "奈米科技", credits: 2, completed: true, isNew: true} : {name: "奈米科技", credits: 2, note: "114-1修課中"}
+                                            {name: "奈米科技", grade: "A+", semester: "114-1", credits: 2, completed: true}
                                         ]
                                     }
                                 ]
@@ -1287,7 +1544,8 @@
                                 courses: [
                                     {name: "體育（現代舞初級）", grade: "A-", semester: "112-1", credits: 1, completed: true},
                                     {name: "體育（籃球初級）", grade: "A+", semester: "113-2", credits: 1, completed: true},
-                                    peCredits > 0 ? {name: "體育（羽球初級）", credits: 1, completed: true, isNew: true} : {name: "體育（羽球初級）", credits: 1, note: "114-1修課中"},
+                                    {name: "體育（羽球初級）", grade: "A-", semester: "114-1", credits: 1, completed: true},
+                                    simulatedCourses.has("體育（籃球初級）") ? {name: "體育（籃球初級）", credits: 1, completed: true, isNew: true, semester: "114-2"} : {name: "體育（籃球初級）", credits: 1, note: "114-2修課中"},
                                     totalPe >= 4 ? null : {name: "還需修習", credits: 4 - totalPe}
                                 ].filter(Boolean)
                             }
@@ -1296,27 +1554,27 @@
                     {
                         name: "二、系必修（資訊課程）",
                         credits: 15,
-                        earned: 9,
+                        earned: 9 + csCoreCredits,
                         courses: [
                             {name: "程式設計（一）", grade: "C-", semester: "112-1", credits: 3, completed: true},
                             {name: "程式設計（二）", grade: "C+", semester: "112-2", credits: 3, completed: true},
                             {name: "資料結構", grade: "C", semester: "113-1", credits: 3, completed: true},
-                            {name: "演算法", credits: 3, note: "必修"},
-                            {name: "計算機結構", credits: 3, note: "必修"}
+                            simulatedCourses.has("演算法") ? {name: "演算法", credits: 3, completed: true, isNew: true} : {name: "演算法", credits: 3, note: "114-2修課中"},
+                            simulatedCourses.has("計算機結構") ? {name: "計算機結構", credits: 3, completed: true, isNew: true} : {name: "計算機結構", credits: 3, note: "114-2修課中"}
                         ]
                     },
                     {
                         name: "三、系選修",
                         credits: 54,
-                        earned: 22 + systemCredits + multimediaCredits + deptElectiveCredits,
+                        earned: 34 + mathCoreCredits + hardwareCredits + multimediaCredits + projectCredits + deptElectiveCredits,
                         children: [
                             {
                                 name: "數學必選修",
                                 credits: 12,
-                                earned: 9,
+                                earned: 9 + mathCoreCredits,
                                 courses: [
                                     {name: "微積分乙（一）", grade: "C-", semester: "111-1", credits: 3, completed: true},
-                                    {name: "離散數學", credits: 3, note: "必選修"},
+                                    simulatedCourses.has("離散數學") ? {name: "離散數學", credits: 3, completed: true, isNew: true} : {name: "離散數學", credits: 3, note: "114-2修課中"},
                                     {name: "機率論", grade: "C", semester: "112-1", credits: 3, completed: true},
                                     {name: "線性代數", grade: "C-", semester: "113-1", credits: 3, completed: true}
                                 ]
@@ -1324,13 +1582,13 @@
                             {
                                 name: "資訊專題必選修",
                                 credits: 6,
-                                earned: 0,
+                                earned: projectCredits,
                                 note: "4選2",
                                 courses: [
                                     {name: "資訊專題研究（一）：資訊理論", credits: 3, available: true},
-                                    {name: "資訊專題研究（一）：資訊系統", credits: 3, available: true},
+                                    {name: "資訊專題研究（一）：資訊系統", credits: 3, note: "114-1 未通過"},
                                     {name: "資訊專題研究（二）：資訊理論", credits: 3, available: true},
-                                    {name: "資訊專題研究（二）：資訊系統", credits: 3, available: true}
+                                    simulatedCourses.has("資訊專題研究（二）：資訊系統") ? {name: "資訊專題研究（二）：資訊系統", credits: 3, completed: true, isNew: true} : {name: "資訊專題研究（二）：資訊系統", credits: 3, note: "114-2修課中"}
                                 ]
                             },
                             {
@@ -1354,26 +1612,20 @@
                                     {
                                         name: "資訊硬體領域",
                                         credits: 3,
-                                        earned: 3,
+                                        earned: 3 + hardwareCredits,
                                         courses: [
                                             {name: "類比數位運算元件（基礎電子學）", grade: "B+", semester: "112-1", credits: 3, completed: true},
+                                            simulatedCourses.has("數位邏輯") ? {name: "數位邏輯", credits: 3, completed: true, isNew: true} : {name: "數位邏輯", credits: 3, note: "114-2修課中"},
                                             {name: "組合語言", credits: 3, available: true},
-                                            {name: "數位邏輯", credits: 3, available: true},
                                             {name: "電腦輔助VLSI設計", credits: 3, available: true}
                                         ]
                                     },
                                     {
                                         name: "資訊系統領域",
                                         credits: 3,
-                                        earned: systemCredits,
-                                        courses: systemCredits > 0 ? [
-                                            {name: "系統程式", credits: 3, completed: true, isNew: true},
-                                            {name: "軟體工程", credits: 3, available: true},
-                                            {name: "資訊安全", credits: 3, available: true},
-                                            {name: "作業系統", credits: 3, available: true},
-                                            {name: "編譯系統設計", credits: 3, available: true}
-                                        ] : [
-                                            {name: "系統程式", credits: 3, note: "114-1修課中"},
+                                        earned: 3,
+                                        courses: [
+                                            {name: "系統程式", grade: "C", semester: "114-1", credits: 3, completed: true},
                                             {name: "軟體工程", credits: 3, available: true},
                                             {name: "資訊安全", credits: 3, available: true},
                                             {name: "作業系統", credits: 3, available: true},
@@ -1394,16 +1646,11 @@
                                     {
                                         name: "多媒體處理領域",
                                         credits: 3,
-                                        earned: multimediaCredits,
-                                        courses: multimediaCredits > 0 ? [
-                                            {name: "資料探勘", credits: 3, completed: true, isNew: true},
-                                            {name: "計算機圖學", credits: 3, available: true},
-                                            {name: "影像處理", credits: 3, available: true},
-                                            {name: "人工智慧", credits: 3, available: true}
-                                        ] : [
-                                            {name: "資料探勘", credits: 3, note: "114-1修課中"},
-                                            {name: "計算機圖學", credits: 3, available: true},
-                                            {name: "影像處理", credits: 3, available: true},
+                                        earned: 3 + multimediaCredits,
+                                        courses: [
+                                            {name: "資料探勘", grade: "C+", semester: "114-1", credits: 3, completed: true},
+                                            simulatedCourses.has("計算機圖學") ? {name: "計算機圖學", credits: 3, completed: true, isNew: true} : {name: "計算機圖學", credits: 3, note: "114-2修課中"},
+                                            simulatedCourses.has("影像處理") ? {name: "影像處理", credits: 3, completed: true, isNew: true} : {name: "影像處理", credits: 3, note: "114-2修課中"},
                                             {name: "人工智慧", credits: 3, available: true}
                                         ]
                                     }
@@ -1415,8 +1662,9 @@
                                 earned: totalDeptElective,
                                 courses: [
                                     {name: "類比數位運算元件實驗", grade: "A-", semester: "112-1", credits: 1, completed: true},
-                                    deptElectiveCredits > 0 ? {name: "網路計算與XML", credits: 3, completed: true, isNew: true} : {name: "網路計算與XML", credits: 3, note: "114-1修課中"},
-                                    deptElectiveCredits > 3 ? {name: "語音處理", credits: 3, completed: true, isNew: true} : {name: "語音處理", credits: 3, note: "114-1修課中"},
+                                    {name: "網路計算與XML", grade: "B", semester: "114-1", credits: 3, completed: true},
+                                    {name: "語音處理", grade: "A-", semester: "114-1", credits: 3, completed: true},
+                                    simulatedCourses.has("資安攻防演練") ? {name: "資安攻防演練", credits: 3, completed: true, isNew: true} : {name: "資安攻防演練", credits: 3, note: "114-2修課中"},
                                     {name: "數值方法", credits: 3, available: true},
                                     {name: "工程數學", credits: 3, available: true},
                                     {name: "數理統計", credits: 3, available: true},
@@ -1491,7 +1739,109 @@
                 simulatedCourses.add(courseName);
             }
             renderCurrentCourses();
+            updateSelectAllBtnState();
             updateTreeRealtime();
+        }
+
+        function toggleAllCourses() {
+            const allSelected = simulatedCourses.size === currentSemesterCourses.length;
+            if (allSelected) {
+                simulatedCourses.clear();
+            } else {
+                currentSemesterCourses.forEach(c => simulatedCourses.add(c.name));
+            }
+            renderCurrentCourses();
+            updateSelectAllBtnState();
+            updateTreeRealtime();
+        }
+
+        function updateSelectAllBtnState() {
+            const allSelected = simulatedCourses.size === currentSemesterCourses.length;
+            const text = allSelected ? '取消全選' : '全選';
+            ['select-all-btn', 'mobile-select-all-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.textContent = text;
+                btn.classList.toggle('selected', allSelected);
+            });
+        }
+
+        // ===== Changelog =====
+        const CHANGELOG = [
+            {
+                version: 'v1.8.0',
+                date: '2026-05-19',
+                type: 'minor',
+                changes: [
+                    '更新至 114-2 學期，新增本學期 9 門課程',
+                    '通識分類修正（依 NTNU 官方分類）',
+                    '加入英文 6 學分抵免',
+                    '加入「全選 / 取消全選」按鈕',
+                    '課程列表依學分與必修優先順序排序',
+                    '加入版本變動記錄'
+                ]
+            },
+            {
+                version: 'v1.7.0',
+                date: '2026-05-19',
+                type: 'major',
+                changes: [
+                    '從 React 重構嘗試 pivot 回 v1.7 單檔架構',
+                    '以 v1.7 為新基線重啟開發'
+                ]
+            }
+        ];
+
+        let changelogOpen = false;
+
+        function openChangelog() {
+            renderChangelog();
+            document.getElementById('changelog-overlay').classList.add('active');
+            document.getElementById('changelog-modal').classList.add('active');
+            changelogOpen = true;
+        }
+
+        function closeChangelog() {
+            document.getElementById('changelog-overlay').classList.remove('active');
+            document.getElementById('changelog-modal').classList.remove('active');
+            changelogOpen = false;
+        }
+
+        function renderChangelog() {
+            const container = document.getElementById('changelog-content');
+            container.textContent = '';
+            CHANGELOG.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'changelog-entry';
+
+                const versionRow = document.createElement('div');
+                versionRow.className = 'changelog-version-row';
+
+                const verSpan = document.createElement('span');
+                verSpan.className = 'changelog-version';
+                verSpan.textContent = entry.version;
+
+                const dateSpan = document.createElement('span');
+                dateSpan.className = 'changelog-date';
+                dateSpan.textContent = entry.date;
+
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'changelog-tag ' + entry.type;
+                tagSpan.textContent = entry.type.toUpperCase();
+
+                versionRow.append(verSpan, dateSpan, tagSpan);
+
+                const ul = document.createElement('ul');
+                ul.className = 'changelog-list';
+                entry.changes.forEach(c => {
+                    const li = document.createElement('li');
+                    li.textContent = c;
+                    ul.appendChild(li);
+                });
+
+                entryDiv.append(versionRow, ul);
+                container.appendChild(entryDiv);
+            });
         }
 
         // 實時更新
@@ -1502,7 +1852,7 @@
                 if (course) additionalCredits += course.credits;
             });
             
-            const newTotal = 75 + additionalCredits;
+            const newTotal = 94 + additionalCredits;
             const newPercentage = (newTotal / 128 * 100).toFixed(1);
             const newRemaining = 128 - newTotal;
             
@@ -1752,7 +2102,7 @@
                     if (incompleteCourses.length > 0) {
                         const headerLi = document.createElement('li');
                         headerLi.className = 'section-header';
-                        headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-1')) ? '📝 本學期修課中' : '✗ 還需修習';
+                        headerLi.textContent = incompleteCourses.some(c => c.note && c.note.includes('114-2')) ? '📝 本學期修課中' : '✗ 還需修習';
                         innerDiv.appendChild(headerLi);
                         
                         incompleteCourses.forEach(course => {
