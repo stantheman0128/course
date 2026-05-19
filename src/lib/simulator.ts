@@ -24,20 +24,66 @@ export function assignToLeaves(
 export function walkTree(
   rule: CategoryRule,
   assignments: Assignment[],
+  catalog: CatalogCourse[] = [],
+  pendingRecords: TranscriptRecord[] = [],
 ): NodeStatus {
   // Recursively build status for children first
-  const children = (rule.children ?? []).map(c => walkTree(c, assignments));
+  const children = (rule.children ?? []).map(c =>
+    walkTree(c, assignments, catalog, pendingRecords)
+  );
 
   // Earned: if leaf, sum directly-assigned credits; if branch, sum children
   let earned = 0;
   let passedCourses: TranscriptRecord[] = [];
+  let pendingCourses: CatalogCourse[] = [];
+  let gapCourses: CatalogCourse[] = [];
+
   if (children.length === 0) {
     const own = assignments.filter(a => a.categoryId === rule.id);
+    // Separate passed vs pending assignments
+    const ownPassed = own.filter(a =>
+      !pendingRecords.some(p => p.code === a.record.code)
+    );
+    const ownPending = own.filter(a =>
+      pendingRecords.some(p => p.code === a.record.code)
+    );
     earned = own.reduce((s, a) => s + a.record.credits, 0);
-    passedCourses = own.map(a => a.record);
+    passedCourses = ownPassed.map(a => a.record);
+
+    // pendingCourses: catalog entries for pending assignments in this leaf
+    pendingCourses = ownPending
+      .map(a => catalog.find(c => c.code === a.record.code))
+      .filter((c): c is CatalogCourse => c !== undefined);
+
+    // gapCourses: catalog entries categorized to this leaf that are not yet passed or pending
+    const passedCodes = new Set(passedCourses.map(r => r.code));
+    const pendingCodes = new Set(ownPending.map(a => a.record.code));
+
+    if (rule.requiredCodes) {
+      // For required-code leaves (core.cs, core.math), gap = required codes not yet passed
+      gapCourses = rule.requiredCodes
+        .filter(code => !passedCodes.has(code) && !pendingCodes.has(code))
+        .map(code => catalog.find(c => c.code === code))
+        .filter((c): c is CatalogCourse => c !== undefined);
+    } else if (rule.fromCodes) {
+      // For chooseN-from leaves (core.project), gap = fromCodes not yet passed
+      gapCourses = rule.fromCodes
+        .filter(code => !passedCodes.has(code) && !pendingCodes.has(code))
+        .map(code => catalog.find(c => c.code === code))
+        .filter((c): c is CatalogCourse => c !== undefined);
+    } else {
+      // General leaf: gap = catalog items with matching category not yet taken
+      gapCourses = catalog
+        .filter(c =>
+          c.category === rule.id &&
+          !passedCodes.has(c.code) &&
+          !pendingCodes.has(c.code)
+        );
+    }
   } else {
     earned = children.reduce((s, c) => s + c.earned, 0);
     passedCourses = children.flatMap(c => c.passedCourses);
+    // pendingCourses/gapCourses are only meaningful at leaf level
   }
 
   const required = rule.minCredits;
@@ -54,8 +100,8 @@ export function walkTree(
     pending: 0,
     fulfilled: earnedClipped >= required,
     passedCourses,
-    pendingCourses: [],
-    gapCourses: [],
+    pendingCourses,
+    gapCourses,
     children: children.length > 0 ? children : undefined,
   };
 }
@@ -130,7 +176,7 @@ export function simulate(
   // 4. Assign to leaves (passed + pending) for display tree
   const allAssigned = assignToLeaves([...passed, ...pendingRecords], catalog, liberal);
   const adjusted = applyOverflow(allAssigned, RULES_110);
-  const tree = walkTree(RULES_110, adjusted);
+  const tree = walkTree(RULES_110, adjusted, catalog, pendingRecords);
 
   // 5. Compute pending credits
   const pendingCredits = pendingRecords.reduce((s, r) => s + r.credits, 0);
