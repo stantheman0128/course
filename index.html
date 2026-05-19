@@ -14,18 +14,29 @@
         body {
             font-family: "Microsoft JhengHei", "微軟正黑體", -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
+
+        /* v1.10.0: container 變成上下漸層紫色帶，中間白色內容區 */
         .container {
             max-width: 1920px;
             margin: 0 auto;
-            background-color: #f8f9fa;
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 200px,
+                    #f8f9fa 320px,
+                    #f8f9fa calc(100% - 220px),
+                    transparent calc(100% - 100px),
+                    transparent 100%
+                );
             min-height: 100vh;
             position: relative;
         }
-        
+
         /* 星星網絡背景 */
         #stellar-bg {
             position: fixed;
@@ -35,23 +46,24 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.6;
+            opacity: 0.7;
         }
-        
+
         .content-wrapper {
             position: relative;
             z-index: 1;
         }
-        
+
         .footer {
             position: relative;
             z-index: 1;
         }
-        
+
+        /* v1.10.0: header 透明，融入 body 紫色 gradient + 星空 */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: transparent;
             color: white;
-            padding: 25px 30px;
+            padding: 35px 30px 30px;
             text-align: center;
             position: relative;
             z-index: 1;
@@ -367,30 +379,34 @@
             text-align: center;
         }
         
+        /* v1.10.0: ghost 風格 — 透明底，hover 出現淡紫圓形 */
         .header-btn {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: transparent;
+            color: #9ca3af;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 50%;
+            font-size: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition:
+                background-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
         }
-        
+
         .header-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            background: rgba(102, 126, 234, 0.12);
+            color: #667eea;
         }
-        
+
         .header-btn.active {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: rgba(102, 126, 234, 0.16);
+            color: #667eea;
             transform: rotate(45deg);
         }
         
@@ -467,52 +483,63 @@
             border-bottom: 1px solid rgba(102, 126, 234, 0.1);
         }
 
+        /* v1.10.0: outline + glass 風格 — 取消實心紫色 gradient */
         .select-all-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 7px 14px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #667eea;
+            border: 1.5px solid rgba(102, 126, 234, 0.5);
+            padding: 6px 14px;
             border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            transition:
+                background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             flex-shrink: 0;
         }
 
         .select-all-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+            background: rgba(102, 126, 234, 0.08);
+            border-color: rgba(102, 126, 234, 0.9);
+            transform: translateY(-1px);
         }
 
         .select-all-btn:active {
             transform: translateY(0);
         }
 
+        /* 選中狀態用 amber 而非 red，較不刺眼 */
         .select-all-btn.selected {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(255, 255, 255, 0.4);
         }
 
         .select-all-btn.selected:hover {
-            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.9);
         }
 
         /* ===== Changelog Modal ===== */
+        /* v1.10.0: footer 改紫底，version link 改白色 */
         .version-link {
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.95);
             text-decoration: none;
             font-weight: 600;
             transition: all 0.2s ease;
-            border-bottom: 1px dashed rgba(102, 126, 234, 0.4);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
             cursor: pointer;
         }
 
         .version-link:hover {
-            color: #764ba2;
-            border-bottom-color: rgba(118, 75, 162, 0.6);
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.8);
         }
 
         .changelog-overlay {
@@ -1190,21 +1217,23 @@
             box-shadow: none;
         }
         
-        /* 頁尾 */
+        /* v1.10.0: footer 透明，融入 body 紫色 gradient + 星空 */
         .footer {
-            background: rgba(248, 249, 250, 0.9);
-            padding: 25px;
+            background: transparent;
+            padding: 40px 25px 50px;
             text-align: center;
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.85);
             font-size: 13px;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: none;
         }
-        
+
         .footer kbd {
-            background: #e5e7eb;
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.95);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         
         /* 快捷鍵提示 */
@@ -1288,8 +1317,8 @@
         </div>
         
         <div class="footer">
-            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.9.0</a> | 110學年度入學適用</p>
-            <p style="margin-top: 8px; font-size: 12px; color: #9ca3af;">Made with ❤️ by Stan & Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v1.10.0</a> | 110學年度入學適用</p>
+            <p style="margin-top: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.65);">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
         </div>
     </div>
     
@@ -1793,6 +1822,18 @@
 
         // ===== Changelog =====
         const CHANGELOG = [
+            {
+                version: 'v1.10.0',
+                date: '2026-05-20',
+                type: 'minor',
+                changes: [
+                    '🎨 按鈕設計改版：「全選」改 outline + glass，「全螢幕」改 ghost 風格',
+                    '🌌 Header 與 Footer 改為透明，融入紫色漸層 + 星空背景',
+                    '✨ Container 改為上下紫色帶 + 中間白色內容區，消除視覺斷層',
+                    '⭐ 星空 canvas opacity 從 0.6 提升至 0.7',
+                    '🟡 「取消全選」狀態改用 amber 而非 red，視覺更柔和'
+                ]
+            },
             {
                 version: 'v1.9.0',
                 date: '2026-05-20',
