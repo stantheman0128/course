@@ -1,12 +1,14 @@
 /* 資工系畢業學分檢核系統 — Service Worker
    策略：stale-while-revalidate — 先回快取（秒開），背景抓新版更新快取，
    下次載入就是新的。離線時純走快取。改大版時 bump CACHE 名稱清掉舊快取。 */
-const CACHE = 'course-v2.0.2';
+const CACHE = 'course-v2.0.3';
 
-// 安裝時預先快取的核心檔案
+/* 安裝時預先快取的核心檔案。
+   v2.0.3：拿掉 './index.html' — Cloudflare Pages 把 /index.html 永久
+   重導向到 /，cache.addAll() 抓到 redirected response 會整批 reject，
+   導致 SW install 失敗、離線不可用。改只快取正規 URL './'。 */
 const CORE_ASSETS = [
   './',
-  './index.html',
   './style.css',
   './app.js',
   './manifest.webmanifest',
@@ -16,7 +18,10 @@ const CORE_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE)
-      .then((cache) => cache.addAll(CORE_ASSETS))
+      // allSettled：單一檔案抓取失敗不會拖垮整個 install
+      .then((cache) => Promise.allSettled(
+        CORE_ASSETS.map((url) => cache.add(url))
+      ))
       .then(() => self.skipWaiting())
   );
 });
@@ -49,8 +54,9 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached;
       const network = await networkFetch;
       if (network) return network;
+      // 離線且沒快取時，導覽請求 fallback 回正規首頁 './'
       if (event.request.mode === 'navigate') {
-        return cache.match('./index.html', { ignoreSearch: true });
+        return cache.match('./', { ignoreSearch: true });
       }
       return new Response('', { status: 504, statusText: 'Offline' });
     })

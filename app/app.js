@@ -480,6 +480,16 @@
         // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
+                version: 'v2.0.3',
+                date: '2026-05-20',
+                type: 'patch',
+                changes: [
+                    '__修正裝成 App 後離線「無法連線」__:Cloudflare Pages 把 `/index.html` 308 重導向到 `/`,service worker `cache.addAll()` 抓到 redirected response 會整批 reject → SW 安裝失敗 → 離線全掛',
+                    '**改用正規 URL**:manifest `start_url` 改 `./`(原 `./index.html`);SW 預快取清單拿掉 `./index.html` 只留 `./`;離線 fallback 也改 `./`',
+                    '**SW 安裝改 `Promise.allSettled`**:單一檔案抓取失敗不再拖垮整個安裝,離線快取更穩固'
+                ]
+            },
+            {
                 version: 'v2.0.2',
                 date: '2026-05-20',
                 type: 'patch',

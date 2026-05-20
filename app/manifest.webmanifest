@@ -3,7 +3,7 @@
   "short_name": "學分檢核",
   "description": "NTNU 資訊工程系 110 學年度畢業學分檢核與模擬工具",
   "lang": "zh-TW",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#764ba2",
