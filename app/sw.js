@@ -1,7 +1,7 @@
 /* 資工系畢業學分檢核系統 — Service Worker
    策略：stale-while-revalidate — 先回快取（秒開），背景抓新版更新快取，
    下次載入就是新的。離線時純走快取。改大版時 bump CACHE 名稱清掉舊快取。 */
-const CACHE = 'course-v2.0.1';
+const CACHE = 'course-v2.0.2';
 
 // 安裝時預先快取的核心檔案
 const CORE_ASSETS = [

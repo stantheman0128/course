@@ -480,6 +480,17 @@
         // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
+                version: 'v2.0.2',
+                date: '2026-05-20',
+                type: 'patch',
+                changes: [
+                    '**手機 header 標題縮字**:11 字標題在手機直向會斷兩行 → ≤600px 縮到 *25px*、≤380px 縮到 *22px*,維持單行',
+                    '**滾動 sticky bar 改 2 排式（≤780px）**:標題列(標題 + 字級 slider)+ 數據列(4 格)。__標題與 slider 不再隱藏__ — 直向觀看標題一樣會併入 bar(之前只有橫向會)',
+                    '__修正手機滾動壓縮卡頓__:`.stats` / `.stat-item` / `.stat-number` 的 *font-size / padding* 過渡會逐幀 reflow,手機上(≤780px)關掉這些過渡,狀態切換改瞬間完成',
+                    '字級 slider 在手機直向恢復顯示(v2.0.1 曾因擠不下而隱藏,改 2 排後有空間了)'
+                ]
+            },
+            {
                 version: 'v2.0.1',
                 date: '2026-05-20',
                 type: 'patch',
