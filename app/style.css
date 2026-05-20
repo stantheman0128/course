@@ -1,0 +1,1722 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft JhengHei", "微軟正黑體", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* v1.18.0: container 上方加 transparent zone，body 紫色透過 header 區域顯現；
+           blur 過渡在 95-130px 範圍內（接近 4 stats 上緣）就轉成 solid 白；
+           底部 footer 漸層維持 v1.16 的 6-stop ease 配方 */
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 95px,
+                    rgba(248, 249, 250, 0.5) 110px,
+                    rgba(248, 249, 250, 0.85) 120px,
+                    #f8f9fa 132px,
+                    #f8f9fa calc(100% - 280px),
+                    rgba(248, 249, 250, 0.92) calc(100% - 230px),
+                    rgba(248, 249, 250, 0.72) calc(100% - 180px),
+                    rgba(248, 249, 250, 0.42) calc(100% - 120px),
+                    rgba(248, 249, 250, 0.15) calc(100% - 60px),
+                    transparent calc(100% - 10px),
+                    transparent 100%
+                );
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 星星網絡背景 — v1.12.0: opacity 0.7 → 0.84 (+20% visibility) */
+        #stellar-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.84;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* v1.18.0: header bg 全透明（跟 footer 一樣），靠 container 的上方 transparent zone 讓 body 紫色顯出來；
+           blur 過渡由 container gradient 處理，延伸到接近 4 stats 上緣才轉白 */
+        .header {
+            background: transparent;
+            padding: 25px 30px 22px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 800;
+            font-size: 32px;
+            letter-spacing: 1.2px;
+            line-height: 1.3;
+            color: white;
+        }
+
+        .header .hero-emoji {
+            font-size: 34px;
+            filter: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .header .hero-text {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            -webkit-text-fill-color: white;
+            color: white;
+            filter: none;
+        }
+        
+        /* ===== Sticky統計區域（玻璃擬態）===== */
+        /* v1.12.0: 滾動時整條 bar 變紫漸層 + title 縮進靠左 + 4 stats 靠右、左右間距對稱 */
+        .stats {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 25px 30px;
+            background: transparent;
+            border-bottom: 1px solid transparent;
+            will-change: padding, background;
+            transition:
+                padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.4s ease,
+                box-shadow 0.4s ease,
+                border-bottom-color 0.4s ease,
+                backdrop-filter 0.4s ease,
+                -webkit-backdrop-filter 0.4s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            transition: gap 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* v1.14.0: revert v1.12 white-on-purple → 改回 purple-on-white（白色 scrolled bar + 紫色 title） */
+        /* v1.16.0: title 改用 header 同款 Noto Serif TC，整體字體調性一致 */
+        .stats-title-compact {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #6d28d9;
+            font-family: "Noto Serif TC", "新細明體", "PMingLiU", serif;
+            font-weight: 900;
+            font-size: 19px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .stats-title-compact .compact-emoji {
+            font-size: 20px;
+            -webkit-text-fill-color: initial;
+        }
+
+        /* v1.14.0: revert v1.12 紫色漸層 bar → 改回 v1.10 風格白玻璃 bar */
+        /* v1.15.0: 拿掉 space-between，stats-grid 用 flex:1 + justify-center 讓 4 格在 title 之外的空白置中 */
+        .stats.scrolled {
+            flex-direction: row;
+            align-items: center;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.18);
+            border-bottom-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .stats.scrolled .stats-title-compact {
+            display: flex;
+        }
+
+        /* v1.15.0: stats-grid 接管除 title 外的空白並 center 4 格 */
+        .stats.scrolled .stats-grid {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            gap: 0;
+        }
+
+        /* v1.12.0: position relative；v1.13.0 後 progress-bar 已移除但保留以備未來 absolute child */
+        /* v1.18.0: border opacity 0.5→0.7、box-shadow 微調強化 edge 感 */
+        .stat-item {
+            position: relative;
+            text-align: center;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                0 6px 20px rgba(102, 126, 234, 0.1),
+                0 12px 36px rgba(102, 126, 234, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            will-change: padding, transform, color;
+            transition:
+                padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.4s ease,
+                box-shadow 0.4s ease,
+                border-color 0.4s ease,
+                border-radius 0.4s ease,
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 40px rgba(102, 126, 234, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        /* v1.15.0: 白色 scrolled bar 上的 stat-item，加回 | 分隔線（border-right 1px 淡紫）*/
+        .stats.scrolled .stat-item {
+            background-color: transparent;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            box-shadow:
+                0 0 0 rgba(102, 126, 234, 0),
+                inset 0 1px 0 rgba(255, 255, 255, 0);
+            border-color: transparent;
+            border-right: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 4px 20px;
+            border-radius: 0;
+            flex-direction: row;
+            gap: 8px;
+            margin-right: 0;
+            color: inherit;
+        }
+
+        .stats.scrolled .stat-item:hover {
+            transform: none;
+        }
+
+        .stats.scrolled .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-item.highlight {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow:
+                0 16px 48px rgba(102, 126, 234, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .stats.scrolled .stat-item.highlight {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #667eea;
+            display: inline-block;
+            margin-bottom: 8px;
+            transition:
+                font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
+        }
+
+        /* v1.14.0: revert — 白色 scrolled bar 上 stat-number 用原本紫色（保留 inline 著色的 128/34/73.4%） */
+        .stats.scrolled .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 0;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+            display: inline-block;
+            transition:
+                font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s ease;
+        }
+
+        /* v1.14.0: revert label color to grey (matches v1.10 style on white bar) */
+        .stats.scrolled .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* v1.13.0: progress-bar 元素已移除（在「已修學分」格下方的小 bar），對應 CSS 一併清掉 */
+        
+        
+        /* 豎屏 */
+        @media (max-width: 1199px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .stats.scrolled {
+                grid-template-columns: repeat(4, auto);
+                padding: 8px 15px;
+            }
+            
+            .stat-number {
+                font-size: 36px;
+            }
+        }
+        
+        /* ===== 內容區域 ===== */
+        .content-wrapper {
+            display: flex;
+            min-height: calc(100vh - 200px);
+        }
+        
+        @media (max-width: 1199px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .content-wrapper {
+                flex-direction: row;
+            }
+        }
+        
+        /* ===== 橫屏：左側選課區（玻璃卡片）===== */
+        @media (min-width: 1200px) {
+            .simulator-panel {
+                width: 360px;
+                flex-shrink: 0;
+                margin: 15px;
+                margin-right: 0;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                border: 1.5px solid rgba(255, 255, 255, 0.7);
+                border-radius: 20px;
+                position: sticky;
+                top: 70px;
+                max-height: calc(100vh - 100px);
+                overflow: visible;
+                display: flex;
+                flex-direction: column;
+                /* v1.12.0: 底部 mask fade，與 tree-panel 對稱 */
+                /* v1.16.0: container fade 起點 220 → 280px (smoother)，sim panel mask 相應從 190 → 250px 對齊 */
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 250px), transparent 100%);
+                mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 250px), transparent 100%);
+                box-shadow: 
+                    0 8px 32px rgba(102, 126, 234, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            }
+            
+            .simulator-panel-header {
+                padding: 18px 20px;
+                background: transparent;
+                border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .simulator-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1f2937;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .course-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 15px 15px;
+            }
+        }
+        
+        /* 豎屏隱藏桌面版選課區 */
+        @media (max-width: 1199px) {
+            .simulator-panel {
+                display: none;
+            }
+        }
+        
+        /* ===== 樹狀圖區域 ===== */
+        /* v1.12.0: 底部 mask fade，向下滑到頁尾紫色區時白色 block 邊界自然溶入 */
+        /* v1.16.0: container fade 起點從 220 → 280px (更平滑)，tree mask 相應從 90 → 150px 對齊 */
+        .tree-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 150px), transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 150px), transparent 100%);
+            padding-bottom: 20px;
+        }
+        
+        /* 標題列 - 玻璃擬態 */
+        .tree-header {
+            position: sticky;
+            top: 70px;
+            z-index: 50;
+            padding: 15px 25px;
+            margin: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 18px;
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 6px 20px rgba(102, 126, 234, 0.1),
+                0 12px 36px rgba(102, 126, 234, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        @media (max-width: 1199px) {
+            .tree-header.floating {
+                background: rgba(255, 255, 255, 0.85);
+                box-shadow: 
+                    0 8px 40px rgba(102, 126, 234, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .tree-header {
+                margin: 15px 25px 15px 15px;
+                top: 70px;
+            }
+        }
+        
+        .tree-header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            flex: 1;
+            text-align: center;
+        }
+        
+        /* v1.10.0: ghost 風格 — 透明底，hover 出現淡紫圓形 */
+        .header-btn {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            background: transparent;
+            color: #9ca3af;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition:
+                background-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-btn:hover {
+            background: rgba(102, 126, 234, 0.12);
+            color: #667eea;
+        }
+
+        .header-btn.active {
+            background: rgba(102, 126, 234, 0.16);
+            color: #667eea;
+            transform: rotate(45deg);
+        }
+        
+        /* 橫屏隱藏選課按鈕 */
+        @media (min-width: 1200px) {
+            #course-btn {
+                display: none;
+            }
+            
+            .tree-header-title {
+                text-align: left;
+                padding-left: 10px;
+            }
+        }
+        
+        /* ===== 豎屏選課遮罩和面板（iOS Bottom Sheet 風格）===== */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .mobile-course-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 80vh;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+            z-index: 250;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 
+                0 -10px 60px rgba(0, 0, 0, 0.15),
+                0 -2px 20px rgba(102, 126, 234, 0.1);
+            overflow: hidden;
+        }
+        
+        .mobile-course-panel.active {
+            transform: translateY(0);
+        }
+        
+        /* 拖曳指示器 */
+        .mobile-panel-handle {
+            width: 36px;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+            margin: 12px auto 8px;
+        }
+        
+        .mobile-panel-header {
+            padding: 12px 20px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        /* v1.10.0: outline + glass 風格 — 取消實心紫色 gradient */
+        .select-all-btn {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #667eea;
+            border: 1.5px solid rgba(102, 126, 234, 0.5);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition:
+                background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .select-all-btn:hover {
+            background: rgba(102, 126, 234, 0.08);
+            border-color: rgba(102, 126, 234, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .select-all-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 選中狀態用 amber 而非 red，較不刺眼 */
+        .select-all-btn.selected {
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .select-all-btn.selected:hover {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.9);
+        }
+
+        /* v1.12.0: toggle bounce animation — 切換時瞬間 scale 下沉再彈回，視覺更明顯 */
+        /* v1.13.0: 同一個 keyframes 套用到 .header-btn.toggling，全螢幕切換也有 bounce */
+        .select-all-btn.toggling,
+        .header-btn.toggling {
+            animation: toggleBounce 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes toggleBounce {
+            0%   { transform: scale(1); }
+            35%  { transform: scale(0.85); }
+            70%  { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        /* header-btn 在 active 狀態 (.active) 有 rotate(45deg)，bounce 時用 rotateY 增強 */
+        .header-btn.active.toggling {
+            animation: toggleBounceRotated 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes toggleBounceRotated {
+            0%   { transform: rotate(0deg) scale(1); }
+            35%  { transform: rotate(20deg) scale(0.85); }
+            70%  { transform: rotate(50deg) scale(1.08); }
+            100% { transform: rotate(45deg) scale(1); }
+        }
+
+        /* v1.12.0: B1 — theme 切換時的全域 smooth transition */
+        .header,
+        .footer,
+        .footer-subtitle,
+        .version-link,
+        .header h1,
+        .hero-text,
+        .hero-emoji {
+            transition:
+                background 0.45s ease,
+                background-color 0.45s ease,
+                color 0.45s ease,
+                border-color 0.45s ease,
+                border-bottom-color 0.45s ease,
+                padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.45s ease,
+                letter-spacing 0.45s ease;
+        }
+        .container {
+            transition: background 0.5s ease;
+        }
+
+        /* ===== v1.11.0: Classic theme overrides (pre-v1.10.0 visual) ===== */
+        body.theme-classic {
+            background-attachment: scroll;
+        }
+        body.theme-classic .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px;
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+        /* v1.12.0: classic theme — h1 變回 v1.7 樣式（白色純文字、無 fancy gradient） */
+        body.theme-classic .header h1 {
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: normal;
+        }
+        body.theme-classic .header .hero-emoji {
+            filter: none;
+        }
+        body.theme-classic .header .hero-text {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            -webkit-text-fill-color: white;
+            color: white;
+            filter: none;
+        }
+        /* v1.12.0: classic theme — sticky scrolled bar 維持 v1.7 白色玻璃，不變紫漸層 */
+        body.theme-classic .stats.scrolled {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+        body.theme-classic .stats.scrolled .stats-title-compact {
+            color: #1f2937;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+        }
+        body.theme-classic .stats.scrolled .stat-item {
+            color: inherit;
+            border-right-color: rgba(102, 126, 234, 0.2);
+        }
+        body.theme-classic .stats.scrolled .stat-number {
+            color: #667eea !important;
+        }
+        body.theme-classic .stats.scrolled .stat-label {
+            color: #6c757d;
+        }
+        body.theme-classic .stats.scrolled .stat-number[style*="ef4444"] { color: #ef4444 !important; }
+        body.theme-classic .stats.scrolled .stat-number[style*="f59e0b"] { color: #f59e0b !important; }
+        body.theme-classic .stats.scrolled .stat-number[style*="10b981"] { color: #10b981 !important; }
+
+        /* ===== v1.13.0: v1-10 theme overrides (post-v1.10, pre-v1.12 visual) ===== */
+        /* 還原：透明 header 紫漸層、簡單 h1、白玻璃 scrolled bar、無 title morph、無 mask fade、星空 0.7 */
+        body.theme-v1-10 .container {
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 200px,
+                    #f8f9fa 320px,
+                    #f8f9fa calc(100% - 220px),
+                    transparent calc(100% - 100px),
+                    transparent 100%
+                );
+        }
+        body.theme-v1-10 .header {
+            background: transparent;
+            padding: 35px 30px 30px;
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+        body.theme-v1-10 .header h1 {
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: normal;
+        }
+        body.theme-v1-10 .header .hero-emoji {
+            filter: none;
+        }
+        body.theme-v1-10 .header .hero-text {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            -webkit-text-fill-color: white;
+            color: white;
+            filter: none;
+        }
+        body.theme-v1-10 #stellar-bg {
+            opacity: 0.7;
+        }
+        body.theme-v1-10 .tree-panel,
+        body.theme-v1-10 .simulator-panel {
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+        body.theme-v1-10 .stats.scrolled {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+        }
+        body.theme-v1-10 .stats.scrolled .stats-title-compact {
+            display: none;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item {
+            color: inherit;
+            border-right-color: rgba(102, 126, 234, 0.2);
+            border-right-width: 2px;
+            padding: 5px 20px 5px 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item:first-child {
+            padding-left: 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-item:last-child {
+            border-right-color: transparent;
+            padding-right: 0;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-number {
+            color: #667eea !important;
+            font-size: 18px;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-label {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="ef4444"] { color: #ef4444 !important; }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="f59e0b"] { color: #f59e0b !important; }
+        body.theme-v1-10 .stats.scrolled .stat-number[style*="10b981"] { color: #10b981 !important; }
+        body.theme-classic .container {
+            background: #f8f9fa;
+        }
+        body.theme-classic .footer {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 25px;
+            color: #6c757d;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        body.theme-classic .footer kbd {
+            background: #e5e7eb;
+            color: inherit;
+            border: none;
+        }
+        body.theme-classic .footer-subtitle {
+            color: #9ca3af;
+        }
+        body.theme-classic .version-link {
+            color: #667eea;
+            border-bottom-color: rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .version-link:hover {
+            color: #764ba2;
+            border-bottom-color: rgba(118, 75, 162, 0.6);
+        }
+        body.theme-classic #stellar-bg {
+            opacity: 0.6;
+        }
+        body.theme-classic .select-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        body.theme-classic .select-all-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .select-all-btn.selected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+        body.theme-classic .select-all-btn.selected:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: transparent;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+        }
+        body.theme-classic .header-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        body.theme-classic .header-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        body.theme-classic .header-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* footer subtitle — class form so theme-classic can override color */
+        .footer-subtitle {
+            margin-top: 5px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* Theme switcher button inside Changelog modal */
+        .theme-switch-btn {
+            margin-top: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            background: rgba(102, 126, 234, 0.08);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
+            float: right;
+        }
+        .theme-switch-btn:hover {
+            background: rgba(102, 126, 234, 0.16);
+            border-color: rgba(102, 126, 234, 0.6);
+        }
+        .theme-switch-btn.active {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border-color: rgba(16, 185, 129, 0.4);
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* ===== Changelog Modal ===== */
+        /* v1.10.0: footer 改紫底，version link 改白色 */
+        .version-link {
+            color: rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+        }
+
+        .version-link:hover {
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* v1.17.0: 字體大小 slider — 位於 sticky bar 右側，僅 scrolled 時顯示 */
+        .font-size-slider-wrap {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .stats.scrolled .font-size-slider-wrap {
+            display: flex;
+        }
+        .slider-icon {
+            color: rgba(102, 126, 234, 0.75);
+            font-weight: 700;
+            font-family: "Noto Serif TC", "新細明體", serif;
+            user-select: none;
+        }
+        .slider-icon-small { font-size: 11px; }
+        .slider-icon-large { font-size: 17px; }
+        body.theme-classic .slider-icon,
+        body.theme-v1-10 .slider-icon {
+            color: rgba(102, 126, 234, 0.75);
+        }
+
+        .font-size-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90px;
+            height: 5px;
+            border-radius: 4px;
+            background: linear-gradient(
+                to right,
+                #6d28d9 0%,
+                #6d28d9 var(--slider-fill, 30%),
+                rgba(102, 126, 234, 0.22) var(--slider-fill, 30%),
+                rgba(102, 126, 234, 0.22) 100%
+            );
+            outline: none;
+            cursor: pointer;
+            transition: filter 0.2s ease;
+        }
+        .font-size-slider:hover {
+            filter: brightness(1.05);
+        }
+        .font-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #6d28d9;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .font-size-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.18);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.55);
+        }
+        .font-size-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.25);
+        }
+        .font-size-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #6d28d9;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+        }
+
+        .changelog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.4s;
+        }
+
+        .changelog-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .changelog-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -45%) scale(0.95);
+            width: 90%;
+            max-width: 640px;
+            max-height: 85vh;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
+            z-index: 1501;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.45s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.45s, transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .changelog-modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .changelog-header {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            flex-shrink: 0;
+        }
+
+        .changelog-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .changelog-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .changelog-close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            color: #6b7280;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .changelog-close-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .changelog-content {
+            padding: 20px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .changelog-entry {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            border-radius: 16px;
+            margin-bottom: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .changelog-entry:hover {
+            transform: translateX(2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+        }
+
+        .changelog-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .changelog-version-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed rgba(102, 126, 234, 0.15);
+        }
+
+        .changelog-version {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .changelog-date {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .changelog-tag {
+            margin-left: auto;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .changelog-tag.major {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .changelog-tag.minor {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4f46e5;
+        }
+
+        .changelog-tag.patch {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .changelog-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .changelog-list li {
+            padding: 6px 0 6px 22px;
+            position: relative;
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .changelog-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 6px;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        /* v1.16.0: changelog markup styling — strong / u / em */
+        .changelog-list li strong {
+            color: #1f2937;
+            font-weight: 700;
+        }
+        .changelog-list li u {
+            text-decoration: underline;
+            text-decoration-color: rgba(102, 126, 234, 0.55);
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1.5px;
+        }
+        .changelog-list li em {
+            font-style: italic;
+            color: #6d28d9;
+        }
+
+        .mobile-panel-header-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .mobile-panel-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .mobile-panel-header p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        .mobile-panel-content {
+            padding: 16px;
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+        
+        .mobile-course-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .mobile-course-item {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        
+        .mobile-course-panel.active .mobile-course-item {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* 依序延遲動畫 - 更快的節奏 */
+        .mobile-course-item:nth-child(1) { transition-delay: 0.05s; }
+        .mobile-course-item:nth-child(2) { transition-delay: 0.08s; }
+        .mobile-course-item:nth-child(3) { transition-delay: 0.11s; }
+        .mobile-course-item:nth-child(4) { transition-delay: 0.14s; }
+        .mobile-course-item:nth-child(5) { transition-delay: 0.17s; }
+        .mobile-course-item:nth-child(6) { transition-delay: 0.20s; }
+        .mobile-course-item:nth-child(7) { transition-delay: 0.23s; }
+        .mobile-course-item:nth-child(8) { transition-delay: 0.26s; }
+        .mobile-course-item:nth-child(9) { transition-delay: 0.29s; }
+        
+        @media (min-width: 1200px) {
+            .mobile-overlay,
+            .mobile-course-panel {
+                display: none !important;
+            }
+        }
+        
+        /* 共用課程項目樣式（玻璃風格）*/
+        .course-item-sim {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
+        }
+        
+        .course-item-sim:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .course-item-sim.selected {
+            background: linear-gradient(135deg, rgba(219, 234, 254, 0.9), rgba(191, 219, 254, 0.9));
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .course-item-sim.selected .course-name-sim {
+            color: #4338ca;
+        }
+        
+        .course-item-sim input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        
+        .course-name-sim {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .course-credits-sim {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* ===== 樹狀圖內容 ===== */
+        #tree-container {
+            flex: 1;
+            padding: 5px 25px 40px;
+            overflow-x: hidden;
+        }
+        
+        @media (max-width: 1199px) {
+            #tree-container {
+                padding: 5px 15px 40px;
+            }
+        }
+        
+        .tree {
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .tree-node {
+            position: relative;
+            padding: 4px 0;
+        }
+        
+        .node-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 2px 8px rgba(102, 126, 234, 0.06),
+                0 4px 16px rgba(102, 126, 234, 0.08);
+            margin-right: 5px;
+        }
+        
+        .node-content:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .status-completed { background: linear-gradient(135deg, #10b981, #059669); }
+        .status-partial { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .status-incomplete { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        .node-label {
+            flex: 1;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 15px;
+        }
+        
+        .node-credits {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .credits-earned {
+            color: #10b981;
+            font-weight: 700;
+        }
+        
+        .credits-required {
+            color: #9ca3af;
+        }
+        
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+        }
+        
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+        
+        /* 樹狀連接線 + 展開動畫（Apple/Stripe風格）*/
+        .tree-children {
+            list-style: none;
+            padding-left: 20px;
+            margin-left: 14px;
+            border-left: 2px solid #e5e7eb;
+            display: grid;
+            grid-template-rows: 0fr;
+            opacity: 0;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        
+        .tree-children > .tree-children-inner {
+            overflow: hidden;
+        }
+
+        .tree-children.show {
+            grid-template-rows: 1fr;
+            opacity: 1;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        /* v1.17.0: course-section 包裝層 — 用 grid-template-rows 動畫做 expand/collapse */
+        /* 取代 v1.16 的 fade-in flicker；section 第一次出現/消失時平滑展開/收合 */
+        .course-section {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition:
+                grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.32s ease;
+            opacity: 0;
+        }
+        .course-section > .course-section-inner {
+            overflow: hidden;
+        }
+        .course-section.show {
+            grid-template-rows: 1fr;
+            opacity: 1;
+        }
+        
+        /* 水平連接線 */
+        .tree-children > .tree-children-inner > .tree-node {
+            position: relative;
+        }
+        
+        .tree-children > .tree-children-inner > .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 26px;
+            width: 18px;
+            height: 2px;
+            background: #e5e7eb;
+        }
+        
+        /* 已修課程摺疊區塊 */
+        .completed-summary {
+            padding: 10px 14px;
+            margin: 4px 5px 4px 30px;
+            border-radius: 8px;
+            font-size: 13px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 3px solid #10b981;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .completed-summary:hover {
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+        }
+        
+        .completed-summary-text {
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .completed-summary-toggle {
+            color: #059669;
+            font-size: 12px;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .completed-summary-toggle.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .completed-courses-list {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .completed-courses-list > .completed-courses-inner {
+            overflow: hidden;
+        }
+        
+        .completed-courses-list.show {
+            grid-template-rows: 1fr;
+        }
+        
+        .course-detail {
+            padding: 10px 14px;
+            margin: 4px 5px 4px 30px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .course-detail.completed {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 3px solid #10b981;
+        }
+        
+        .course-detail.available {
+            background: #f3f4f6;
+            border-left: 3px solid #9ca3af;
+        }
+        
+        .course-detail.new {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .course-info {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .course-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .tag-grade {
+            background: #10b981;
+            color: white;
+        }
+        
+        .tag-semester {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .tag-new {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .section-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            margin: 10px 0 6px 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        
+        /* 全螢幕模式 + 動畫 */
+        .tree-panel {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tree-panel.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            background-color: #f8f9fa;
+            border-radius: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* 全螢幕時 canvas 在 tree-panel 內部最底層 */
+        .tree-panel.fullscreen #stellar-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* 全螢幕時 tree-container 在 canvas 之上 */
+        .tree-panel.fullscreen #tree-container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 全螢幕時隱藏其他元素 */
+        body.fullscreen-mode .stats,
+        body.fullscreen-mode .header,
+        body.fullscreen-mode .footer,
+        body.fullscreen-mode .simulator-panel {
+            display: none !important;
+        }
+        
+        /* 全螢幕時選課面板層級調整 */
+        body.fullscreen-mode .mobile-overlay {
+            z-index: 1000;
+        }
+        
+        body.fullscreen-mode .mobile-course-panel {
+            z-index: 1001;
+        }
+        
+        .tree-panel.fullscreen .tree-header {
+            position: relative;
+            z-index: 2;
+            top: 15px;
+            margin: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 25px rgba(102, 126, 234, 0.3);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        
+        .tree-panel.fullscreen .node-content {
+            background: white;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        .tree-panel.fullscreen .completed-summary {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        
+        .tree-panel.fullscreen .course-detail {
+            background: white;
+        }
+        
+        .tree-panel.fullscreen .course-detail.completed {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+        
+        .tree-panel.fullscreen .course-detail.new {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+        
+        .tree-panel.fullscreen .course-detail.available {
+            background: #f3f4f6;
+        }
+        
+        .tree-panel.fullscreen .tree-header-title {
+            color: white;
+        }
+        
+        .tree-panel.fullscreen .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: none;
+        }
+        
+        /* v1.10.0: footer 透明，融入 body 紫色 gradient + 星空 */
+        /* v1.18.0: padding 縮小 (40/25/50 → 18/25/24)、字略小 13→12 */
+        .footer {
+            background: transparent;
+            padding: 18px 25px 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 12px;
+            border-top: none;
+        }
+
+        .footer kbd {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.95);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        
+        /* 快捷鍵提示 */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .shortcut-hint.show {
+            opacity: 1;
+            transform: translateY(0);
+        }

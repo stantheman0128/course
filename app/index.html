@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>資工系畢業學分檢核系統</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#764ba2">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="學分檢核">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="container">
+        <canvas id="stellar-bg"></canvas>
+        <div class="header">
+            <h1>
+                <span class="hero-emoji">🎓</span>
+                <span class="hero-text">資工系畢業學分檢核系統</span>
+            </h1>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stats-title-compact">
+                <span class="compact-emoji">🎓</span>
+                <span>資工系畢業學分檢核系統</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-earned">94</span>
+                    <span class="stat-label">已修學分</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #ef4444">128</span>
+                    <span class="stat-label">畢業學分</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #f59e0b" id="remaining">34</span>
+                    <span class="stat-label">還需修習</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #10b981" id="completion">73.4%</span>
+                    <span class="stat-label">完成度</span>
+                </div>
+            </div>
+            <div class="font-size-slider-wrap" title="調整字體大小">
+                <span class="slider-icon slider-icon-small">A</span>
+                <input
+                    type="range"
+                    class="font-size-slider"
+                    id="font-size-slider"
+                    min="0.85"
+                    max="1.35"
+                    step="0.05"
+                    value="1"
+                    aria-label="字體大小"
+                    oninput="setFontZoom(parseFloat(this.value))">
+                <span class="slider-icon slider-icon-large">A</span>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            <!-- 橫屏：左側選課區 -->
+            <div class="simulator-panel" id="simulator-panel">
+                <div class="simulator-panel-header">
+                    <div class="simulator-title">📚 114-2學期課程</div>
+                    <button class="select-all-btn" id="select-all-btn" onclick="toggleAllCourses()">全選</button>
+                </div>
+                <div class="course-grid" id="current-courses"></div>
+            </div>
+            
+            <!-- 樹狀圖區域 -->
+            <div class="tree-panel" id="tree-panel">
+                <div class="tree-header" id="tree-header">
+                    <button class="header-btn" id="course-btn" onclick="toggleMobileCourses()" title="選課 (C)">
+                        📚
+                    </button>
+                    <div class="tree-header-title">畢業學分架構</div>
+                    <button class="header-btn" id="fullscreen-btn" onclick="toggleFullscreen()" title="全螢幕 (F)">
+                        ⛶
+                    </button>
+                </div>
+                
+                <div id="tree-container">
+                    <ul class="tree" id="tree-root"></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>資工系畢業學分檢核系統 <a href="#" class="version-link" onclick="openChangelog(); return false;" title="查看版本變動">v2.0.0</a> | 110學年度入學適用</p>
+            <p class="footer-subtitle">Made with ❤️ by Stan &amp; Claude | 按 <kbd>F</kbd> 全螢幕 · <kbd>C</kbd> 選課</p>
+        </div>
+    </div>
+    
+    <!-- 豎屏選課遮罩 -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileCourses()"></div>
+    
+    <!-- 豎屏選課面板（iOS Bottom Sheet）-->
+    <div class="mobile-course-panel" id="mobile-panel">
+        <div class="mobile-panel-handle"></div>
+        <div class="mobile-panel-header">
+            <div class="mobile-panel-header-icon">📚</div>
+            <div>
+                <h3>114-2學期課程</h3>
+                <p>點選模擬選課效果</p>
+            </div>
+            <button class="select-all-btn" id="mobile-select-all-btn" onclick="toggleAllCourses()" style="margin-left: auto;">全選</button>
+        </div>
+        <div class="mobile-panel-content">
+            <div class="mobile-course-grid" id="mobile-courses"></div>
+        </div>
+    </div>
+    
+    <!-- 快捷鍵提示 -->
+    <div class="shortcut-hint" id="shortcut-hint"></div>
+
+    <!-- 版本變動 Changelog Modal -->
+    <div class="changelog-overlay" id="changelog-overlay" onclick="closeChangelog()"></div>
+    <div class="changelog-modal" id="changelog-modal">
+        <div class="changelog-header">
+            <div>
+                <h2>📋 版本變動記錄</h2>
+                <p>What's New</p>
+            </div>
+            <button class="changelog-close-btn" onclick="closeChangelog()" title="關閉 (Esc)">✕</button>
+        </div>
+        <div class="changelog-content" id="changelog-content"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

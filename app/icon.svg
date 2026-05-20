@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="capBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#capBg)"/>
+  <g fill="#ffffff">
+    <!-- mortarboard (flat diamond top) -->
+    <path d="M256 150 L424 214 L256 278 L88 214 Z"/>
+    <!-- cap base sitting on the head -->
+    <path d="M174 246 L174 316 C174 316 200 348 256 348 C312 348 338 316 338 316 L338 246 L256 278 Z"/>
+  </g>
+  <!-- tassel -->
+  <path d="M424 214 L424 298" stroke="#ffffff" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <circle cx="424" cy="312" r="14" fill="#ffffff"/>
+</svg>
