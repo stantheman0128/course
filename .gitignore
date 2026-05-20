@@ -26,3 +26,9 @@ dist-ssr
 # Cloudflare / Wrangler
 .wrangler/
 .dev.vars
+
+# Local deploy staging dir (clean copy of index.html for wrangler pages deploy)
+_deploy/
+
+# Local dev server artifacts
+.vite/
