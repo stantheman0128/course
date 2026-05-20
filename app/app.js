@@ -480,6 +480,18 @@
         // Markup: **bold**、__underline__、*italic*（renderMarkup 解析）
         const CHANGELOG = [
             {
+                version: 'v2.0.1',
+                date: '2026-05-20',
+                type: 'patch',
+                changes: [
+                    '__修正窄螢幕 CJK 文字逐字直排 bug__:`.stat-number` / `.stat-label` 加上 *white-space: nowrap*,文字不再因空間不足而一字一行變直式',
+                    '**修好失效的響應式 media query**:舊的 `@media` 寫 `.stats { grid-template-columns }`,但 `.stats` 自 v1.12 起是 *flex* 不是 grid → 整段失效。改成對真正的 grid 容器 `.stats-grid` 做 RWD',
+                    '**窄螢幕 stats 4 格 → 2 格**(≤640px)、字體分級縮小(≤640px / ≤430px)',
+                    '**滾動 sticky bar 窄螢幕處理**:≤820px 藏標題(header 已有完整標題)、縮字縮距;≤430px 連字體 slider 也收起,只留 4 格數據',
+                    '*style.css* / *app.js* 連結加版本 query(`?v=2.0.1`)做 cache-busting,改版時瀏覽器確實抓新檔'
+                ]
+            },
+            {
                 version: 'v2.0.0',
                 date: '2026-05-20',
                 type: 'major',
