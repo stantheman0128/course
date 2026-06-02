@@ -1,7 +1,11 @@
 # Deployment
 
-> **Architecture note**：2026-05-18 之後 pivot 回單檔 HTML 架構（`index.html` at root）。
-> React/Vite 版本封存於 `archive/react-attempt-2026-05-18/`。
+> **Architecture note**：
+> - 2026-05-18：pivot 回單檔 HTML 架構（`index.html` at root）。
+> - 2026-05 之後：再 pivot 到多檔 **PWA** 架構,程式在 `app/` 目錄（入口 `app/index.html`,含 `app.js`／`style.css`／`sw.js`／`manifest.webmanifest`）。**目前 production（v2.0.3+）跑的是這版。**
+> - React/Vite 版本封存於 `archive/react-attempt-2026-05-18/`。
+>
+> ⚠️ 下方部署指令原本是針對單檔 `index.html` 撰寫的。**PWA 版要部署的是整個 `app/` 目錄**；核心方式不變（Cloudflare Pages direct upload、手動 wrangler、push 不自動部署），只是上傳目標換成 `app/`。確切指令請以你實際成功部署過的為準。
 
 ## 現行部署方式：Wrangler 直接上傳
 
@@ -49,25 +53,26 @@ npx wrangler login
 
 ## Git 現況
 
-- `main` = production，`html-v2` = dev
-- 兩個 branch 目前同步（fast-forward）
+- `main` = production 標記，`v2-pwa` = 活躍開發分支（舊的 `html-v2` 已停用）
 - 注意：Pages 專案是 direct-upload 模式，**push 到 GitHub 不會自動 deploy**，要手動跑 wrangler 指令
+- 因為是手動部署，**GitHub 分支落後 ≠ 線上是舊版**；線上以最後一次 `wrangler pages deploy` 為準
 
 ## 後續 maintenance
 
-新版本流程：
+新版本流程（PWA 版，開發分支 = `v2-pwa`，程式在 `app/`）：
 
 ```bash
-# 改 index.html → commit → 在 html-v2 開發
-git add index.html && git commit -m "feat: vX.Y.Z — ..."
-git push origin html-v2
+# 在 v2-pwa 改 app/ 內檔案 → commit
+git add app/ && git commit -m "feat: vX.Y.Z — ..."
+git push origin v2-pwa
 
-# 要 deploy 時：merge 到 main + 部署
-git checkout main && git merge html-v2 --ff-only && git push origin main
-git checkout html-v2
-mkdir -p _deploy && cp index.html _deploy/index.html
-npx wrangler pages deploy _deploy --project-name=course --branch=main --commit-dirty=true
+# 要 deploy 時：merge 到 main + 部署 app/ 目錄
+git checkout main && git merge v2-pwa --ff-only && git push origin main
+git checkout v2-pwa
+npx wrangler pages deploy app --project-name=course --branch=main --commit-dirty=true
 ```
+
+> ⚠️ 上面 `wrangler pages deploy app …` 是依「PWA 入口在 `app/`」推斷的建議指令，**請以你實際成功部署過的為準**；若你習慣先複製到 `_deploy/` 再上傳，沿用你的流程即可。
 
 ## 與舊版 React 部署的差異
 
