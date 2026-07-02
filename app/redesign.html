@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>畢業學分檢核 · redesign 原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#eef0f3; --bg:#fbfbfc; --surface:#fff; --surface-2:#f5f6f8;
+  --border:#e3e5ea; --border-strong:#d2d6dd;
+  --ink:#23262d; --ink-2:#525762; --ink-3:#6c717b;
+  --accent:#34508f; --accent-strong:#28407a; --accent-soft:#eef2fb; --accent-border:#c6d2ec;
+  --accent-ink:#1f3a78; --tick:#c6d2ec;
+  --ok:#15803d; --ok-bg:#eaf6ee; --ok-border:#c2e3cd; --ok-dot:#1aa64b;
+  --warn:#b45309; --warn-bg:#fdf3e6; --warn-border:#f0d8b3; --warn-dot:#f59e0b;
+  --bad:#b91c1c; --bad-bg:#fdecec; --bad-border:#f3c7c7; --bad-dot:#ef4444;
+  --shadow-sm:0 1px 2px rgba(20,24,40,.06),0 1px 1px rgba(20,24,40,.04);
+  --shadow-md:0 6px 24px rgba(20,24,40,.09);
+  --r:12px; --r-sm:8px; --r-lg:16px;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei","PingFang TC",sans-serif;
+  --serif:var(--sans);
+  --fs-hero:4rem; --fs-metric:1.75rem; --fs-title:1.375rem; --fs-lead:1.125rem; --fs-body:1rem; --fs-label:.8125rem;
+  --lh-hero:1; --lh-tight:1.2; --lh-body:1.6;
+  --z-sticky:100; --z-aside:90;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);font-size:var(--fs-body);background:var(--page);color:var(--ink);line-height:var(--lh-body);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 0 1px var(--border)}
+
+/* App bar */
+.appbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--border)}
+.appbar h1{font-family:var(--sans);font-weight:700;font-size:var(--fs-title);letter-spacing:-.01em;color:var(--ink);display:flex;align-items:center;gap:9px}
+.appbar .yr{font-size:var(--fs-label);color:var(--ink-2);font-weight:500}
+.reset-btn{font:inherit;font-size:var(--fs-label);font-weight:600;color:var(--ink-3);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s,border-color .2s,color .2s}
+.reset-btn.on{opacity:1;pointer-events:auto}
+.reset-btn:hover{border-color:var(--accent-border);color:var(--accent)}
+
+/* Readiness meter (sticky verdict) */
+.readiness{position:sticky;top:0;z-index:var(--z-sticky);background:var(--bg);border-bottom:1px solid var(--border);padding:18px 28px}
+.readiness-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.readiness-verdict{font-family:var(--sans);font-weight:700;font-size:var(--fs-lead);color:var(--ink);text-wrap:balance}
+.readiness-verdict b{color:var(--bad)}
+.readiness-verdict.done b{color:var(--ok)}
+.readiness-figures{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3);display:flex;align-items:baseline;gap:.5rem;white-space:nowrap}
+.readiness-figures .big{font-family:var(--mono);font-size:clamp(3rem,12vw,var(--fs-hero));font-weight:800;line-height:var(--lh-hero);letter-spacing:-.03em;color:var(--accent-ink);font-feature-settings:"cv01"}
+.readiness-figures .fig-sub{font-size:var(--fs-metric);font-weight:500;color:var(--ink-3)}
+.readiness-figures .fig-pct{font-size:var(--fs-metric);font-weight:700;color:var(--accent)}
+.readiness-figures .delta{font-size:var(--fs-metric);font-weight:700;color:var(--ok);display:inline-flex;align-items:baseline;gap:.3rem}
+.readiness-figures .delta .lbl{font-family:var(--sans);font-size:var(--fs-label);font-weight:600}
+.meter{height:10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden;position:relative}
+.meter-fill{position:absolute;inset:0;background:var(--accent);border-radius:999px;transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.meter-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--accent-strong);opacity:.5}
+
+/* layout */
+.cols{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:980px){.cols{grid-template-columns:1fr 320px}}
+
+/* Ledger */
+.ledger{padding:18px 24px 40px}
+.ledger-h{font-family:var(--sans);font-size:var(--fs-label);font-weight:600;color:var(--ink-3);margin:4px 4px 12px;letter-spacing:.01em}
+.cat{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.cat.flash{border-color:var(--accent)}
+.cat-head{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:14px;padding:14px 16px;cursor:pointer}
+.cat-head:hover{background:var(--surface-2)}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cat-dot.ok{background:var(--ok-dot)}.cat-dot.warn{background:var(--warn-dot)}.cat-dot.bad{background:var(--bad-dot)}
+.cat-name{font-weight:500;font-size:var(--fs-lead);color:var(--ink);min-width:0}
+.cat-name .note{font-weight:500;font-size:var(--fs-label);color:var(--ink-3);margin-left:8px}
+.cat-figs{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.9375rem;font-weight:500;color:var(--ink-2);white-space:nowrap}
+.cat-figs b{font-size:var(--fs-title);font-weight:700;color:var(--ink)}
+.cat-pill{font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill-ok{background:var(--ok-bg);color:var(--ok)}.pill-warn{background:var(--warn-bg);color:var(--warn)}.pill-bad{background:var(--bad-bg);color:var(--bad)}
+.cat-bar{height:6px;background:var(--surface-2);border-top:1px solid var(--border)}
+.cat-bar-fill{height:100%;width:100%;transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.cat-bar-fill.ok{background:var(--ok-dot)}.cat-bar-fill.warn{background:var(--warn-dot)}.cat-bar-fill.bad{background:var(--bad-dot)}
+.cat-chev{color:var(--ink-3);font-size:13px;transition:transform .25s;display:inline-block}
+.cat.open .cat-chev{transform:rotate(90deg)}
+.cat-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.cat.open .cat-body{grid-template-rows:1fr}
+.cat-body-inner{overflow:hidden;border-top:1px solid var(--border)}
+.sub{padding:10px 16px 10px 32px}
+.sub+.sub{border-top:1px dashed var(--border)}
+.sub-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:8px}
+.sub-name{font-weight:600;font-size:var(--fs-body);color:var(--ink-2)}
+.sub-figs{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:var(--fs-label);color:var(--ink-2)}
+.courses{display:flex;flex-direction:column;gap:5px}
+.course{display:flex;align-items:center;gap:9px;font-size:var(--fs-body);padding:7px 11px;border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink-2)}
+.course .cmark{width:6px;height:6px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
+.course.done{background:var(--ok-bg);color:var(--ink)}.course.done .cmark{background:var(--ok-dot)}
+.course.sim{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}.course.sim .cmark{background:var(--accent)}
+.course.gap{background:var(--bad-bg);color:var(--bad);font-weight:600}.course.gap .cmark{background:var(--bad-dot)}
+.course.avail{background:transparent;border:1px dashed var(--border);color:var(--ink-3)}.course.avail .cmark{background:transparent;border:1px solid var(--border-strong)}
+.course .cname{flex:1;min-width:0}
+.course .cmeta{font-family:var(--sans);font-size:var(--fs-label);color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.course.sim .cmeta{color:var(--accent)}
+
+/* Simulator aside */
+.sim{border-top:1px solid var(--border)}
+@media(min-width:980px){.sim{border-top:none;border-left:1px solid var(--border);position:sticky;top:0;align-self:start;max-height:100vh;display:flex;flex-direction:column}}
+.sim-head{padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+.sim-head h2{font-family:var(--sans);font-size:var(--fs-lead);font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.sim-head p{font-size:var(--fs-label);color:var(--ink-3);margin-top:3px}
+.sim-list{padding:12px 16px 20px;display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.simc{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;transition:border-color .18s,background .18s,transform .12s}
+.simc:hover{border-color:var(--accent-border);transform:translateY(-1px)}
+.simc.on{background:var(--accent-soft);border-color:var(--accent-border)}
+.simc input{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.simc-main{flex:1;min-width:0}
+.simc-name{font-size:var(--fs-body);font-weight:500;color:var(--ink)}
+.simc.on .simc-name{color:var(--accent-strong);font-weight:600}
+.simc-fill{font-size:var(--fs-label);color:var(--ink-3)}
+.simc.on .simc-fill{color:var(--accent)}
+.simc-cr{font-family:var(--mono);font-size:.9375rem;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;flex-shrink:0}
+.simc.on .simc-cr{color:var(--accent)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="appbar">
+    <h1><span>🎓</span><span>畢業學分檢核</span></h1>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="yr">資工系 · 110 學年度入學</span>
+      <button class="reset-btn" id="reset" onclick="resetSim()">重設模擬</button>
+    </div>
+  </div>
+
+  <div class="readiness">
+    <div class="readiness-top">
+      <div class="readiness-verdict" id="verdict"></div>
+      <div class="readiness-figures" id="figures"></div>
+    </div>
+    <div class="meter"><div class="meter-fill" id="meterFill"></div><div class="meter-mark" id="meterMark"></div></div>
+  </div>
+
+  <div class="cols">
+    <main class="ledger">
+      <div class="ledger-h">畢業需求盤點 · 點類別展開明細</div>
+      <div id="ledger"></div>
+    </main>
+    <aside class="sim">
+      <div class="sim-head">
+        <h2><span>📘</span>模擬選課 · 114-2 學期</h2>
+        <p>勾課程，上方準備度與對應類別即時更新</p>
+      </div>
+      <div class="sim-list" id="simList"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/* ===== 資料與 getTreeData()：原封不動沿用 app.js 的邏輯（數字精準）===== */
+const currentSemesterCourses = [
+  {name:"計算機結構",credits:3,type:"cs_core"},
+  {name:"演算法",credits:3,type:"cs_core"},
+  {name:"離散數學",credits:3,type:"math_core"},
+  {name:"資訊專題研究（二）：資訊系統",credits:3,type:"project"},
+  {name:"數位邏輯",credits:3,type:"hardware"},
+  {name:"影像處理",credits:3,type:"multimedia"},
+  {name:"計算機圖學",credits:3,type:"multimedia"},
+  {name:"資安攻防演練",credits:3,type:"dept_elective"},
+  {name:"體育（籃球初級）",credits:1,type:"pe"}
+];
+const FILLS={cs_core:"系必修（資訊）",math_core:"數學必選修",project:"資訊專題必選修",hardware:"領域選修 · 硬體",multimedia:"領域選修 · 多媒體",dept_elective:"系選修",pe:"體育"};
+let simulatedCourses=new Set();
+
+function getTreeData(){
+  let peCredits=0,mathCoreCredits=0,csCoreCredits=0,hardwareCredits=0,multimediaCredits=0,projectCredits=0,deptElectiveCredits=0,additionalCredits=0;
+  simulatedCourses.forEach(n=>{const c=currentSemesterCourses.find(c=>c.name===n);if(!c)return;additionalCredits+=c.credits;
+    if(c.type==='pe')peCredits+=c.credits;if(c.type==='math_core')mathCoreCredits+=c.credits;if(c.type==='cs_core')csCoreCredits+=c.credits;
+    if(c.type==='hardware')hardwareCredits+=c.credits;if(c.type==='multimedia')multimediaCredits+=c.credits;if(c.type==='project')projectCredits+=c.credits;if(c.type==='dept_elective')deptElectiveCredits+=c.credits;});
+  const totalPe=3+peCredits, totalGeneralEducation=18+4, extraGeneralCredits=Math.max(0,totalGeneralEducation-18);
+  const totalFieldElective=18+hardwareCredits+multimediaCredits, totalDeptElective=7+deptElectiveCredits;
+  return {name:"畢業總學分",credits:128,earned:94+additionalCredits,children:[
+    {name:"一、校共同必修",credits:32,earned:31+peCredits,children:[
+      {name:"中文",credits:4,earned:4,courses:[{name:"中文閱讀與思辨",grade:"A-",credits:2,completed:true},{name:"中文寫作與表達",grade:"A",credits:2,completed:true}]},
+      {name:"英文",credits:6,earned:6,courses:[{name:"英文（一）（二）（三）",grade:"抵免",credits:6,completed:true}]},
+      {name:"通識課程",credits:18,earned:Math.min(18,totalGeneralEducation),children:[
+        {name:"博雅課程",credits:14,earned:Math.min(14,18),courses:[{name:"博雅 7 門（亞裔文學…太空環境）",credits:14,completed:true}]},
+        {name:"跨域探索",credits:4,earned:Math.min(4,4),courses:[{name:"運算思維與程式設計",grade:"C",credits:2,completed:true},{name:"奈米科技",grade:"A+",credits:2,completed:true}]}
+      ]},
+      {name:"體育",credits:4,earned:totalPe,courses:[
+        {name:"現代舞/籃球/羽球初級",credits:3,completed:true},
+        simulatedCourses.has("體育（籃球初級）")?{name:"體育（籃球初級）",credits:1,isNew:true}:{name:"體育（籃球初級）",credits:1,note:"114-2 修課中"},
+        totalPe>=4?null:{name:"還需修習",credits:4-totalPe,gap:true}
+      ].filter(Boolean)}
+    ]},
+    {name:"二、系必修（資訊課程）",credits:15,earned:9+csCoreCredits,courses:[
+      {name:"程式設計（一）（二）、資料結構",credits:9,completed:true},
+      simulatedCourses.has("演算法")?{name:"演算法",credits:3,isNew:true}:{name:"演算法",credits:3,note:"114-2 修課中"},
+      simulatedCourses.has("計算機結構")?{name:"計算機結構",credits:3,isNew:true}:{name:"計算機結構",credits:3,note:"114-2 修課中"}
+    ]},
+    {name:"三、系選修",credits:54,earned:34+mathCoreCredits+hardwareCredits+multimediaCredits+projectCredits+deptElectiveCredits,children:[
+      {name:"數學必選修",credits:12,earned:9+mathCoreCredits,courses:[
+        {name:"微積分乙/機率論/線性代數",credits:9,completed:true},
+        simulatedCourses.has("離散數學")?{name:"離散數學",credits:3,isNew:true}:{name:"離散數學",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"資訊專題必選修",credits:6,earned:projectCredits,note:"4選2",courses:[
+        {name:"資訊專題研究（一）：資訊理論",credits:3,available:true},
+        {name:"資訊專題研究（一）：資訊系統",credits:3,note:"114-1 未通過"},
+        {name:"資訊專題研究（二）：資訊理論",credits:3,available:true},
+        simulatedCourses.has("資訊專題研究（二）：資訊系統")?{name:"資訊專題研究（二）：資訊系統",credits:3,isNew:true}:{name:"資訊專題研究（二）：資訊系統",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"領域選修",credits:30,earned:totalFieldElective,note:"每領域≥3學分",courses:[
+        {name:"資訊理論 / 資訊系統 / 電腦網路（已修各領域）",credits:18,completed:true},
+        simulatedCourses.has("數位邏輯")?{name:"數位邏輯（硬體）",credits:3,isNew:true}:{name:"數位邏輯（硬體）",credits:3,note:"114-2 修課中"},
+        simulatedCourses.has("計算機圖學")?{name:"計算機圖學（多媒體）",credits:3,isNew:true}:{name:"計算機圖學（多媒體）",credits:3,note:"114-2 修課中"},
+        simulatedCourses.has("影像處理")?{name:"影像處理（多媒體）",credits:3,isNew:true}:{name:"影像處理（多媒體）",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"系選修",credits:6,earned:totalDeptElective,courses:[
+        {name:"網路計算/語音處理等（已修）",credits:7,completed:true},
+        simulatedCourses.has("資安攻防演練")?{name:"資安攻防演練",credits:3,isNew:true}:{name:"資安攻防演練",credits:3,note:"114-2 修課中"}
+      ]}
+    ]},
+    {name:"四、自由選修",credits:27,earned:16+extraGeneralCredits,courses:[
+      {name:"大數據/筆譯/實習等（已修）",credits:16,completed:true},
+      16+extraGeneralCredits>=27?null:{name:"還需選修",credits:27-16-extraGeneralCredits,gap:true}
+    ].filter(Boolean)}
+  ]};
+}
+
+/* ===== 渲染 ===== */
+const $=id=>document.getElementById(id);
+const statusOf=(e,r)=>e>=r?'ok':e>0?'warn':'bad';
+const pillText={ok:'達成',warn:'部分',bad:'未達'};
+let prevEarned=null;
+
+function courseRow(c){
+  let cls='course',meta='';
+  if(c.isNew){cls+=' sim';meta='模擬 +'+c.credits;}
+  else if(c.gap){cls+=' gap';meta='缺 '+c.credits+' 學分';}
+  else if(c.completed){cls+=' done';meta=(c.grade?c.grade+' · ':'')+c.credits+' 學分';}
+  else if(c.available){cls+=' avail';meta='可選 '+c.credits;}
+  else{meta=(c.note?c.note+' · ':'')+c.credits+' 學分';}
+  return `<div class="${cls}"><span class="cmark"></span><span class="cname">${c.name}</span><span class="cmeta">${meta}</span></div>`;
+}
+function detailHTML(node){
+  let h='';
+  if(node.children){node.children.forEach(s=>{
+    const st=statusOf(s.earned,s.credits);
+    h+=`<div class="sub"><div class="sub-head"><span class="sub-name">${s.name}${s.note?` <span style="font-weight:500;color:var(--ink-3)">· ${s.note}</span>`:''}</span><span class="sub-figs">${s.earned} / ${s.credits}</span></div>`;
+    if(s.courses)h+=`<div class="courses">${s.courses.map(courseRow).join('')}</div>`;
+    if(s.children)h+=detailHTML(s);
+    h+=`</div>`;
+  });}
+  if(node.courses)h+=`<div class="sub"><div class="courses">${node.courses.map(courseRow).join('')}</div></div>`;
+  return h;
+}
+function render(){
+  const t=getTreeData();
+  const earned=t.earned, req=t.credits, pct=Math.min(100,Math.round(earned/req*1000)/10);
+  const unmet=t.children.filter(c=>c.earned<c.credits).length;
+  const remain=Math.max(0,req-earned);
+  const simOn=simulatedCourses.size>0;
+  const delta=prevEarned!=null?earned-prevEarned:0;
+
+  // verdict + figures
+  const v=$('verdict');
+  if(remain<=0){v.className='readiness-verdict done';v.innerHTML=`已達畢業門檻 · <b>條件全數滿足</b>`;}
+  else{v.className='readiness-verdict';v.innerHTML=`還差 <b>${remain}</b> 學分 · <b>${unmet}</b> 個類別未達`;}
+  $('figures').innerHTML=`<span class="big">${earned}</span><span class="fig-sub">/ ${req}</span><span class="fig-pct">${pct}%</span>${simOn?`<span class="delta"><span class="lbl">模擬</span>+${earned-94}</span>`:''}`;
+  // meter: base(94) solid, simulated portion hatched
+  const base=Math.min(100,94/req*100), full=Math.min(100,earned/req*100);
+  $('meterFill').style.transform='scaleX('+(full/100)+')';
+  $('meterMark').style.left=base+'%';
+  $('reset').classList.toggle('on',simOn);
+
+  // ledger
+  $('ledger').innerHTML=t.children.map((c,i)=>{
+    const st=statusOf(c.earned,c.credits), pct2=Math.min(100,c.earned/c.credits*100);
+    return `<div class="cat" data-i="${i}">
+      <div class="cat-head" onclick="toggleCat(${i})">
+        <span class="cat-dot ${st}"></span>
+        <span class="cat-name">${c.name}${c.note?`<span class="note">${c.note}</span>`:''}</span>
+        <span class="cat-figs"><b>${c.earned}</b> / ${c.credits}</span>
+        <span style="display:flex;align-items:center;gap:10px"><span class="cat-pill pill-${st}">${pillText[st]}</span><span class="cat-chev">▸</span></span>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill ${st}" style="transform:scaleX(${pct2/100})"></div></div>
+      <div class="cat-body"><div class="cat-body-inner">${detailHTML(c)}</div></div>
+    </div>`;
+  }).join('');
+  // 預設展開未達的類別
+  document.querySelectorAll('.cat').forEach(el=>{const i=+el.dataset.i;if(t.children[i].earned<t.children[i].credits)el.classList.add('open');});
+
+  prevEarned=earned;
+}
+function toggleCat(i){document.querySelector(`.cat[data-i="${i}"]`).classList.toggle('open');}
+
+function renderSim(){
+  $('simList').innerHTML=currentSemesterCourses.map(c=>{
+    const on=simulatedCourses.has(c.name);
+    return `<label class="simc ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleSim('${c.name}')">
+      <span class="simc-main"><span class="simc-name">${c.name}</span><br><span class="simc-fill">→ ${FILLS[c.type]}</span></span>
+      <span class="simc-cr">+${c.credits}</span></label>`;
+  }).join('');
+}
+function toggleSim(n){simulatedCourses.has(n)?simulatedCourses.delete(n):simulatedCourses.add(n);
+  // flash 受影響類別
+  render();renderSim();
+}
+function resetSim(){simulatedCourses.clear();render();renderSim();}
+
+render();renderSim();
+</script>
+</body>
+</html>

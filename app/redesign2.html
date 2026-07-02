@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>畢業學分 · 補給管線（redesign2 原型）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#eef0f3; --bg:#fbfbfc; --surface:#fff; --surface-2:#f4f6f8;
+  --border:#e3e5ea; --border-strong:#d2d6dd;
+  --ink:#23262d; --ink-2:#525762; --ink-3:#6c717b;
+  --accent:#34508f; --accent-strong:#28407a; --accent-soft:#eef2fb; --accent-border:#c6d2ec;
+  --accent-ink:#1f3a78; --water:#3a63b5; --water-sim:#7aa0e0;
+  --ok:#15803d; --ok-bg:#eaf6ee; --ok-border:#c2e3cd; --ok-dot:#1aa64b;
+  --warn:#b45309; --warn-bg:#fdf3e6; --warn-border:#f0d8b3; --warn-dot:#f59e0b;
+  --bad:#b91c1c; --bad-bg:#fdecec; --bad-border:#f3c7c7; --bad-dot:#ef4444;
+  --grid:#e7eaf0;
+  --shadow-sm:0 1px 2px rgba(20,24,40,.06),0 1px 1px rgba(20,24,40,.04);
+  --shadow-md:0 8px 28px rgba(20,24,40,.10);
+  --r:12px; --r-sm:8px;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei","PingFang TC",sans-serif;
+  --tankH:300px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);font-size:1rem;line-height:1.6;background:var(--page);color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1240px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 0 1px var(--border)}
+
+/* ── 頂部總帳 ── */
+.topbar{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:16px 26px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;background:var(--bg)}
+.tb-title{font-weight:700;font-size:1.0625rem;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.tb-total{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;display:flex;align-items:baseline;gap:.45rem}
+.tb-total .big{font-size:2.5rem;font-weight:800;letter-spacing:-.03em;color:var(--accent-ink);line-height:1;font-feature-settings:"cv01"}
+.tb-total .den{font-size:1.25rem;font-weight:500;color:var(--ink-3)}
+.tb-total .pct{font-size:1.25rem;font-weight:700;color:var(--accent)}
+.tb-pipe{flex:1;min-width:160px;height:9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);position:relative;overflow:hidden}
+.tb-pipe .fill{position:absolute;inset:0;background:var(--water);border-radius:999px;transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.tb-remain{font-size:.9375rem;font-weight:600;color:var(--bad);white-space:nowrap}
+.tb-remain.done{color:var(--ok)}
+.tb-remain b{font-family:var(--mono)}
+.reset{font:inherit;font-size:.8125rem;font-weight:600;color:var(--ink-3);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s,border-color .2s,color .2s}
+.reset.on{opacity:1;pointer-events:auto}
+.reset:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.hint{padding:9px 26px;font-size:.8125rem;color:var(--ink-2);background:var(--surface-2);border-bottom:1px solid var(--border)}
+.hint b{font-family:var(--mono);color:var(--ink)}
+
+/* ── 舞台：來源 → 管 → 槽 ── */
+.stage{position:relative;display:grid;grid-template-columns:230px 1fr 420px;gap:0;padding:22px 26px 30px;align-items:stretch}
+.manifold{position:absolute;inset:22px 26px 30px;width:auto;height:auto;pointer-events:none;z-index:1;overflow:visible}
+.col-head{font-size:.8125rem;font-weight:600;color:var(--ink-3);letter-spacing:.01em;margin-bottom:12px}
+
+/* 來源：補給包 */
+.supply{position:relative;z-index:2;display:flex;flex-direction:column;gap:8px}
+.pack{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;transition:border-color .16s,background .16s,box-shadow .16s}
+.pack:hover{border-color:var(--accent-border);box-shadow:var(--shadow-sm)}
+.pack.on{background:var(--accent-soft);border-color:var(--accent-border)}
+.pack.dim{opacity:.38}
+.pack input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.pack-main{flex:1;min-width:0}
+.pack-name{font-size:.9375rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pack-to{font-size:.75rem;color:var(--ink-3);display:flex;align-items:center;gap:5px;margin-top:1px}
+.pack.on .pack-to{color:var(--accent)}
+.pack-to .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pack-cr{font-family:var(--mono);font-size:.875rem;font-weight:700;color:var(--ink-2);flex-shrink:0}
+.pack.on .pack-cr{color:var(--accent)}
+
+/* 管線 */
+.manifold path{fill:none;stroke-width:2;stroke-linecap:round;transition:opacity .2s,stroke .2s}
+.manifold path.off{stroke:var(--border-strong);stroke-dasharray:1 7;opacity:.6}
+.manifold path.on{stroke:var(--water);opacity:.9}
+.manifold path.hl{stroke-width:3.5;opacity:1}
+.manifold path.fade{opacity:.12}
+
+/* 槽 */
+.tanks{position:relative;z-index:2;display:flex;align-items:flex-end;gap:12px;height:100%}
+.tankcol{display:flex;flex-direction:column;min-width:64px}
+.tank{position:relative;height:var(--tankH);background:var(--surface-2);border:1px solid var(--border);border-bottom-width:3px;border-radius:10px 10px 4px 4px;overflow:hidden;cursor:pointer;transition:border-color .18s,box-shadow .18s}
+.tank:hover{box-shadow:var(--shadow-sm)}
+.tank.hl{border-color:var(--accent-border);box-shadow:0 0 0 2px var(--accent-soft)}
+.tank-fill{position:absolute;left:0;right:0;bottom:0;height:100%;transform-origin:bottom;transform:scaleY(0);background:var(--water);transition:transform .5s cubic-bezier(.22,1,.36,1);z-index:2}
+.tank-sim{position:absolute;left:0;right:0;bottom:0;height:100%;transform-origin:bottom;transform:scaleY(0);background:var(--water-sim);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.32) 0 5px,transparent 5px 10px);transition:transform .5s cubic-bezier(.22,1,.36,1);z-index:1}
+.tank.met .tank-fill{background:var(--ok)}
+.tank-gap{position:absolute;top:8px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:.8125rem;font-weight:700;color:var(--bad)}
+.tank.met .tank-gap{color:var(--ok)}
+.tank-cap{position:absolute;top:0;left:0;right:0;height:0;border-top:2px dashed var(--accent-border)}
+.tank.dry{border-style:dashed;background:repeating-linear-gradient(45deg,var(--surface-2) 0 7px,#eceef2 7px 14px)}
+.tank.dry .tank-gap{color:var(--ink-3)}
+.tlabel{padding-top:9px;text-align:center}
+.tname{font-size:.8125rem;font-weight:500;color:var(--ink-2);line-height:1.3}
+.tfig{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.25rem;font-weight:700;color:var(--ink);margin-top:2px}
+.tfig .den{font-size:.875rem;font-weight:500;color:var(--ink-3)}
+.tpill{display:inline-block;margin-top:5px;font-size:.6875rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.pill-ok{background:var(--ok-bg);color:var(--ok)}.pill-warn{background:var(--warn-bg);color:var(--warn)}.pill-bad{background:var(--bad-bg);color:var(--bad)}
+
+/* 明細抽屜 */
+.detail{margin:0 26px 30px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden;display:none}
+.detail.open{display:block}
+.detail-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.detail-head .dh-name{font-weight:700;font-size:1rem}
+.detail-head .dh-close{font:inherit;font-size:.8125rem;color:var(--ink-3);background:none;border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 10px;cursor:pointer}
+.detail-body{padding:6px 8px 12px}
+.sub{padding:10px 14px}
+.sub+.sub{border-top:1px dashed var(--border)}
+.sub-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:8px}
+.sub-name{font-weight:600;font-size:1rem;color:var(--ink-2)}
+.sub-figs{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.8125rem;color:var(--ink-2)}
+.courses{display:flex;flex-direction:column;gap:5px}
+.course{display:flex;align-items:center;gap:9px;font-size:1rem;padding:7px 11px;border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink-2)}
+.course .cmark{width:6px;height:6px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
+.course.done{background:var(--ok-bg);color:var(--ink)}.course.done .cmark{background:var(--ok-dot)}
+.course.sim{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}.course.sim .cmark{background:var(--accent)}
+.course.gap{background:var(--bad-bg);color:var(--bad);font-weight:600}.course.gap .cmark{background:var(--bad-dot)}
+.course.avail{background:transparent;border:1px dashed var(--border);color:var(--ink-3)}.course.avail .cmark{background:transparent;border:1px solid var(--border-strong)}
+.course .cname{flex:1;min-width:0}
+.course .cmeta{font-family:var(--sans);font-size:.8125rem;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+@media(max-width:980px){
+  .stage{grid-template-columns:1fr;gap:24px}
+  .manifold{display:none}
+  .tanks{height:auto}
+  .tank{height:200px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="tb-title"><span>🎓</span><span>畢業學分 · 補給管線</span></div>
+    <div class="tb-total"><span class="big" id="tbBig">94</span><span class="den" id="tbDen">/ 128</span><span class="pct" id="tbPct">73.4%</span></div>
+    <div class="tb-pipe"><div class="fill" id="tbFill"></div></div>
+    <div class="tb-remain" id="tbRemain"></div>
+    <button class="reset" id="reset" onclick="resetSim()">重設模擬</button>
+  </div>
+  <div class="hint" id="hint"></div>
+
+  <div class="stage">
+    <svg class="manifold" id="manifold" preserveAspectRatio="none"></svg>
+    <section class="supply-col" style="position:relative;z-index:2">
+      <div class="col-head">這學期 114-2 · 勾課把學分灌進對應的槽</div>
+      <div class="supply" id="supply"></div>
+    </section>
+    <div aria-hidden="true"></div>
+    <section style="position:relative;z-index:2;display:flex;flex-direction:column">
+      <div class="col-head">四大畢業需求 · 點槽看明細</div>
+      <div class="tanks" id="tanks"></div>
+    </section>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="detail-head"><span class="dh-name" id="dhName"></span><button class="dh-close" onclick="closeCat()">收合 ✕</button></div>
+    <div class="detail-body" id="dhBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== 資料與 getTreeData()：沿用 app.js 邏輯（數字精準）===== */
+const currentSemesterCourses = [
+  {name:"計算機結構",credits:3,type:"cs_core"},
+  {name:"演算法",credits:3,type:"cs_core"},
+  {name:"離散數學",credits:3,type:"math_core"},
+  {name:"資訊專題研究（二）：資訊系統",credits:3,type:"project"},
+  {name:"數位邏輯",credits:3,type:"hardware"},
+  {name:"影像處理",credits:3,type:"multimedia"},
+  {name:"計算機圖學",credits:3,type:"multimedia"},
+  {name:"資安攻防演練",credits:3,type:"dept_elective"},
+  {name:"體育（籃球初級）",credits:1,type:"pe"}
+];
+const FILLS={cs_core:"系必修（資訊）",math_core:"數學必選修",project:"資訊專題必選修",hardware:"領域選修 · 硬體",multimedia:"領域選修 · 多媒體",dept_elective:"系選修",pe:"體育"};
+/* 課程 type → 四大類索引（與 getTreeData 的學分歸屬一致）*/
+const CATOF={pe:0,cs_core:1,math_core:2,project:2,hardware:2,multimedia:2,dept_elective:2};
+const CATSHORT=["校共同","系必修","系選修","自由選修"];
+const CATDOT=["var(--warn-dot)","var(--accent)","var(--accent)","var(--ink-3)"];
+let simulatedCourses=new Set();
+
+function getTreeData(){
+  let peCredits=0,mathCoreCredits=0,csCoreCredits=0,hardwareCredits=0,multimediaCredits=0,projectCredits=0,deptElectiveCredits=0,additionalCredits=0;
+  simulatedCourses.forEach(n=>{const c=currentSemesterCourses.find(c=>c.name===n);if(!c)return;additionalCredits+=c.credits;
+    if(c.type==='pe')peCredits+=c.credits;if(c.type==='math_core')mathCoreCredits+=c.credits;if(c.type==='cs_core')csCoreCredits+=c.credits;
+    if(c.type==='hardware')hardwareCredits+=c.credits;if(c.type==='multimedia')multimediaCredits+=c.credits;if(c.type==='project')projectCredits+=c.credits;if(c.type==='dept_elective')deptElectiveCredits+=c.credits;});
+  const totalPe=3+peCredits, totalGeneralEducation=18+4, extraGeneralCredits=Math.max(0,totalGeneralEducation-18);
+  const totalFieldElective=18+hardwareCredits+multimediaCredits, totalDeptElective=7+deptElectiveCredits;
+  return {name:"畢業總學分",credits:128,earned:94+additionalCredits,children:[
+    {name:"一、校共同必修",credits:32,earned:31+peCredits,children:[
+      {name:"中文",credits:4,earned:4,courses:[{name:"中文閱讀與思辨",grade:"A-",credits:2,completed:true},{name:"中文寫作與表達",grade:"A",credits:2,completed:true}]},
+      {name:"英文",credits:6,earned:6,courses:[{name:"英文（一）（二）（三）",grade:"抵免",credits:6,completed:true}]},
+      {name:"通識課程",credits:18,earned:Math.min(18,totalGeneralEducation),children:[
+        {name:"博雅課程",credits:14,earned:Math.min(14,18),courses:[{name:"博雅 7 門（亞裔文學…太空環境）",credits:14,completed:true}]},
+        {name:"跨域探索",credits:4,earned:Math.min(4,4),courses:[{name:"運算思維與程式設計",grade:"C",credits:2,completed:true},{name:"奈米科技",grade:"A+",credits:2,completed:true}]}
+      ]},
+      {name:"體育",credits:4,earned:totalPe,courses:[
+        {name:"現代舞/籃球/羽球初級",credits:3,completed:true},
+        simulatedCourses.has("體育（籃球初級）")?{name:"體育（籃球初級）",credits:1,isNew:true}:{name:"體育（籃球初級）",credits:1,note:"114-2 修課中"},
+        totalPe>=4?null:{name:"還需修習",credits:4-totalPe,gap:true}
+      ].filter(Boolean)}
+    ]},
+    {name:"二、系必修（資訊課程）",credits:15,earned:9+csCoreCredits,courses:[
+      {name:"程式設計（一）（二）、資料結構",credits:9,completed:true},
+      simulatedCourses.has("演算法")?{name:"演算法",credits:3,isNew:true}:{name:"演算法",credits:3,note:"114-2 修課中"},
+      simulatedCourses.has("計算機結構")?{name:"計算機結構",credits:3,isNew:true}:{name:"計算機結構",credits:3,note:"114-2 修課中"}
+    ]},
+    {name:"三、系選修",credits:54,earned:34+mathCoreCredits+hardwareCredits+multimediaCredits+projectCredits+deptElectiveCredits,children:[
+      {name:"數學必選修",credits:12,earned:9+mathCoreCredits,courses:[
+        {name:"微積分乙/機率論/線性代數",credits:9,completed:true},
+        simulatedCourses.has("離散數學")?{name:"離散數學",credits:3,isNew:true}:{name:"離散數學",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"資訊專題必選修",credits:6,earned:projectCredits,note:"4選2",courses:[
+        {name:"資訊專題研究（一）：資訊理論",credits:3,available:true},
+        {name:"資訊專題研究（一）：資訊系統",credits:3,note:"114-1 未通過"},
+        {name:"資訊專題研究（二）：資訊理論",credits:3,available:true},
+        simulatedCourses.has("資訊專題研究（二）：資訊系統")?{name:"資訊專題研究（二）：資訊系統",credits:3,isNew:true}:{name:"資訊專題研究（二）：資訊系統",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"領域選修",credits:30,earned:totalFieldElective,note:"每領域≥3學分",courses:[
+        {name:"資訊理論 / 資訊系統 / 電腦網路（已修各領域）",credits:18,completed:true},
+        simulatedCourses.has("數位邏輯")?{name:"數位邏輯（硬體）",credits:3,isNew:true}:{name:"數位邏輯（硬體）",credits:3,note:"114-2 修課中"},
+        simulatedCourses.has("計算機圖學")?{name:"計算機圖學（多媒體）",credits:3,isNew:true}:{name:"計算機圖學（多媒體）",credits:3,note:"114-2 修課中"},
+        simulatedCourses.has("影像處理")?{name:"影像處理（多媒體）",credits:3,isNew:true}:{name:"影像處理（多媒體）",credits:3,note:"114-2 修課中"}
+      ]},
+      {name:"系選修",credits:6,earned:totalDeptElective,courses:[
+        {name:"網路計算/語音處理等（已修）",credits:7,completed:true},
+        simulatedCourses.has("資安攻防演練")?{name:"資安攻防演練",credits:3,isNew:true}:{name:"資安攻防演練",credits:3,note:"114-2 修課中"}
+      ]}
+    ]},
+    {name:"四、自由選修",credits:27,earned:16+extraGeneralCredits,courses:[
+      {name:"大數據/筆譯/實習等（已修）",credits:16,completed:true},
+      16+extraGeneralCredits>=27?null:{name:"還需選修",credits:27-16-extraGeneralCredits,gap:true}
+    ].filter(Boolean)}
+  ]};
+}
+
+/* ===== 工具 ===== */
+const $=id=>document.getElementById(id);
+const statusOf=(e,r)=>e>=r?'ok':e>0?'warn':'bad';
+const pillText={ok:'達成',warn:'部分',bad:'未達'};
+const PIPES={};          // 課名 → <path>
+let prevEarned=94, openIdx=null, flowOne=null;
+
+/* 各槽的模擬增量（與 getTreeData 學分歸屬一致） */
+function simAddByCat(){
+  const a=[0,0,0,0];
+  simulatedCourses.forEach(n=>{const c=currentSemesterCourses.find(c=>c.name===n);if(c)a[CATOF[c.type]]+=c.credits;});
+  return a;
+}
+
+/* ===== 一次性建構 ===== */
+function buildSupply(){
+  $('supply').innerHTML=currentSemesterCourses.map(c=>{
+    const ci=CATOF[c.type];
+    return `<label class="pack" data-course="${c.name}" data-cat="${ci}"
+        onmouseenter="hl('${c.name}',true)" onmouseleave="hl('${c.name}',false)">
+      <input type="checkbox" onchange="toggleSim('${c.name}')">
+      <span class="pack-main">
+        <span class="pack-name">${c.name}</span>
+        <span class="pack-to"><span class="dot" style="background:${CATDOT[ci]}"></span>→ ${FILLS[c.type]}</span>
+      </span>
+      <span class="pack-cr">+${c.credits}</span>
+    </label>`;
+  }).join('');
+}
+function buildTanks(){
+  const t=getTreeData();
+  $('tanks').innerHTML=t.children.map((c,i)=>{
+    return `<div class="tankcol" data-cat="${i}" style="flex:${c.credits}">
+      <div class="tank" data-cat="${i}" onclick="openCat(${i})"
+           onmouseenter="hlTank(${i},true)" onmouseleave="hlTank(${i},false)">
+        <div class="tank-fill" data-fill></div>
+        <div class="tank-sim" data-sim></div>
+        <div class="tank-cap"></div>
+        <div class="tank-gap" data-gap></div>
+      </div>
+      <div class="tlabel">
+        <div class="tname">${c.name}</div>
+        <div class="tfig"><span data-earned></span><span class="den" data-den></span></div>
+        <div class="tpill" data-pill></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== 管線（依實際 DOM 量測畫貝茲曲線）===== */
+function layoutPipes(){
+  const svg=$('manifold'), box=svg.getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);
+  // 每槽入口 = 槽頂中心
+  const inlet={};
+  document.querySelectorAll('.tank').forEach(tk=>{
+    const r=tk.getBoundingClientRect();
+    inlet[tk.dataset.cat]={x:r.left-box.left+r.width/2, y:r.top-box.top};
+  });
+  document.querySelectorAll('.pack').forEach(p=>{
+    const name=p.dataset.course, ci=p.dataset.cat, r=p.getBoundingClientRect();
+    const sx=r.right-box.left, sy=r.top-box.top+r.height/2;
+    const tgt=inlet[ci]; if(!tgt)return;
+    const ex=tgt.x, ey=tgt.y;
+    const c1x=sx+(ex-sx)*0.45, c2x=ex-(ex-sx)*0.12;
+    const d=`M ${sx} ${sy} C ${c1x} ${sy}, ${c2x} ${ey-46}, ${ex} ${ey}`;
+    let path=PIPES[name];
+    if(!path){path=document.createElementNS('http://www.w3.org/2000/svg','path');path.dataset.course=name;svg.appendChild(path);PIPES[name]=path;}
+    path.setAttribute('d',d);
+  });
+  updatePipes();
+}
+function updatePipes(){
+  Object.entries(PIPES).forEach(([name,p])=>{
+    const on=simulatedCourses.has(name);
+    p.classList.toggle('on',on); p.classList.toggle('off',!on);
+    const len=p.getTotalLength();
+    if(on){
+      if(flowOne===name){
+        p.style.transition='none';p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
+        p.getBoundingClientRect();
+        p.style.transition='stroke-dashoffset .55s ease-out';p.style.strokeDashoffset='0';
+      }else{p.style.transition='';p.style.strokeDasharray=len;p.style.strokeDashoffset='0';}
+    }else{p.style.transition='';p.style.strokeDasharray='1 7';p.style.strokeDashoffset='0';}
+  });
+  flowOne=null;
+}
+
+/* hover 因果高亮 */
+function hl(name,on){
+  const p=PIPES[name]; if(!p)return;
+  const ci=document.querySelector(`.pack[data-course="${name}"]`).dataset.cat;
+  if(on){
+    Object.values(PIPES).forEach(x=>x!==p&&x.classList.add('fade'));
+    p.classList.add('hl');
+    document.querySelector(`.tank[data-cat="${ci}"]`).classList.add('hl');
+  }else{
+    Object.values(PIPES).forEach(x=>x.classList.remove('fade'));
+    p.classList.remove('hl');
+    document.querySelector(`.tank[data-cat="${ci}"]`).classList.remove('hl');
+  }
+}
+function hlTank(i,on){
+  document.querySelectorAll(`.pack[data-cat="${i}"]`).forEach(p=>p.classList.toggle('hl-src',on));
+  Object.entries(PIPES).forEach(([name,p])=>{
+    const ci=document.querySelector(`.pack[data-course="${name}"]`).dataset.cat;
+    if(ci==i)p.classList.toggle('hl',on); else p.classList.toggle('fade',on);
+  });
+}
+
+/* ===== render：更新槽、總帳、管線狀態 ===== */
+function render(){
+  const t=getTreeData();
+  const earned=t.earned, req=t.credits, pct=Math.round(earned/req*1000)/10;
+  const remain=Math.max(0,req-earned);
+  const unmet=t.children.filter(c=>c.earned<c.credits).length;
+  const simOn=simulatedCourses.size>0;
+  const add=simAddByCat();
+
+  $('tbBig').textContent=earned;
+  $('tbDen').textContent='/ '+req;
+  $('tbPct').textContent=pct+'%';
+  $('tbFill').style.transform='scaleX('+Math.min(1,earned/req)+')';
+  const rem=$('tbRemain');
+  if(remain<=0){rem.className='tb-remain done';rem.innerHTML='畢業條件全數滿足 ✓';}
+  else{rem.className='tb-remain';rem.innerHTML=`還差 <b>${remain}</b> 學分 · <b>${unmet}</b> 類未達${simOn?` · 模擬 +${earned-94}`:''}`;}
+  $('reset').classList.toggle('on',simOn);
+
+  // 槽
+  document.querySelectorAll('.tankcol').forEach(col=>{
+    const i=+col.dataset.cat, c=t.children[i];
+    const st=statusOf(c.earned,c.credits);
+    const baseFrac=Math.max(0,Math.min(1,(c.earned-add[i])/c.credits));
+    const totalFrac=Math.max(0,Math.min(1,c.earned/c.credits));
+    const tank=col.querySelector('.tank');
+    tank.classList.toggle('met',c.earned>=c.credits);
+    tank.querySelector('[data-fill]').style.transform='scaleY('+baseFrac+')';
+    tank.querySelector('[data-sim]').style.transform='scaleY('+totalFrac+')';
+    const gap=c.credits-c.earned;
+    const isDry=(i===3); // 自由選修本學期無對應課
+    tank.classList.toggle('dry',isDry&&gap>0);
+    const g=tank.querySelector('[data-gap]');
+    g.textContent = gap<=0 ? '✓ 滿' : (isDry?`缺 ${gap}`:`缺 ${gap}`);
+    col.querySelector('[data-earned]').textContent=c.earned;
+    col.querySelector('[data-den]').textContent='/'+c.credits;
+    const pill=col.querySelector('[data-pill]');
+    pill.className='tpill pill-'+st; pill.textContent=pillText[st];
+  });
+
+  updatePipes();
+  if(openIdx!==null) renderDetail(openIdx);
+  prevEarned=earned;
+}
+
+/* ===== 明細抽屜 ===== */
+function courseRow(c){
+  let cls='course',meta='';
+  if(c.isNew){cls+=' sim';meta='模擬 +'+c.credits;}
+  else if(c.gap){cls+=' gap';meta='缺 '+c.credits+' 學分';}
+  else if(c.completed){cls+=' done';meta=(c.grade?c.grade+' · ':'')+c.credits+' 學分';}
+  else if(c.available){cls+=' avail';meta='可選 '+c.credits;}
+  else{meta=(c.note?c.note+' · ':'')+c.credits+' 學分';}
+  return `<div class="${cls}"><span class="cmark"></span><span class="cname">${c.name}</span><span class="cmeta">${meta}</span></div>`;
+}
+function detailHTML(node){
+  let h='';
+  if(node.children){node.children.forEach(s=>{
+    h+=`<div class="sub"><div class="sub-head"><span class="sub-name">${s.name}${s.note?` <span style="font-weight:500;color:var(--ink-3)">· ${s.note}</span>`:''}</span><span class="sub-figs">${s.earned} / ${s.credits}</span></div>`;
+    if(s.courses)h+=`<div class="courses">${s.courses.map(courseRow).join('')}</div>`;
+    if(s.children)h+=detailHTML(s);
+    h+=`</div>`;
+  });}
+  if(node.courses)h+=`<div class="sub"><div class="courses">${node.courses.map(courseRow).join('')}</div></div>`;
+  return h;
+}
+function renderDetail(i){
+  const c=getTreeData().children[i];
+  $('dhName').textContent=`${c.name}　${c.earned} / ${c.credits}`;
+  $('dhBody').innerHTML=detailHTML(c);
+}
+function openCat(i){
+  if(openIdx===i){closeCat();return;}
+  openIdx=i; renderDetail(i); $('detail').classList.add('open');
+  $('detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeCat(){openIdx=null;$('detail').classList.remove('open');}
+
+/* ===== 模擬 ===== */
+function toggleSim(n){
+  if(simulatedCourses.has(n))simulatedCourses.delete(n); else{simulatedCourses.add(n);flowOne=n;}
+  document.querySelector(`.pack[data-course="${n}"]`).classList.toggle('on',simulatedCourses.has(n));
+  document.querySelectorAll('.pack input').forEach(inp=>{});
+  render();
+}
+function resetSim(){simulatedCourses.clear();document.querySelectorAll('.pack').forEach(p=>{p.classList.remove('on');p.querySelector('input').checked=false;});render();}
+
+/* ===== 達標上限提示（誠實揭露：全勾也未必畢業）===== */
+function buildHint(){
+  const all=currentSemesterCourses.reduce((s,c)=>s+c.credits,0); // 25
+  const max=94+all; // 119
+  // 各類在全勾下的缺口
+  const save=new Set(simulatedCourses); simulatedCourses=new Set(currentSemesterCourses.map(c=>c.name));
+  const t=getTreeData(); const shorts=t.children.filter(c=>c.earned<c.credits).map(c=>`${CATSHORT[t.children.indexOf(c)]}缺${c.credits-c.earned}`);
+  simulatedCourses=save;
+  $('hint').innerHTML=`本學期 9 門全勾最多補到 <b>${max} / 128</b>${max<128?`，仍差 <b>${128-max}</b> 學分（${shorts.join('、')}）— 這幾類本學期沒有對應課可補。`:'。'}`;
+}
+
+/* ===== 初始化 ===== */
+buildSupply(); buildTanks(); buildHint();
+layoutPipes(); render();
+window.addEventListener('load',()=>{layoutPipes();render();});
+let rz; window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(layoutPipes,150);});
+</script>
+</body>
+</html>
