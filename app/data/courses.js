@@ -13,7 +13,8 @@
             {name: "影像處理", credits: 3, type: "multimedia"},
             {name: "計算機圖學", credits: 3, type: "multimedia"},
             {name: "資安攻防演練", credits: 3, type: "dept_elective"},
-            {name: "體育（籃球初級）", credits: 1, type: "pe"}
+            // 名字加 114-2 後綴：113-2 已修過同名課，simulatedCourses 用課名當 key 會撞名
+            {name: "體育（籃球初級）114-2", credits: 1, type: "pe"}
         ];
 
         // ===== Changelog =====

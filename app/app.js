@@ -273,7 +273,7 @@
                                     {name: "體育（現代舞初級）", grade: "A-", semester: "112-1", credits: 1, completed: true},
                                     {name: "體育（籃球初級）", grade: "A+", semester: "113-2", credits: 1, completed: true},
                                     {name: "體育（羽球初級）", grade: "A-", semester: "114-1", credits: 1, completed: true},
-                                    simulatedCourses.has("體育（籃球初級）") ? {name: "體育（籃球初級）", credits: 1, completed: true, isNew: true, semester: "114-2"} : {name: "體育（籃球初級）", credits: 1, note: "114-2修課中"},
+                                    simulatedCourses.has("體育（籃球初級）114-2") ? {name: "體育（籃球初級）114-2", credits: 1, completed: true, isNew: true, semester: "114-2"} : {name: "體育（籃球初級）114-2", credits: 1, note: "114-2修課中"},
                                     t.totalPe >= 4 ? null : {name: "還需修習", credits: 4 - t.totalPe}
                                 ].filter(Boolean)
                             }
