@@ -1,9 +1,12 @@
         // 資料已抽離至 data/courses.js（currentSemesterCourses），於本檔之前載入
 
         let simulatedCourses = new Set();
-        let currentEarned = 94;
-        let currentPercentage = 73.4;
-        let currentRemaining = 34;
+        const TOTAL_CREDITS_REQUIRED = 128;
+        // v2.0.6: 三個 current* 由 initStats() 從計算基線填入；
+        // index.html 裡的數字只是載入瞬間的骨架，不再是第二份數值來源
+        let currentEarned;
+        let currentPercentage;
+        let currentRemaining;
         let mobileCoursesOpen = false;
         
         // 滾動閾值（縮小）
@@ -208,7 +211,7 @@
 
             return {
                 name: "畢業總學分",
-                credits: 128,
+                credits: TOTAL_CREDITS_REQUIRED,
                 earned: t.totalEarned,
                 children: [
                     {
@@ -678,12 +681,24 @@
             setTheme(getCurrentTheme());
         }
 
+        // v2.0.6: 頁首四格統計於載入時由計算基線填入（單一來源）
+        function initStats() {
+            const baseline = computeCreditTotals();
+            currentEarned = baseline.totalEarned;
+            currentRemaining = TOTAL_CREDITS_REQUIRED - baseline.totalEarned;
+            currentPercentage = parseFloat((baseline.totalEarned / TOTAL_CREDITS_REQUIRED * 100).toFixed(1));
+            document.getElementById('total-earned').textContent = currentEarned;
+            document.getElementById('total-required').textContent = TOTAL_CREDITS_REQUIRED;
+            document.getElementById('remaining').textContent = currentRemaining;
+            document.getElementById('completion').textContent = currentPercentage.toFixed(1) + '%';
+        }
+
         // 實時更新
         function updateTreeRealtime() {
             // v2.0.6: 與樹狀圖同一計算來源（含分類封頂與超修溢流），數字不會再各算各的
             const newTotal = computeCreditTotals().totalEarned;
-            const newPercentage = (newTotal / 128 * 100).toFixed(1);
-            const newRemaining = 128 - newTotal;
+            const newPercentage = (newTotal / TOTAL_CREDITS_REQUIRED * 100).toFixed(1);
+            const newRemaining = TOTAL_CREDITS_REQUIRED - newTotal;
             
             document.querySelectorAll('.stat-item').forEach(item => item.classList.add('highlight'));
             setTimeout(() => {
@@ -1140,6 +1155,7 @@
         // 初始化
         initTheme();
         initFontSize();
+        initStats();
         renderCurrentCourses();
         const treeRoot = document.getElementById('tree-root');
         const initialTree = getTreeData();
