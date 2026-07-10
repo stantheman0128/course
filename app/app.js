@@ -132,9 +132,12 @@
             setTimeout(() => btn.classList.remove('toggling'), 450);
         }
 
-        // 課程架構數據
-        function getTreeData() {
-            let additionalCredits = 0;
+        // v2.0.6: 學分計算單一來源。
+        // 規則：每個分類的 credits 同時是上限（cap），超修學分一律溢流到「自由選修」；
+        // 自由選修本身也封頂（27），超過所有上限的學分不計入 128 畢業總學分。
+        // 這是把原本只有通識在做的 min(18, ...) + 溢流模式，推廣到所有分類
+        //（例：系選修需 6、已修 7，再模擬選課時多的學分不能灌進系選修與總學分）。
+        function computeCreditTotals() {
             let peCredits = 0;
             let mathCoreCredits = 0;
             let csCoreCredits = 0;
@@ -145,36 +148,73 @@
 
             simulatedCourses.forEach(courseName => {
                 const course = currentSemesterCourses.find(c => c.name === courseName);
-                if (course) {
-                    additionalCredits += course.credits;
-                    if (course.type === 'pe') peCredits += course.credits;
-                    if (course.type === 'math_core') mathCoreCredits += course.credits;
-                    if (course.type === 'cs_core') csCoreCredits += course.credits;
-                    if (course.type === 'hardware') hardwareCredits += course.credits;
-                    if (course.type === 'multimedia') multimediaCredits += course.credits;
-                    if (course.type === 'project') projectCredits += course.credits;
-                    if (course.type === 'dept_elective') deptElectiveCredits += course.credits;
-                }
+                if (!course) return;
+                if (course.type === 'pe') peCredits += course.credits;
+                if (course.type === 'math_core') mathCoreCredits += course.credits;
+                if (course.type === 'cs_core') csCoreCredits += course.credits;
+                if (course.type === 'hardware') hardwareCredits += course.credits;
+                if (course.type === 'multimedia') multimediaCredits += course.credits;
+                if (course.type === 'project') projectCredits += course.credits;
+                if (course.type === 'dept_elective') deptElectiveCredits += course.credits;
             });
 
             // 114-1 結束 base: 博雅 18 (人文4+社會6+自然6+邏輯運算2)、跨域 4 (運算思維+奈米科技)
             const totalPe = 3 + peCredits;
+            const peEarned = Math.min(4, totalPe);
             const totalGeneral = 18;
             const totalInterdisciplinary = 4;
             const totalGeneralEducation = totalGeneral + totalInterdisciplinary;
-            const extraGeneralCredits = Math.max(0, totalGeneralEducation - 18);
+            const generalEarned = Math.min(18, totalGeneralEducation);
+            const commonEarned = Math.min(32, 4 + 6 + generalEarned + peEarned); // 中文4 + 英文6
+
+            const totalCsCore = 9 + csCoreCredits;
+            const csCoreEarned = Math.min(15, totalCsCore);
+
+            const totalMathCore = 9 + mathCoreCredits;
+            const mathCoreEarned = Math.min(12, totalMathCore);
+            const projectEarned = Math.min(6, projectCredits);
             const totalFieldElective = 18 + hardwareCredits + multimediaCredits;
+            const fieldElectiveEarned = Math.min(30, totalFieldElective);
             const totalDeptElective = 7 + deptElectiveCredits;
-            
+            const deptElectiveEarned = Math.min(6, totalDeptElective);
+            const deptCategoryEarned = Math.min(54,
+                mathCoreEarned + projectEarned + fieldElectiveEarned + deptElectiveEarned);
+
+            // 各分類超修的部分 → 溢流到自由選修
+            const extraGeneralCredits = totalGeneralEducation - generalEarned;
+            const extraDeptElectiveCredits = totalDeptElective - deptElectiveEarned;
+            const overflowToFree = extraGeneralCredits + extraDeptElectiveCredits
+                + (totalPe - peEarned) + (totalCsCore - csCoreEarned)
+                + (totalMathCore - mathCoreEarned) + (projectCredits - projectEarned)
+                + (totalFieldElective - fieldElectiveEarned);
+            const freeEarned = Math.min(27, 16 + overflowToFree);
+
+            const totalEarned = commonEarned + csCoreEarned + deptCategoryEarned + freeEarned;
+
+            return {
+                hardwareCredits, multimediaCredits,
+                totalPe, peEarned, totalGeneral, totalInterdisciplinary,
+                totalGeneralEducation, generalEarned, commonEarned,
+                csCoreEarned, mathCoreEarned, projectEarned,
+                fieldElectiveEarned, deptElectiveEarned, deptCategoryEarned,
+                extraGeneralCredits, extraDeptElectiveCredits,
+                freeEarned, totalEarned
+            };
+        }
+
+        // 課程架構數據
+        function getTreeData() {
+            const t = computeCreditTotals();
+
             return {
                 name: "畢業總學分",
                 credits: 128,
-                earned: 94 + additionalCredits,
+                earned: t.totalEarned,
                 children: [
                     {
                         name: "一、校共同必修",
                         credits: 32,
-                        earned: 31 + peCredits,
+                        earned: t.commonEarned,
                         children: [
                             {
                                 name: "中文",
@@ -196,12 +236,12 @@
                             {
                                 name: "通識課程",
                                 credits: 18,
-                                earned: Math.min(18, totalGeneralEducation),
+                                earned: t.generalEarned,
                                 children: [
                                     {
                                         name: "博雅課程",
                                         credits: 14,
-                                        earned: Math.min(14, totalGeneral),
+                                        earned: Math.min(14, t.totalGeneral),
                                         courses: [
                                             {name: "亞裔美國文學", grade: "A-", semester: "112-2", credits: 2, completed: true},
                                             {name: "科技與社會", grade: "A-", semester: "112-1", credits: 2, completed: true},
@@ -217,7 +257,7 @@
                                     {
                                         name: "跨域探索",
                                         credits: 4,
-                                        earned: Math.min(4, totalInterdisciplinary),
+                                        earned: Math.min(4, t.totalInterdisciplinary),
                                         courses: [
                                             {name: "運算思維與程式設計", grade: "C", semester: "113-2", credits: 2, completed: true},
                                             {name: "奈米科技", grade: "A+", semester: "114-1", credits: 2, completed: true}
@@ -228,13 +268,13 @@
                             {
                                 name: "體育",
                                 credits: 4,
-                                earned: totalPe,
+                                earned: t.peEarned,
                                 courses: [
                                     {name: "體育（現代舞初級）", grade: "A-", semester: "112-1", credits: 1, completed: true},
                                     {name: "體育（籃球初級）", grade: "A+", semester: "113-2", credits: 1, completed: true},
                                     {name: "體育（羽球初級）", grade: "A-", semester: "114-1", credits: 1, completed: true},
                                     simulatedCourses.has("體育（籃球初級）") ? {name: "體育（籃球初級）", credits: 1, completed: true, isNew: true, semester: "114-2"} : {name: "體育（籃球初級）", credits: 1, note: "114-2修課中"},
-                                    totalPe >= 4 ? null : {name: "還需修習", credits: 4 - totalPe}
+                                    t.totalPe >= 4 ? null : {name: "還需修習", credits: 4 - t.totalPe}
                                 ].filter(Boolean)
                             }
                         ]
@@ -242,7 +282,7 @@
                     {
                         name: "二、系必修（資訊課程）",
                         credits: 15,
-                        earned: 9 + csCoreCredits,
+                        earned: t.csCoreEarned,
                         courses: [
                             {name: "程式設計（一）", grade: "C-", semester: "112-1", credits: 3, completed: true},
                             {name: "程式設計（二）", grade: "C+", semester: "112-2", credits: 3, completed: true},
@@ -254,12 +294,12 @@
                     {
                         name: "三、系選修",
                         credits: 54,
-                        earned: 34 + mathCoreCredits + hardwareCredits + multimediaCredits + projectCredits + deptElectiveCredits,
+                        earned: t.deptCategoryEarned,
                         children: [
                             {
                                 name: "數學必選修",
                                 credits: 12,
-                                earned: 9 + mathCoreCredits,
+                                earned: t.mathCoreEarned,
                                 courses: [
                                     {name: "微積分乙（一）", grade: "C-", semester: "111-1", credits: 3, completed: true},
                                     simulatedCourses.has("離散數學") ? {name: "離散數學", credits: 3, completed: true, isNew: true} : {name: "離散數學", credits: 3, note: "114-2修課中"},
@@ -270,7 +310,7 @@
                             {
                                 name: "資訊專題必選修",
                                 credits: 6,
-                                earned: projectCredits,
+                                earned: t.projectEarned,
                                 note: "4選2",
                                 courses: [
                                     {name: "資訊專題研究（一）：資訊理論", credits: 3, available: true},
@@ -282,7 +322,7 @@
                             {
                                 name: "領域選修",
                                 credits: 30,
-                                earned: totalFieldElective,
+                                earned: t.fieldElectiveEarned,
                                 note: "每領域≥3學分",
                                 children: [
                                     {
@@ -300,7 +340,7 @@
                                     {
                                         name: "資訊硬體領域",
                                         credits: 3,
-                                        earned: 3 + hardwareCredits,
+                                        earned: 3 + t.hardwareCredits,
                                         courses: [
                                             {name: "類比數位運算元件（基礎電子學）", grade: "B+", semester: "112-1", credits: 3, completed: true},
                                             simulatedCourses.has("數位邏輯") ? {name: "數位邏輯", credits: 3, completed: true, isNew: true} : {name: "數位邏輯", credits: 3, note: "114-2修課中"},
@@ -334,7 +374,7 @@
                                     {
                                         name: "多媒體處理領域",
                                         credits: 3,
-                                        earned: 3 + multimediaCredits,
+                                        earned: 3 + t.multimediaCredits,
                                         courses: [
                                             {name: "資料探勘", grade: "C+", semester: "114-1", credits: 3, completed: true},
                                             simulatedCourses.has("計算機圖學") ? {name: "計算機圖學", credits: 3, completed: true, isNew: true} : {name: "計算機圖學", credits: 3, note: "114-2修課中"},
@@ -347,7 +387,7 @@
                             {
                                 name: "系選修",
                                 credits: 6,
-                                earned: totalDeptElective,
+                                earned: t.deptElectiveEarned,
                                 courses: [
                                     {name: "類比數位運算元件實驗", grade: "A-", semester: "112-1", credits: 1, completed: true},
                                     {name: "網路計算與XML", grade: "B", semester: "114-1", credits: 3, completed: true},
@@ -365,7 +405,7 @@
                     {
                         name: "四、自由選修",
                         credits: 27,
-                        earned: 16 + extraGeneralCredits,
+                        earned: t.freeEarned,
                         courses: [
                             {name: "大數據分析導論", grade: "A-", semester: "111-1", credits: 3, completed: true},
                             {name: "核天文物理介紹", grade: "B", semester: "111-1", credits: 2, completed: true},
@@ -374,8 +414,9 @@
                             {name: "自我覺察與成長", grade: "A", semester: "113-暑", credits: 2, completed: true},
                             {name: "數學產業實習", grade: "A", semester: "112-2", credits: 2, completed: true},
                             {name: "英語文職場實習", grade: "A+", semester: "112-2", credits: 2, completed: true},
-                            extraGeneralCredits > 0 ? {name: "通識超修學分", credits: extraGeneralCredits, completed: true, isNew: true, detail: "博雅或跨域超過18學分的部分"} : null,
-                            16 + extraGeneralCredits >= 27 ? null : {name: "還需選修", credits: 27 - 16 - extraGeneralCredits}
+                            t.extraGeneralCredits > 0 ? {name: "通識超修學分", credits: t.extraGeneralCredits, completed: true, isNew: true, detail: "博雅或跨域超過18學分的部分"} : null,
+                            t.extraDeptElectiveCredits > 0 ? {name: "系選修超修學分", credits: t.extraDeptElectiveCredits, completed: true, isNew: true, detail: "系選修超過6學分的部分"} : null,
+                            t.freeEarned >= 27 ? null : {name: "還需選修", credits: 27 - t.freeEarned}
                         ].filter(Boolean)
                     }
                 ]
@@ -639,13 +680,8 @@
 
         // 實時更新
         function updateTreeRealtime() {
-            let additionalCredits = 0;
-            simulatedCourses.forEach(courseName => {
-                const course = currentSemesterCourses.find(c => c.name === courseName);
-                if (course) additionalCredits += course.credits;
-            });
-            
-            const newTotal = 94 + additionalCredits;
+            // v2.0.6: 與樹狀圖同一計算來源（含分類封頂與超修溢流），數字不會再各算各的
+            const newTotal = computeCreditTotals().totalEarned;
             const newPercentage = (newTotal / 128 * 100).toFixed(1);
             const newRemaining = 128 - newTotal;
             
