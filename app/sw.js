@@ -1,16 +1,18 @@
 /* 資工系畢業學分檢核系統 — Service Worker
    策略：stale-while-revalidate — 先回快取（秒開），背景抓新版更新快取，
    下次載入就是新的。離線時純走快取。改大版時 bump CACHE 名稱清掉舊快取。 */
-const CACHE = 'course-v2.0.3';
+const CACHE = 'course-v2.1.0';
 
 /* 安裝時預先快取的核心檔案。
    v2.0.3：拿掉 './index.html' — Cloudflare Pages 把 /index.html 永久
    重導向到 /，cache.addAll() 抓到 redirected response 會整批 reject，
-   導致 SW install 失敗、離線不可用。改只快取正規 URL './'。 */
+   導致 SW install 失敗、離線不可用。改只快取正規 URL './'。
+   v2.1.0：加入學期資料覆寫檔 semester-115-1.js。 */
 const CORE_ASSETS = [
   './',
   './style.css',
   './app.js',
+  './semester-115-1.js',
   './manifest.webmanifest',
   './icon.svg'
 ];
