@@ -1,3 +1,21 @@
+# Course Checker · 資工系畢業學分檢核系統
+
+A personal web app for checking graduation-credit progress and planning remaining coursework, with a Traditional Chinese interface.
+
+這是用來檢查畢業學分進度、規劃剩餘課程的個人網頁工具。正式畢業資格仍以所屬學系、入學年度及學校的官方規定為準。
+
+[Open the app](https://course.stan-shih.com) · [Source](https://github.com/stantheman0128/course) · [Software directory](https://stan-shih.com/software#course-checker) · [Stan Shih / 施博瀚](https://stan-shih.com/)
+
+## Source layout
+
+- [`app/`](app/) contains the PWA entry point, JavaScript, styles, service worker, and web-app manifest.
+- [`archive/react-attempt-2026-05-18/`](archive/react-attempt-2026-05-18/) retains the earlier React/Vite implementation.
+
+The original React/Vite template notes below are retained for historical context; they do not describe the current PWA entry point.
+
+<details>
+<summary>Original React/Vite template notes</summary>
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -71,3 +89,5 @@ export default defineConfig([
   },
 ])
 ```
+
+</details>
